@@ -3,335 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BabyCare Pro Fixed</title>
+    <title>BabyCare Pro - 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .active-tab { border-bottom: 4px solid #3b82f6; color: #3b82f6; }
         .hidden { display: none; }
+        .bg-baby { background-color: #f8fafc; }
         @keyframes pulse-red { 0%, 100% { color: #dc2626; } 50% { color: #f87171; } }
         .animate-alert { animation: pulse-red 1s infinite; }
     </style>
 </head>
-<body class="bg-slate-50 pb-24 font-sans">
+<body class="bg-baby pb-24 font-sans overflow-x-hidden">
 
-    <div id="setup-screen" class="hidden fixed inset-0 bg-white z-50 p-6 overflow-y-auto">
-        <div class="max-w-sm mx-auto relative">
-            <button onclick="cerrarSetup()" id="btn-cerrar-setup" class="absolute right-0 top-0 text-gray-400 p-2 text-xl hidden">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <h2 class="text-3xl font-bold text-blue-600 mb-2 text-center">Configuración</h2>
-            <p class="text-gray-500 text-center mb-8 text-sm">Gestiona tus bebés y preferencias</p>
-            
-            <div id="step-1">
-                <label class="block mb-2 font-bold text-gray-700 text-sm">¿Cuántos bebés vas a registrar?</label>
-                <select id="num-bebes" class="w-full p-4 border rounded-2xl mb-6 bg-blue-50 outline-none font-bold text-blue-700">
-                    <option value="1">1 Bebé</option>
-                    <option value="2">2 Bebés</option>
-                    <option value="3">3 Bebés</option>
-                </select>
-                <button onclick="siguientePaso(2)" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg mb-4">Continuar</button>
-                
-                <div class="pt-10 border-t mt-10">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold text-center mb-2">Zona de Peligro</p>
-                    <button onclick="resetTotal()" class="w-full bg-red-50 text-red-600 p-3 rounded-xl font-bold text-xs border border-red-100">
-                        <i class="fa-solid fa-trash-can mr-2"></i> BORRAR TODO Y REINICIAR APP
-                    </button>
-                </div>
+    <div id="setup-screen" class="hidden fixed inset-0 bg-white z-50 p-8 flex flex-col justify-center">
+        <div class="max-w-sm mx-auto w-full space-y-8">
+            <div id="step-1" class="setup-step space-y-4">
+                <h2 class="text-3xl font-black text-slate-800">¿Cómo se llama tu bebé?</h2>
+                <input id="setup-nombre" type="text" placeholder="Nombre del bebé" class="w-full p-4 bg-blue-50 rounded-2xl border-none outline-none text-xl font-bold text-blue-600">
+                <button onclick="multiBebeInfo()" class="text-blue-400 text-sm font-bold"><i class="fa-solid fa-circle-plus mr-2"></i>Tengo más de un bebé</button>
+                <button onclick="nextStep(2)" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-bold shadow-xl">Continuar</button>
             </div>
 
-            <div id="step-2" class="hidden">
-                <div id="bebes-inputs"></div>
+            <div id="step-2" class="setup-step hidden space-y-4">
+                <h2 class="text-3xl font-black text-slate-800">¿Cuándo nació?</h2>
+                <input id="setup-fecha" type="date" class="w-full p-4 bg-blue-50 rounded-2xl border-none outline-none text-xl font-bold text-blue-600">
+                <button onclick="nextStep(3)" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-bold shadow-xl">Continuar</button>
+            </div>
+
+            <div id="step-3" class="setup-step hidden space-y-4">
+                <h2 class="text-3xl font-black text-slate-800">¿Cuánto pesó y midió al nacer?</h2>
                 <div class="flex gap-2">
-                    <button onclick="atrasPaso(1)" class="flex-1 bg-gray-100 text-gray-600 p-4 rounded-2xl font-bold">Atrás</button>
-                    <button onclick="guardarTodoElSetup()" class="flex-[2] bg-green-600 text-white p-4 rounded-2xl font-bold shadow-md">Guardar Cambios</button>
+                    <input id="setup-peso" type="number" step="0.01" placeholder="Peso (kg)" class="w-1/2 p-4 bg-blue-50 rounded-2xl border-none outline-none font-bold">
+                    <input id="setup-medida" type="number" placeholder="Talla (cm)" class="w-1/2 p-4 bg-blue-50 rounded-2xl border-none outline-none font-bold">
                 </div>
+                <button onclick="finalizarSetup()" class="w-full bg-green-600 text-white p-5 rounded-2xl font-bold shadow-xl">Empezar ahora</button>
             </div>
         </div>
     </div>
 
-    <header class="bg-white shadow-sm p-4 sticky top-0 z-10">
-        <div class="flex justify-between items-center">
-            <select id="select-bebe-actual" onchange="cambiarBebeActual()" class="font-bold text-slate-700 text-xl border-none bg-transparent focus:ring-0 outline-none"></select>
-            <button onclick="openSetup()" class="text-gray-300 p-2"><i class="fa-solid fa-gear text-lg"></i></button>
+    <header class="bg-white p-5 shadow-sm sticky top-0 z-40">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 id="top-nombre" class="text-2xl font-black text-slate-800 leading-none">Cargando...</h1>
+                <p id="top-edad" class="text-blue-500 font-bold text-sm mt-1"></p>
+            </div>
+            <button onclick="openSettings()" class="text-slate-300"><i class="fa-solid fa-gear"></i></button>
         </div>
-        <div id="display-age" class="text-xs text-blue-500 font-medium ml-1">Cargando...</div>
+        <div class="grid grid-cols-2 gap-2 mt-4">
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                <p class="text-[9px] uppercase font-bold text-slate-400">Peso Actual</p>
+                <p id="top-peso" class="text-sm font-black text-slate-700">-- kg</p>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                <p class="text-[9px] uppercase font-bold text-slate-400">Talla Actual</p>
+                <p id="top-medida" class="text-sm font-black text-slate-700">-- cm</p>
+            </div>
+        </div>
     </header>
 
-    <main id="main-content" class="p-4 max-w-md mx-auto space-y-6">
-        <section id="agenda-semanal" class="space-y-3">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Agenda Semanal</h3>
-            <div id="semana-grid" class="flex justify-between gap-1 mb-2"></div>
-            <div id="proximas-citas" class="space-y-2"></div>
+    <main class="p-4 max-w-md mx-auto space-y-6">
+        
+        <section class="space-y-3">
+            <h3 class="text-xs font-bold text-slate-400 uppercase ml-1">Historial Diario</h3>
+            <div id="calendar-row" class="flex justify-between gap-1"></div>
+            <div id="day-info" class="bg-white p-4 rounded-2xl shadow-sm border border-blue-50 hidden animate-fade-in">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 id="selected-date-label" class="font-bold text-blue-600 text-sm">Hoy</h4>
+                    <button onclick="closeDayInfo()" class="text-slate-300"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div id="day-content" class="space-y-2 text-xs text-slate-600"></div>
+            </div>
         </section>
 
-        <nav class="flex justify-around bg-white rounded-2xl shadow-sm border text-gray-400 overflow-hidden">
+        <nav class="flex justify-around bg-white rounded-2xl shadow-sm border text-slate-400 overflow-hidden">
             <button onclick="showTab('diario')" id="tab-diario" class="p-4 active-tab flex-1"><i class="fa-solid fa-baby"></i></button>
-            <button onclick="showTab('salud')" id="tab-salud" class="p-4 flex-1"><i class="fa-solid fa-stethoscope"></i></button>
-            <button onclick="showTab('solidos')" id="tab-solidos" class="p-4 flex-1"><i class="fa-solid fa-apple-whole"></i></button>
+            <button onclick="showTab('salud')" id="tab-salud" class="p-4 flex-1"><i class="fa-solid fa-weight-scale"></i></button>
             <button onclick="showTab('timer')" id="tab-timer" class="p-4 flex-1"><i class="fa-solid fa-clock"></i></button>
         </nav>
 
         <section id="sec-diario" class="space-y-4">
             <div class="grid grid-cols-2 gap-3">
-                <button id="btn-pecho-izq" onclick="registrarToma('🤱 P. Izq')" class="bg-pink-50 border-pink-100 border p-4 rounded-2xl text-pink-700 font-bold">Pecho IZQ</button>
-                <button id="btn-pecho-der" onclick="registrarToma('🤱 P. Der')" class="bg-pink-50 border-pink-100 border p-4 rounded-2xl text-pink-700 font-bold">Pecho DER</button>
-                <button id="btn-biberon" onclick="promptBiberon()" class="col-span-2 bg-blue-50 border-blue-100 border p-4 rounded-2xl text-blue-700 font-bold italic">🍼 Biberón</button>
-                <button onclick="registrar('💦 Pis')" class="bg-yellow-50 p-4 rounded-2xl text-yellow-700 font-bold text-sm">💦 Pis</button>
-                <button onclick="registrar('💩 Caca')" class="bg-orange-50 p-4 rounded-2xl text-orange-900 font-bold text-sm">💩 Caca</button>
-            </div>
-            <div id="log-actividad" class="space-y-2 pt-2"></div>
-        </section>
-
-        <section id="sec-salud" class="hidden space-y-6">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-100">
-                <h3 class="font-bold text-blue-700 mb-3 text-sm">Nueva Cita</h3>
-                <input id="cita-motivo" type="text" placeholder="¿Qué médico?" class="w-full p-3 border rounded-xl mb-2 text-sm outline-none">
-                <div class="flex gap-2">
-                    <input id="cita-fecha" type="date" class="flex-1 p-3 border rounded-xl text-sm">
-                    <input id="cita-hora" type="time" class="w-24 p-3 border rounded-xl text-sm">
+                <button onclick="registrar('🤱 Pecho Izq')" class="bg-pink-50 p-4 rounded-2xl text-pink-700 font-bold border border-pink-100">Pecho IZQ</button>
+                <button onclick="registrar('🤱 Pecho Der')" class="bg-pink-50 p-4 rounded-2xl text-pink-700 font-bold border border-pink-100">Pecho DER</button>
+                <div class="col-span-2 space-y-2">
+                    <button id="btn-last-bib" onclick="registrarLastBiberon()" class="hidden w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg"></button>
+                    <button onclick="promptBiberon()" class="w-full bg-blue-50 p-4 rounded-2xl text-blue-700 font-bold border border-blue-100 italic">🍼 Nuevo Biberón...</button>
                 </div>
-                <button onclick="guardarCita()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold mt-3 shadow-md">Añadir Cita</button>
+                <button onclick="registrar('💦 Pis')" class="bg-yellow-50 p-4 rounded-2xl text-yellow-700 font-bold">💦 Pis</button>
+                <button onclick="registrar('💩 Caca')" class="bg-orange-50 p-4 rounded-2xl text-orange-900 font-bold">💩 Caca</button>
             </div>
-            <div id="lista-vacunas" class="space-y-3"></div>
+            <div id="log-recent" class="space-y-2 pt-2"></div>
         </section>
 
-        <section id="sec-solidos" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border">
-                <input id="food-input" type="text" placeholder="Ej: Manzana" class="w-full p-3 border rounded-xl mb-3 outline-none">
-                <div class="flex gap-2">
-                    <button onclick="registrarSolido('✅')" class="flex-1 bg-green-500 text-white p-3 rounded-xl font-bold">GUSTA</button>
-                    <button onclick="registrarSolido('🚨')" class="flex-1 bg-red-600 text-white p-3 rounded-xl font-bold">ALERGIA</button>
+        <section id="sec-salud" class="hidden space-y-4">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="font-bold text-slate-800 mb-4">Actualizar Crecimiento</h3>
+                <div class="space-y-3">
+                    <input id="input-peso" type="number" step="0.01" placeholder="Peso (kg)" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold">
+                    <input id="input-talla" type="number" placeholder="Talla (cm)" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold">
+                    <button onclick="updateGrowth()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold">Guardar Cambios</button>
                 </div>
             </div>
-            <div id="log-solidos" class="space-y-2"></div>
         </section>
 
-        <section id="sec-timer" class="hidden space-y-8 text-center pt-6">
-            <div class="w-48 h-48 mx-auto flex items-center justify-center border-[10px] border-blue-50 rounded-full bg-white shadow-inner">
+        <section id="sec-timer" class="hidden space-y-6 text-center pt-6">
+            <div class="w-48 h-48 mx-auto flex items-center justify-center border-[12px] border-blue-100 rounded-full bg-white">
                 <span id="timer-val" class="text-3xl font-black text-slate-700">00:00:00</span>
             </div>
-            <select id="intervalo-tomas" onchange="guardarIntervalo()" class="bg-white p-4 rounded-2xl border font-bold text-blue-600">
-                <option value="2">Avisar cada 2h</option>
-                <option value="3" selected>Avisar cada 3h</option>
-                <option value="4">Avisar cada 4h</option>
-            </select>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Próxima toma estimada</p>
         </section>
+
     </main>
 
     <script>
-        let bebes = []; 
-        let indexActual = 0;
+        let bData = {}; 
+        let currentDay = new Date().toISOString().split('T')[0];
 
-        function checkSetup() {
-            bebes = JSON.parse(localStorage.getItem('bebes_config')) || [];
-            const btnCerrar = document.getElementById('btn-cerrar-setup');
-            
-            if (bebes.length === 0) {
+        function init() {
+            bData = JSON.parse(localStorage.getItem('baby_pro_data'));
+            if(!bData) {
                 document.getElementById('setup-screen').classList.remove('hidden');
-                btnCerrar.classList.add('hidden');
             } else {
-                document.getElementById('setup-screen').classList.add('hidden');
-                btnCerrar.classList.remove('hidden'); // Solo aparece si ya hay datos
-                poblarSelectBebes();
-                actualizarInterfazBebé();
+                renderHeader();
+                renderCalendar();
+                renderLog();
+                updateTimer();
+                setInterval(updateTimer, 1000);
             }
         }
 
-        function openSetup() {
-            document.getElementById('setup-screen').classList.remove('hidden');
-            document.getElementById('step-1').classList.remove('hidden');
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('btn-cerrar-setup').classList.remove('hidden');
+        // --- SETUP ---
+        function nextStep(s) {
+            document.querySelectorAll('.setup-step').forEach(el => el.classList.add('hidden'));
+            document.getElementById('step-'+s).classList.remove('hidden');
         }
 
-        function cerrarSetup() {
-            if (bebes.length > 0) document.getElementById('setup-screen').classList.add('hidden');
+        function finalizarSetup() {
+            const data = {
+                nombre: document.getElementById('setup-nombre').value,
+                fecha: document.getElementById('setup-fecha').value,
+                peso: document.getElementById('setup-peso').value,
+                medida: document.getElementById('setup-medida').value,
+                logs: {}, // Estructura: {'2026-02-02': [logs]}
+                crecimiento: [{fecha: new Date().toISOString().split('T')[0], p: document.getElementById('setup-peso').value, m: document.getElementById('setup-medida').value}],
+                lastBib: null
+            };
+            localStorage.setItem('baby_pro_data', JSON.stringify(data));
+            location.reload();
         }
 
-        function siguientePaso(paso) {
-            if (paso === 2) {
-                const num = document.getElementById('num-bebes').value;
-                let html = '';
-                for (let i = 1; i <= num; i++) {
-                    // Pre-rellenar si ya existen datos
-                    const bExistente = bebes[i-1] || {nombre:'', fecha:'', lactancia:'materna'};
-                    html += `
-                        <div class="mb-6 p-4 border-2 border-blue-50 rounded-2xl bg-white">
-                            <h4 class="font-bold text-blue-500 mb-3 underline text-sm">Bebé ${i}</h4>
-                            <div class="mb-3">
-                                <label class="text-[9px] font-bold text-gray-400 uppercase">Nombre</label>
-                                <input id="n-${i}" type="text" value="${bExistente.nombre}" class="w-full p-2 border-b outline-none">
-                            </div>
-                            <div class="mb-4">
-                                <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Nacimiento</label>
-                                <input id="f-${i}" type="date" value="${bExistente.fecha}" class="w-full p-2 border-b outline-none text-sm">
-                            </div>
-                            <select id="l-${i}" class="w-full p-3 border rounded-xl bg-gray-50 text-xs font-bold">
-                                <option value="materna" ${bExistente.lactancia==='materna'?'selected':''}>Leche Materna</option>
-                                <option value="formula" ${bExistente.lactancia==='formula'?'selected':''}>Solo Fórmula</option>
-                                <option value="mixta" ${bExistente.lactancia==='mixta'?'selected':''}>Mixta</option>
-                            </select>
-                        </div>`;
-                }
-                document.getElementById('bebes-inputs').innerHTML = html;
-                document.getElementById('step-1').classList.add('hidden');
-                document.getElementById('step-2').classList.remove('hidden');
+        function multiBebeInfo() { alert("Para gestionar más de un bebé, crea una nueva pestaña en GitHub con un nombre distinto. ¡Próximamente soporte multi-perfil!"); }
+
+        // --- RENDER HEADER ---
+        function renderHeader() {
+            document.getElementById('top-nombre').innerText = bData.nombre;
+            document.getElementById('top-edad').innerText = calcularEdad(bData.fecha);
+            
+            const lastG = bData.crecimiento[bData.crecimiento.length - 1];
+            document.getElementById('top-peso').innerText = lastG.p + ' kg';
+            document.getElementById('top-medida').innerText = lastG.m + ' cm';
+
+            if(bData.lastBib) {
+                const btn = document.getElementById('btn-last-bib');
+                btn.innerText = `Repetir Biberón (${bData.lastBib}ml)`;
+                btn.classList.remove('hidden');
             }
-        }
-
-        function atrasPaso(p) {
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-1').classList.remove('hidden');
-        }
-
-        function guardarTodoElSetup() {
-            const num = document.getElementById('num-bebes').value;
-            let nuevosBebes = [];
-            for (let i = 1; i <= num; i++) {
-                const n = document.getElementById(`n-${i}`).value;
-                const f = document.getElementById(`f-${i}`).value;
-                if(n && f) nuevosBebes.push({ nombre: n, fecha: f, lactancia: document.getElementById(`l-${i}`).value });
-            }
-            if(nuevosBebes.length > 0) {
-                bebes = nuevosBebes;
-                localStorage.setItem('bebes_config', JSON.stringify(bebes));
-                checkSetup();
-            } else {
-                alert("Por favor rellena al menos el primer bebé");
-            }
-        }
-
-        function resetTotal() {
-            if(confirm("¿Estás seguro? Se borrarán todos los bebés, tomas, pañales y citas para siempre.")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // Lógica de interfaz y registros (igual que antes)
-        function poblarSelectBebes() {
-            const select = document.getElementById('select-bebe-actual');
-            select.innerHTML = bebes.map((b, i) => `<option value="${i}">${b.nombre}</option>`).join('');
-            select.value = indexActual;
-        }
-
-        function cambiarBebeActual() { 
-            indexActual = document.getElementById('select-bebe-actual').value; 
-            actualizarInterfazBebé(); 
-        }
-
-        function actualizarInterfazBebé() {
-            const b = bebes[indexActual];
-            if(!b) return;
-            document.getElementById('display-age').innerText = `${calcularEdad(b.fecha)} de vida`;
-            document.getElementById('btn-pecho-izq').classList.toggle('hidden', b.lactancia === 'formula');
-            document.getElementById('btn-pecho-der').classList.toggle('hidden', b.lactancia === 'formula');
-            document.getElementById('btn-biberon').classList.toggle('hidden', b.lactancia === 'materna');
-            render(); renderAgenda(); renderVacunas(calcularEdadNum(b.fecha));
         }
 
         function calcularEdad(f) {
-            const m = calcularEdadNum(f);
-            return m < 1 ? "Recién nacido" : (m >= 12 ? `${Math.floor(m/12)} años y ${m%12} meses` : `${m} meses`);
-        }
-        function calcularEdadNum(f) {
             const hoy = new Date(); const nac = new Date(f);
-            let m = (hoy.getFullYear() - nac.getFullYear()) * 12 + (hoy.getMonth() - nac.getMonth());
-            if (hoy.getDate() < nac.getDate()) m--;
-            return m;
+            const dif = hoy - nac;
+            const dias = Math.floor(dif / (1000 * 60 * 60 * 24));
+            
+            if(dias < 31) return `${dias} días`;
+            
+            let meses = (hoy.getFullYear() - nac.getFullYear()) * 12 + (hoy.getMonth() - nac.getMonth());
+            if (hoy.getDate() < nac.getDate()) meses--;
+            
+            if(meses < 24) return `${meses} meses`;
+            return `${Math.floor(meses/12)} años y ${meses%12} meses`;
         }
 
-        // Citas y Agenda
-        function guardarCita() {
-            const mot = document.getElementById('cita-motivo').value;
-            const fec = document.getElementById('cita-fecha').value;
-            const hor = document.getElementById('cita-hora').value;
-            if(!mot || !fec) return alert("Completa fecha y motivo");
-            let citas = JSON.parse(localStorage.getItem(`citas_${indexActual}`)) || [];
-            citas.push({ id: Date.now(), mot, fec, hor });
-            citas.sort((a,b) => new Date(a.fec + ' ' + a.hor) - new Date(b.fec + ' ' + b.hor));
-            localStorage.setItem(`citas_${indexActual}`, JSON.stringify(citas));
-            document.getElementById('cita-motivo').value = ""; renderAgenda();
-        }
-
-        function renderAgenda() {
-            const hoy = new Date(); hoy.setHours(0,0,0,0);
-            const citas = (JSON.parse(localStorage.getItem(`citas_${indexActual}`)) || []).filter(c => new Date(c.fec) >= hoy);
-            let gridHtml = '';
-            for(let i=0; i<7; i++) {
-                const d = new Date(hoy); d.setDate(hoy.getDate() + i);
-                const tiene = citas.some(c => c.fec === d.toISOString().split('T')[0]);
-                gridHtml += `<div class="flex-1 flex flex-col items-center p-2 rounded-xl ${i===0?'bg-blue-600 text-white shadow-md':'bg-white text-gray-400 border'}">
-                    <span class="text-[8px] uppercase font-bold">${d.toLocaleDateString('es',{weekday:'short'})}</span>
-                    <span class="text-xs font-black">${d.getDate()}</span>
-                    ${tiene?'<div class="w-1 h-1 bg-red-400 rounded-full mt-1"></div>':''}
-                </div>`;
+        // --- CALENDARIO ---
+        function renderCalendar() {
+            const row = document.getElementById('calendar-row');
+            row.innerHTML = '';
+            const hoy = new Date();
+            for(let i=6; i>=0; i--) {
+                const d = new Date(); d.setDate(hoy.getDate() - i);
+                const iso = d.toISOString().split('T')[0];
+                const act = iso === currentDay;
+                row.innerHTML += `
+                    <div onclick="selectDay('${iso}')" class="flex-1 flex flex-col items-center p-3 rounded-2xl cursor-pointer ${act?'bg-blue-600 text-white shadow-lg':'bg-white text-slate-400 border border-slate-100'}">
+                        <span class="text-[8px] font-bold uppercase">${d.toLocaleDateString('es',{weekday:'short'})}</span>
+                        <span class="text-sm font-black">${d.getDate()}</span>
+                    </div>`;
             }
-            document.getElementById('semana-grid').innerHTML = gridHtml;
-            document.getElementById('proximas-citas').innerHTML = citas.slice(0,2).map(c => `
-                <div class="bg-white p-3 rounded-xl border-l-4 border-blue-500 shadow-sm flex justify-between items-center text-sm">
-                    <div><p class="font-bold">${c.mot}</p><p class="text-[10px] text-gray-400">${c.fec} - ${c.hor}</p></div>
-                </div>`).join('') || '<p class="text-[10px] text-gray-300 italic text-center">No hay citas próximas</p>';
         }
 
-        // Diario y Timer
-        function showTab(t) {
-            ['diario','salud','solidos','timer'].forEach(s => {
-                document.getElementById('sec-'+s).classList.toggle('hidden', s!==t);
-                document.getElementById('tab-'+s).classList.toggle('active-tab', s===t);
-            });
-            document.getElementById('agenda-semanal').classList.toggle('hidden', t!=='diario');
+        function selectDay(iso) {
+            currentDay = iso;
+            renderCalendar();
+            const infoBox = document.getElementById('day-info');
+            const content = document.getElementById('day-content');
+            const logs = bData.logs[iso] || [];
+            
+            // Buscar peso/medida ese día
+            const g = bData.crecimiento.find(c => c.fecha === iso);
+            
+            infoBox.classList.remove('hidden');
+            document.getElementById('selected-date-label').innerText = iso === new Date().toISOString().split('T')[0] ? 'Resumen de Hoy' : iso;
+            
+            let html = logs.length ? logs.map(l => `<div class="flex justify-between border-b border-slate-50 pb-1"><span>${l.txt}</span><span class="opacity-50">${l.h}</span></div>`).join('') : '<p class="italic opacity-50">Sin registros este día</p>';
+            if(g) html = `<div class="bg-blue-50 p-2 rounded-lg mb-3 text-blue-700 font-bold text-center">Peso: ${g.p}kg | Talla: ${g.m}cm</div>` + html;
+            
+            content.innerHTML = html;
         }
-        function registrar(texto) {
-            const item = { id: Date.now(), texto, hora: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
-            let db = JSON.parse(localStorage.getItem(`db_${indexActual}`)) || [];
-            db.unshift(item); localStorage.setItem(`db_${indexActual}`, JSON.stringify(db));
-            render();
+
+        function closeDayInfo() { document.getElementById('day-info').classList.add('hidden'); }
+
+        // --- LOGS ---
+        function registrar(txt) {
+            const hoyIso = new Date().toISOString().split('T')[0];
+            const hora = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            
+            if(!bData.logs[hoyIso]) bData.logs[hoyIso] = [];
+            bData.logs[hoyIso].unshift({txt, h: hora, ts: Date.now()});
+            
+            localStorage.setItem('baby_pro_data', JSON.stringify(bData));
+            renderLog();
+            reiniciarTimer();
         }
-        function registrarToma(tipo) { registrar(tipo); reiniciarAlertaToma(); }
-        function promptBiberon() { const ml = prompt("¿Cuántos ml?"); if(ml) { registrar(`🍼 Biberón: ${ml}ml`); reiniciarAlertaToma(); } }
-        function guardarIntervalo() { localStorage.setItem('int', document.getElementById('intervalo-tomas').value); reiniciarAlertaToma(); }
-        function reiniciarAlertaToma() { localStorage.setItem(`target_${indexActual}`, Date.now() + (parseFloat(localStorage.getItem('int')||3)*3600000)); }
+
+        function promptBiberon() {
+            const ml = prompt("¿Cuántos ml?");
+            if(ml) {
+                bData.lastBib = ml;
+                registrar(`🍼 Biberón ${ml}ml`);
+                renderHeader();
+            }
+        }
+
+        function registrarLastBiberon() {
+            if(bData.lastBib) registrar(`🍼 Biberón ${bData.lastBib}ml`);
+        }
+
+        function updateGrowth() {
+            const p = document.getElementById('input-peso').value;
+            const m = document.getElementById('input-talla').value;
+            if(!p || !m) return;
+            const hoy = new Date().toISOString().split('T')[0];
+            bData.crecimiento.push({fecha: hoy, p, m});
+            localStorage.setItem('baby_pro_data', JSON.stringify(bData));
+            renderHeader();
+            alert("¡Crecimiento actualizado!");
+            showTab('diario');
+        }
+
+        function renderLog() {
+            const hoyIso = new Date().toISOString().split('T')[0];
+            const logs = bData.logs[hoyIso] || [];
+            document.getElementById('log-recent').innerHTML = logs.slice(0,5).map(l => `
+                <div class="bg-white p-3 rounded-xl flex justify-between text-sm shadow-sm border-l-4 border-blue-400 animate-fade-in">
+                    <span class="font-medium">${l.txt}</span>
+                    <span class="text-[10px] text-slate-300">${l.h}</span>
+                </div>
+            `).join('');
+        }
+
+        // --- TIMER ---
+        function reiniciarTimer() {
+            const target = Date.now() + (3 * 60 * 60 * 1000); // 3h por defecto
+            localStorage.setItem('next_toma', target);
+        }
+
         function updateTimer() {
-            const t = localStorage.getItem(`target_${indexActual}`);
+            const target = localStorage.getItem('next_toma');
             const disp = document.getElementById('timer-val');
-            if(!t) return;
-            const d = t - Date.now();
+            if(!target) return;
+            const d = target - Date.now();
             if(d > 0) {
                 const h = Math.floor(d/3600000), m = Math.floor((d%3600000)/60000), s = Math.floor((d%60000)/1000);
                 disp.innerText = `${h}:${m}:${s}`.replace(/\b\d\b/g, '0$&');
-                disp.classList.remove('animate-alert');
-            } else { disp.innerText = "¡TOMA!"; disp.classList.add('animate-alert'); }
-        }
-        function registrarSolido(r) {
-            const f = document.getElementById('food-input').value; if(!f) return;
-            let db = JSON.parse(localStorage.getItem(`sol_${indexActual}`)) || [];
-            db.unshift({ texto: f + " " + r, fecha: new Date().toLocaleDateString() });
-            localStorage.setItem(`sol_${indexActual}`, JSON.stringify(db));
-            document.getElementById('food-input').value = ""; renderSolidos();
-        }
-        function renderSolidos() {
-            const db = JSON.parse(localStorage.getItem(`sol_${indexActual}`)) || [];
-            document.getElementById('log-solidos').innerHTML = db.map(i => `<div class="bg-white p-3 rounded-xl mb-2 text-xs">${i.texto} <span class="text-gray-300 ml-2">${i.fecha}</span></div>`).join('');
-        }
-        function renderVacunas(meses) {
-            const oficiales = [
-                { m: 2, n: "Hexavalente, Neumococo, Meningo B" },
-                { m: 4, n: "Hexavalente, Neumococo, Meningo B/C" },
-                { m: 11, n: "Hexavalente, Neumococo, Meningo ACWY" }
-            ];
-            document.getElementById('lista-vacunas').innerHTML = oficiales.map(v => `<div class="p-3 bg-white rounded-xl text-xs ${meses>=v.m?'opacity-30':''}"><b>A los ${v.m}m:</b> ${v.n}</div>`).join('');
-        }
-        function render() {
-            const db = JSON.parse(localStorage.getItem(`db_${indexActual}`)) || [];
-            document.getElementById('log-actividad').innerHTML = db.slice(0,8).map(i => `<div class="bg-white p-3 rounded-xl flex justify-between mb-2 text-sm"><span>${i.texto}</span><span class="text-[10px] text-gray-300">${i.hora}</span></div>`).join('');
-            renderSolidos();
+            } else {
+                disp.innerText = "TOCA TOMA";
+                disp.classList.add('animate-alert');
+            }
         }
 
-        setInterval(updateTimer, 1000);
-        checkSetup();
+        function showTab(t) {
+            ['diario','salud','timer'].forEach(s => {
+                document.getElementById('sec-'+s).classList.toggle('hidden', s!==t);
+                document.getElementById('tab-'+s).classList.toggle('active-tab', s===t);
+            });
+        }
+
+        function openSettings() { if(confirm("¿Quieres borrar todo para empezar de nuevo?")) { localStorage.clear(); location.reload(); } }
+
+        init();
     </script>
 </body>
 </html>
