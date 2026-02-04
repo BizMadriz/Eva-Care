@@ -8,170 +8,242 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .hidden { display: none !important; }
-        .card { background: white; border-radius: 1.5rem; padding: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .nav-btn.active { color: #2563eb; }
-        .nav-btn.active i { transform: translateY(-4px); transition: all 0.3s; }
+        .card { background: white; border-radius: 2rem; padding: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+        .cal-day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 1rem; font-size: 0.85rem; font-weight: 700; position: relative; cursor: pointer; }
+        .event-dot { width: 4px; height: 4px; background: #3b82f6; border-radius: 50%; position: absolute; bottom: 6px; }
+        .timeline-item { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="pb-32">
+<body class="bg-slate-50 text-slate-900 pb-28">
 
-    <div id="setup-wizard" class="fixed inset-0 bg-white z-[9999] flex flex-col p-8 hidden">
+    <div id="setup-wizard" class="fixed inset-0 bg-white z-[5000] flex flex-col p-8 hidden">
         <div id="step-1" class="flex flex-col h-full justify-center space-y-6">
-            <h2 class="text-4xl font-black italic text-slate-800">EvaCare</h2>
-            <p class="text-slate-400 font-bold text-xs uppercase tracking-widest">Bienvenida, introduce los datos</p>
-            <input id="setup-n" type="text" placeholder="Nombre del bebé" class="w-full p-5 bg-slate-100 rounded-2xl text-xl font-bold outline-none border-2 border-transparent focus:border-blue-500">
-            <button onclick="nextStep(1, 2)" class="bg-blue-600 text-white p-5 rounded-2xl font-black uppercase">Siguiente</button>
+            <h2 class="text-4xl font-extrabold tracking-tighter italic">EvaCare</h2>
+            <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Configuración inicial</p>
+            <input id="setup-n" type="text" placeholder="Nombre del bebé" class="w-full p-5 bg-slate-100 rounded-3xl text-2xl font-bold border-none outline-none focus:ring-2 ring-blue-500">
+            <button onclick="validaPaso(1, 2)" class="bg-blue-600 text-white p-6 rounded-3xl font-black uppercase shadow-lg shadow-blue-100">Siguiente</button>
         </div>
         <div id="step-2" class="hidden flex flex-col h-full justify-center space-y-6">
-            <h2 class="text-3xl font-bold">¿Cuándo nació?</h2>
-            <input id="setup-f" type="date" class="w-full p-5 bg-slate-100 rounded-2xl text-xl font-bold outline-none">
-            <button onclick="nextStep(2, 3)" class="bg-blue-600 text-white p-5 rounded-2xl font-black uppercase">Siguiente</button>
+            <h2 class="text-3xl font-extrabold">Nacimiento</h2>
+            <input id="setup-f" type="date" class="w-full p-5 bg-slate-100 rounded-3xl text-xl font-bold border-none outline-none">
+            <button onclick="validaPaso(2, 3)" class="bg-blue-600 text-white p-6 rounded-3xl font-black uppercase shadow-lg shadow-blue-100">Siguiente</button>
         </div>
         <div id="step-3" class="hidden flex flex-col h-full justify-center space-y-6">
-            <h2 class="text-3xl font-bold">Peso y Talla</h2>
+            <h2 class="text-3xl font-extrabold">Medidas iniciales</h2>
             <div class="grid grid-cols-2 gap-4">
-                <input id="setup-p" type="number" step="0.1" placeholder="Peso (kg)" class="p-5 bg-slate-100 rounded-2xl font-bold outline-none">
-                <input id="setup-a" type="number" placeholder="Talla (cm)" class="p-5 bg-slate-100 rounded-2xl font-bold outline-none">
+                <input id="setup-p" type="number" step="0.1" placeholder="Peso (kg)" class="p-5 bg-slate-100 rounded-3xl font-bold border-none outline-none">
+                <input id="setup-a" type="number" placeholder="Talla (cm)" class="p-5 bg-slate-100 rounded-3xl font-bold border-none outline-none">
             </div>
-            <button onclick="finishSetup()" class="bg-slate-900 text-white p-5 rounded-2xl font-black uppercase text-center">Empezar</button>
+            <button onclick="finishSetup()" class="bg-slate-900 text-white p-6 rounded-3xl font-black uppercase">Finalizar</button>
         </div>
     </div>
 
-    <div id="app-content" class="hidden">
+    <div id="app-shell" class="hidden">
         
-        <main id="tab-inicio" class="p-5 space-y-4">
-            <div class="flex justify-between items-center py-4">
-                <h1 class="text-2xl font-black italic">EvaCare.</h1>
-                <button onclick="reiniciarTodo()" class="text-[10px] font-bold bg-red-50 text-red-500 px-3 py-1 rounded-lg">REINICIAR</button>
-            </div>
-
-            <div id="timer-toma" class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl flex justify-between items-center">
-                <div>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Próxima toma</p>
-                    <p id="timer-val" class="text-2xl font-black mt-1">--:--</p>
+        <main id="tab-inicio" class="p-4 space-y-4">
+            <header class="pt-4 pb-2">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-1">
+                        <span class="text-2xl font-extrabold tracking-tighter text-slate-900 italic">EvaCare</span>
+                        <span class="w-2 h-2 rounded-full bg-blue-600 mb-1"></span>
+                    </div>
+                    <button onclick="openModal('modal-menu')" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
                 </div>
-                <i class="fa-solid fa-clock-rotate-left text-slate-700 text-2xl"></i>
+                <div class="bg-blue-600 p-6 rounded-[2.5rem] text-white shadow-xl">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <h2 id="view-nombre" class="text-3xl font-extrabold leading-none italic">---</h2>
+                            <p id="view-edad" class="text-[10px] font-black text-blue-200 mt-2 uppercase tracking-widest"></p>
+                        </div>
+                        <div class="text-right text-[10px] font-bold">
+                            <p id="view-medidas-act" class="text-xs"></p>
+                            <p id="view-nacimiento" class="opacity-60 text-[8px] mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div id="panel-agenda" class="bg-slate-900 rounded-[2.5rem] p-6 text-white shadow-xl">
+                <h3 class="text-[10px] font-bold uppercase text-slate-500 tracking-[0.2em] mb-4">Próximos Eventos</h3>
+                <div id="timeline-eventos" class="space-y-4"></div>
             </div>
 
             <div class="grid grid-cols-4 gap-2">
-                <button onclick="logEvent('💦 Pis')" class="bg-white py-4 rounded-xl font-bold text-cyan-600 text-[10px]">PIS</button>
-                <button onclick="logEvent('💩 Caca')" class="bg-white py-4 rounded-xl font-bold text-orange-700 text-[10px]">CACA</button>
-                <button onclick="logEvent('✨ Aseo')" class="bg-white py-4 rounded-xl font-bold text-purple-600 text-[10px]">ASEO</button>
-                <button onclick="promptCompra()" class="bg-slate-800 text-white rounded-xl"><i class="fa-solid fa-cart-shopping text-xs"></i></button>
+                <button onclick="addLog('💦 Pis')" class="bg-white py-4 rounded-2xl font-bold text-cyan-600 text-[10px] uppercase shadow-sm border border-slate-50">Pis</button>
+                <button onclick="addLog('💩 Caca')" class="bg-white py-4 rounded-2xl font-bold text-orange-800 text-[10px] uppercase shadow-sm border border-slate-50">Caca</button>
+                <button onclick="addLog('✨ Aseo')" class="bg-white py-4 rounded-2xl font-bold text-purple-600 text-[10px] uppercase shadow-sm border border-slate-50">Aseo</button>
+                <button onclick="addCompraUrgent()" class="bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-cart-plus"></i></button>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="logEvent('🤱 Pecho')" class="card flex flex-col items-center gap-2"><i class="fa-solid fa-person-breastfeeding text-pink-500"></i><span class="text-[10px] font-bold">PECHO</span></button>
-                <button onclick="logEvent('🍼 Biberón')" class="card flex flex-col items-center gap-2"><i class="fa-solid fa-bottle-water text-blue-500"></i><span class="text-[10px] font-bold">BIBERÓN</span></button>
+                <button onclick="openModal('modal-pecho')" class="bg-white h-24 rounded-[2rem] flex flex-col items-center justify-center gap-1 shadow-sm border border-slate-100">
+                    <i class="fa-solid fa-person-breastfeeding text-pink-500 text-xl"></i>
+                    <span class="text-[10px] font-black uppercase text-slate-400">Pecho</span>
+                </button>
+                <button onclick="openModal('modal-bibe')" class="bg-white h-24 rounded-[2rem] flex flex-col items-center justify-center gap-1 shadow-sm border border-slate-100">
+                    <i class="fa-solid fa-bottle-water text-blue-500 text-xl"></i>
+                    <span class="text-[10px] font-black uppercase text-slate-400">Biberón</span>
+                </button>
             </div>
 
-            <div id="logs-hoy" class="space-y-2"></div>
+            <div id="diario-hoy" class="space-y-2 pt-2"></div>
         </main>
 
-        <main id="tab-comida" class="hidden p-5 space-y-4">
-            <h2 class="text-2xl font-black mt-4">Alimentos</h2>
-            <button onclick="registrarAlimento()" class="w-full bg-orange-500 text-white p-5 rounded-2xl font-black flex justify-between items-center">
-                <span>Nuevo Alimento</span><i class="fa-solid fa-apple-whole"></i>
-            </button>
-            <div id="lista-comidas" class="space-y-2"></div>
-        </main>
-
-        <main id="tab-salud" class="hidden p-5 space-y-4">
-            <h2 class="text-2xl font-black mt-4">Salud</h2>
-            <div class="card border-l-4 border-indigo-500 flex justify-between items-center">
-                <div><p id="info-bebe-n" class="font-black text-indigo-600 uppercase"></p><p id="info-bebe-m" class="text-xs text-slate-400"></p></div>
-                <i class="fa-solid fa-baby text-slate-200 text-2xl"></i>
+        <main id="tab-cal" class="hidden p-4 space-y-6">
+            <div class="card">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h3 id="cal-mes-titulo" class="font-black text-slate-900 uppercase tracking-widest text-sm text-center">---</h3>
+                    <button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
             </div>
-            <div id="lista-meds" class="space-y-2"></div>
+            <div id="agenda-completa" class="space-y-2"></div>
         </main>
 
-        <main id="tab-agenda" class="hidden p-5 space-y-4">
-            <h2 class="text-2xl font-black mt-4">Agenda</h2>
-            <div id="cal-render" class="card grid grid-cols-7 gap-1 text-center text-xs font-bold"></div>
+        <main id="tab-salud" class="hidden p-4 space-y-4">
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-6 rounded-[2rem] font-black flex items-center justify-between shadow-lg">
+                    <div class="text-left">
+                        <p class="text-[10px] opacity-70 uppercase">Tratamientos</p>
+                        <p class="text-lg">Añadir Medicación</p>
+                    </div>
+                    <i class="fa-solid fa-pills text-2xl opacity-50"></i>
+                </button>
+                <button onclick="openModal('modal-add-crecimiento')" class="w-full bg-emerald-600 text-white p-6 rounded-[2rem] font-black flex items-center justify-between shadow-lg">
+                    <div class="text-left">
+                        <p class="text-[10px] opacity-70 uppercase">Evolución</p>
+                        <p class="text-lg">Peso y Talla</p>
+                    </div>
+                    <i class="fa-solid fa-scale-balanced text-2xl opacity-50"></i>
+                </button>
+            </div>
+            <div class="pt-4">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 mb-3">Medicinas activas</h3>
+                <div id="lista-salud" class="space-y-3"></div>
+            </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-4 z-[1000]">
-            <button onclick="showTab('inicio')" id="btn-inicio" class="nav-btn active flex flex-col items-center"><i class="fa-solid fa-house"></i><span class="text-[8px] font-bold mt-1 uppercase">Inicio</span></button>
-            <button onclick="showTab('comida')" id="btn-comida" class="nav-btn text-slate-300 flex flex-col items-center"><i class="fa-solid fa-carrot"></i><span class="text-[8px] font-bold mt-1 uppercase">Nutrición</span></button>
-            <button onclick="showTab('salud')" id="btn-salud" class="nav-btn text-slate-300 flex flex-col items-center"><i class="fa-solid fa-heart-pulse"></i><span class="text-[8px] font-bold mt-1 uppercase">Salud</span></button>
-            <button onclick="showTab('agenda')" id="btn-agenda" class="nav-btn text-slate-300 flex flex-col items-center"><i class="fa-solid fa-calendar"></i><span class="text-[8px] font-bold mt-1 uppercase">Agenda</span></button>
+        <nav class="fixed bottom-6 left-6 right-6 h-16 bg-white/90 backdrop-blur-xl rounded-full border border-slate-100 shadow-2xl flex justify-around items-center px-4 z-50">
+            <button onclick="showTab('inicio')" id="nav-inicio" class="w-12 h-12 rounded-full text-blue-600 flex items-center justify-center"><i class="fa-solid fa-house-chimney text-lg"></i></button>
+            <button onclick="showTab('cal')" id="nav-cal" class="w-12 h-12 rounded-full text-slate-300 flex items-center justify-center"><i class="fa-solid fa-calendar-day text-lg"></i></button>
+            <button onclick="showTab('salud')" id="nav-salud" class="w-12 h-12 rounded-full text-slate-300 flex items-center justify-center"><i class="fa-solid fa-suitcase-medical text-lg"></i></button>
         </nav>
     </div>
 
-    <script>
-        let DB = JSON.parse(localStorage.getItem('EVACARE_V30')) || { bebe: null, logs: [], alimentos: [] };
+    <div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[6000] flex items-center justify-center p-6">
+        <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
+            <button id="btn-rep-bibe" onclick="addBibe(DATA.lastBibe)" class="w-full bg-blue-50 text-blue-600 p-6 rounded-3xl font-black uppercase text-xs">Sin registros</button>
+            <input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-3xl font-black outline-none">
+            <button onclick="addBibe(document.getElementById('bibe-ml').value)" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black uppercase">Registrar</button>
+            <button onclick="closeModal('modal-bibe')" class="w-full text-slate-300 font-bold uppercase text-[10px]">Cerrar</button>
+        </div>
+    </div>
+    
+    <div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[6000] flex items-end">
+        <div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4">
+            <button onclick="addLog('🤱 Pecho Izq'); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-xs">IZQ</button>
+            <button onclick="addLog('🤱 Ambos'); closeModal('modal-pecho')" class="bg-pink-100 p-8 rounded-3xl font-black text-pink-700 text-[10px]">AMBOS</button>
+            <button onclick="addLog('🤱 Pecho Der'); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-xs">DER</button>
+            <button onclick="closeModal('modal-pecho')" class="col-span-3 text-slate-300 font-black p-4 text-center uppercase text-[10px]">Cerrar</button>
+        </div>
+    </div>
 
-        function nextStep(act, sig) {
-            const inp = document.getElementById(`setup-${act === 1 ? 'n' : (act === 2 ? 'f' : 'p')}`);
-            if(!inp.value) return;
-            document.getElementById(`step-${act}`).classList.add('hidden');
+    <div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-[6000] flex justify-end">
+        <div class="bg-white w-4/5 h-full p-8 flex flex-col">
+            <h2 class="text-3xl font-extrabold italic mb-8">Ajustes</h2>
+            <div class="flex-1 space-y-4">
+                <button onclick="reiniciarApp()" class="w-full p-4 bg-red-50 text-red-600 rounded-2xl font-bold text-[10px] uppercase">Borrar Datos</button>
+            </div>
+            <button onclick="closeModal('modal-menu')" class="text-slate-300 font-bold uppercase text-[10px] py-4">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // Versión de almacenamiento para evitar conflictos
+        let DATA = JSON.parse(localStorage.getItem('EVA_CARE_FINAL')) || { idx: 0, bebes: [], lastBibe: 0, plazo: 3 };
+        let currentDate = new Date();
+        const b = () => DATA.bebes[DATA.idx];
+
+        function save() { localStorage.setItem('EVA_CARE_FINAL', JSON.stringify(DATA)); render(); }
+
+        function validaPaso(actual, sig) {
+            const val = document.getElementById(`setup-${actual === 1 ? 'n' : (actual === 2 ? 'f' : 'p')}`).value;
+            if(!val) return;
+            document.getElementById(`step-${actual}`).classList.add('hidden');
             document.getElementById(`step-${sig}`).classList.remove('hidden');
         }
 
         function finishSetup() {
-            DB.bebe = {
-                n: document.getElementById('setup-n').value,
-                f: document.getElementById('setup-f').value,
-                p: document.getElementById('setup-p').value,
-                a: document.getElementById('setup-a').value
-            };
-            localStorage.setItem('EVACARE_V30', JSON.stringify(DB));
-            location.reload();
+            const n = document.getElementById('setup-n').value, f = document.getElementById('setup-f').value,
+                  p = document.getElementById('setup-p').value, a = document.getElementById('setup-a').value;
+            DATA.bebes.push({ n, f, p, a, curP: p, curA: a, logs: [], meds: [], citas: {} });
+            DATA.idx = DATA.bebes.length - 1;
+            save();
+            location.reload(); // Recarga para activar el shell limpio
         }
 
         function render() {
-            if(!DB.bebe) {
+            if (DATA.bebes.length === 0) {
                 document.getElementById('setup-wizard').classList.remove('hidden');
+                document.getElementById('app-shell').classList.add('hidden');
                 return;
             }
-            document.getElementById('app-content').classList.remove('hidden');
             
-            // Render logs de hoy
-            const hoy = new Date().toLocaleDateString();
-            document.getElementById('logs-hoy').innerHTML = DB.logs
-                .filter(l => l.fecha === hoy)
-                .map(l => `<div class="bg-white p-3 rounded-xl shadow-sm text-xs flex justify-between"><b>${l.txt}</b><span class="text-slate-300">${l.hora}</span></div>`)
-                .join('');
+            document.getElementById('setup-wizard').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('hidden');
+            
+            const be = b();
+            document.getElementById('view-nombre').innerText = be.n;
+            document.getElementById('view-edad').innerText = calcularEdad(be.f);
+            document.getElementById('view-medidas-act').innerText = `${be.curP || be.p}kg · ${be.curA || be.a}cm`;
+            document.getElementById('view-nacimiento').innerText = `Nacimiento: ${be.p}kg / ${be.a}cm`;
 
-            // Info Salud
-            document.getElementById('info-bebe-n').innerText = DB.bebe.n;
-            document.getElementById('info-bebe-m').innerText = `${DB.bebe.p}kg · ${DB.bebe.a}cm`;
-        }
-
-        function logEvent(txt) {
-            const h = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-            DB.logs.unshift({txt, hora: h, fecha: new Date().toLocaleDateString(), ts: Date.now()});
-            localStorage.setItem('EVACARE_V30', JSON.stringify(DB));
-            render();
-        }
-
-        function registrarAlimento() {
-            const al = prompt("¿Qué alimento nuevo probó?");
-            if(al) {
-                DB.alimentos.unshift({nombre: al, fecha: new Date().toLocaleDateString()});
-                logEvent(`🍴 Probó: ${al}`);
-                renderAlimentos();
-            }
-        }
-
-        function renderAlimentos() {
-            document.getElementById('lista-comidas').innerHTML = DB.alimentos.map(a => `
-                <div class="card flex justify-between items-center"><b class="text-orange-600 text-xs uppercase">${a.nombre}</b><span class="text-[9px] text-slate-300">${a.fecha}</span></div>
+            renderTimeline();
+            const hoyStr = new Date().toLocaleDateString();
+            document.getElementById('diario-hoy').innerHTML = be.logs.filter(l => l.fecha === hoyStr).map(l => `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-50 mb-2 timeline-item">
+                    <span class="text-xs font-bold text-slate-700">${l.txt}</span>
+                    <span class="text-[9px] font-bold text-slate-300 bg-slate-50 px-2 py-1 rounded-lg">${l.hora}</span>
+                </div>
             `).join('');
         }
 
-        function showTab(id) {
-            ['inicio', 'comida', 'salud', 'agenda'].forEach(t => {
-                document.getElementById('tab-'+t).classList.toggle('hidden', t !== id);
-                document.getElementById('btn-'+t).classList.toggle('active', t === id);
-                document.getElementById('btn-'+t).classList.toggle('text-slate-300', t !== id);
-            });
-            if(id === 'comida') renderAlimentos();
+        function addLog(txt) {
+            const h = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            b().logs.unshift({txt, hora: h, fecha: new Date().toLocaleDateString(), ts: Date.now()});
+            save();
         }
 
-        function reiniciarTodo() { if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
+        function renderTimeline() {
+            const container = document.getElementById('timeline-eventos');
+            const ultToma = b().logs.find(l => l.txt.includes('Bibe') || l.txt.includes('Pecho'));
+            if(ultToma) {
+                const rest = (DATA.plazo * 3600000) - (Date.now() - ultToma.ts);
+                container.innerHTML = `<div class="flex justify-between items-center bg-white/5 p-3 rounded-2xl"><p class="text-[9px] font-black uppercase text-slate-400">Próxima Toma</p><span class="text-lg font-black ${rest < 0 ? 'text-red-500 animate-pulse' : 'text-white'}">${formatTime(rest)}</span></div>`;
+            } else {
+                container.innerHTML = "<p class='text-center text-[9px] text-slate-600 uppercase py-2'>Sin registros</p>";
+            }
+        }
+
+        function formatTime(ms) { const s = Math.abs(ms); const h = Math.floor(s/3600000); const m = Math.floor((s%3600000)/60000); return (ms < 0 ? '+' : '') + `${h}h ${m}m`; }
+        function calcularEdad(f) { const d = Math.floor((new Date() - new Date(f)) / 86400000); return d < 31 ? `${d} DÍAS` : `${Math.floor(d/30.4)} MESES`; }
+        function showTab(id) {
+            ['inicio', 'cal', 'salud'].forEach(t => {
+                document.getElementById('tab-' + t).classList.toggle('hidden', t !== id);
+                document.getElementById('nav-' + t).classList.toggle('text-blue-600', t === id);
+                document.getElementById('nav-' + t).classList.toggle('text-slate-300', t !== id);
+            });
+        }
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function addBibe(ml) { if(!ml) return; DATA.lastBibe = ml; addLog(`🍼 Bibe ${ml}ml`); closeModal('modal-bibe'); }
+        function reiniciarApp() { if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
 
         render();
     </script>
