@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EvaCare</title>
+    <title>EvaCare PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -27,10 +27,7 @@
         <div id="step-2" class="step-div hidden flex flex-col h-full justify-center space-y-6">
             <h2 class="text-3xl font-extrabold">Nacimiento</h2>
             <input id="setup-f" type="date" class="w-full p-5 bg-slate-100 rounded-3xl text-xl font-bold">
-            <div class="flex gap-2">
-                <button onclick="irAStep(1)" class="w-1/3 bg-slate-100 p-6 rounded-3xl font-bold">Atrás</button>
-                <button onclick="irAStep(3)" class="w-2/3 bg-blue-600 text-white p-6 rounded-3xl font-black">Siguiente</button>
-            </div>
+            <button onclick="irAStep(3)" class="bg-blue-600 text-white p-6 rounded-3xl font-black uppercase">Siguiente</button>
         </div>
         <div id="step-3" class="step-div hidden flex flex-col h-full justify-center space-y-6">
             <h2 class="text-3xl font-extrabold">Medidas</h2>
@@ -62,7 +59,7 @@
         </div>
 
         <div id="panel-agenda" class="bg-slate-900 rounded-[2.5rem] p-6 text-white shadow-xl">
-            <h3 class="text-[10px] font-bold uppercase text-slate-500 tracking-[0.2em] mb-4">Temporizador de Tomas</h3>
+            <h3 class="text-[10px] font-bold uppercase text-slate-500 tracking-[0.2em] mb-4">Avisos y Próximos eventos</h3>
             <div id="timeline-eventos" class="space-y-4"></div>
         </div>
 
@@ -97,7 +94,7 @@
 
     <main id="tab-salud" class="hidden p-4 space-y-4">
         <h2 class="text-2xl font-black italic mt-4 px-2">Salud</h2>
-        <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-6 rounded-[2rem] font-black flex items-center justify-between shadow-lg"><p>Añadir Medicación</p><i class="fa-solid fa-pills text-xl"></i></button>
+        <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-6 rounded-[2rem] font-black flex items-center justify-between shadow-lg"><p>Añadir Tratamiento</p><i class="fa-solid fa-pills text-xl"></i></button>
         <div id="lista-salud" class="space-y-3"></div>
     </main>
 
@@ -111,6 +108,7 @@
             </div>
             <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
         </div>
+        <div id="agenda-lista" class="space-y-2"></div>
     </main>
 
     <nav class="fixed bottom-6 left-6 right-6 h-16 bg-white/90 backdrop-blur-xl rounded-full border border-slate-100 shadow-2xl flex justify-around items-center px-4 z-50">
@@ -137,28 +135,24 @@
 
     <div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[3000] flex items-center justify-center p-6">
         <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
-            <button id="btn-rep-bibe" onclick="addBibe(DATA.lastBibe)" class="w-full bg-blue-50 text-blue-600 p-6 rounded-3xl font-black uppercase text-xs">Cargando...</button>
-            <input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-3xl font-black outline-none border-none">
+            <button id="btn-rep-bibe" onclick="addBibe(DATA.lastBibe)" class="w-full bg-blue-50 text-blue-600 p-6 rounded-3xl font-black uppercase text-xs">Repetir última</button>
+            <input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-3xl font-black outline-none">
             <button onclick="addBibe(document.getElementById('bibe-ml').value)" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black">REGISTRAR</button>
             <button onclick="closeModal('modal-bibe')" class="w-full text-slate-300 text-center font-bold uppercase text-xs p-2">Cancelar</button>
         </div>
     </div>
 
     <div id="modal-add-med" class="hidden fixed inset-0 bg-black/80 z-[3000] flex items-center justify-center p-6">
-        <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4 shadow-2xl">
-            <h3 class="text-xs font-black text-indigo-600 uppercase text-center tracking-widest">Nueva Medicación</h3>
-            <input id="m-n" type="text" placeholder="Nombre" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
-            <div class="grid grid-cols-2 gap-2"><input id="m-q" type="text" placeholder="Dosis" class="p-4 bg-slate-50 rounded-2xl font-bold outline-none"><input id="m-h" type="number" placeholder="Horas" class="p-4 bg-slate-50 rounded-2xl font-bold outline-none"></div>
+        <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
+            <h3 class="text-xs font-black text-indigo-600 uppercase text-center">Nuevo Tratamiento</h3>
+            <input id="m-n" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
+            <div class="grid grid-cols-2 gap-2">
+                <input id="m-q" type="text" placeholder="Dosis" class="p-4 bg-slate-50 rounded-2xl font-bold outline-none">
+                <input id="m-h" type="number" placeholder="Cada h" class="p-4 bg-slate-50 rounded-2xl font-bold outline-none">
+            </div>
+            <input id="m-d" type="number" placeholder="Durante cuántos días" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
             <button onclick="addMed()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black uppercase text-xs">Guardar</button>
             <button onclick="closeModal('modal-add-med')" class="w-full text-slate-300 font-bold uppercase text-xs text-center">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[3000] flex items-end">
-        <div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4">
-            <button onclick="addLog('🤱 Pecho Izq'); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-xs">IZQ</button>
-            <button onclick="addLog('🤱 Ambos'); closeModal('modal-pecho')" class="bg-pink-100 p-8 rounded-3xl font-black text-pink-700 text-xs text-center">AMBOS</button>
-            <button onclick="addLog('🤱 Pecho Der'); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-xs">DER</button>
         </div>
     </div>
 
@@ -166,8 +160,17 @@
         <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
             <h3 id="cal-modal-fecha" class="text-center font-black text-blue-600 uppercase text-xs tracking-widest"></h3>
             <input id="cal-ev-txt" type="text" placeholder="¿Qué ocurre este día?" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">
-            <button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase text-xs">Guardar</button>
+            <input id="cal-ev-hora" type="time" class="w-full p-4 bg-slate-50 rounded-2xl font-bold">
+            <button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase text-xs">Guardar en Agenda</button>
             <button onclick="closeModal('modal-cal')" class="w-full text-slate-300 font-bold uppercase text-xs text-center">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[3000] flex items-end">
+        <div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4">
+            <button onclick="addLog('🤱 Pecho Izq'); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-xs text-center">IZQ</button>
+            <button onclick="addLog('🤱 Ambos'); closeModal('modal-pecho')" class="bg-pink-100 p-8 rounded-3xl font-black text-pink-700 text-xs text-center">AMBOS</button>
+            <button onclick="addLog('🤱 Pecho Der'); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-xs text-center">DER</button>
         </div>
     </div>
 
@@ -180,7 +183,6 @@
 
         function save() { localStorage.setItem('EVA_CARE_V12', JSON.stringify(DATA)); render(); }
 
-        // NAVEGACIÓN FORMULARIO (CORREGIDA)
         function irAStep(num) {
             document.querySelectorAll('.step-div').forEach(d => d.classList.add('hidden'));
             document.getElementById('step-' + num).classList.remove('hidden');
@@ -212,50 +214,66 @@
             const container = document.getElementById('timeline-eventos');
             let html = ""; const ahora = Date.now();
             
+            // 1. TOMAS
             const ultToma = be.logs.find(l => l.txt.includes('Bibe') || l.txt.includes('Pecho'));
             if(ultToma) {
                 const rest = (DATA.plazo * 3600000) - (ahora - ultToma.ts);
-                html += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl"><div class="flex items-center gap-3 text-blue-400"><i class="fa-solid fa-baby"></i><p class="text-[10px] font-black uppercase">Toma</p></div><span class="text-xl font-black ${rest < 0 ? 'text-red-500 animate-pulse' : 'text-white'}">${formatTime(rest)}</span></div>`;
+                html += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl"><div class="flex items-center gap-3 text-blue-400"><i class="fa-solid fa-baby"></i><p class="text-[10px] font-black uppercase">Próxima Toma</p></div><span class="text-xl font-black ${rest < 0 ? 'text-red-500 animate-pulse' : 'text-white'}">${formatTime(rest)}</span></div>`;
             }
 
+            // 2. MEDICACIÓN
             (be.meds || []).forEach(m => {
                 if(m.last > 0) {
                     const restMed = (m.last + m.h*3600000) - ahora;
                     html += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl mt-2"><div class="flex items-center gap-3 text-indigo-400"><i class="fa-solid fa-pills"></i><p class="text-[10px] font-black uppercase">${m.n}</p></div><span class="text-sm font-black ${restMed < 0 ? 'text-red-400 animate-pulse' : 'text-slate-400'}">${formatTime(restMed)}</span></div>`;
                 }
             });
+
+            // 3. CITAS (Próximos 15 días)
+            const limite = new Date(); limite.setDate(limite.getDate() + 15);
+            Object.keys(be.citas || {}).forEach(fecha => {
+                const fCita = new Date(fecha);
+                if(fCita >= new Date().setHours(0,0,0,0) && fCita <= limite) {
+                    be.citas[fecha].forEach(c => {
+                        html += `<div class="bg-emerald-500/20 p-3 rounded-2xl border border-emerald-500/20 mt-2 flex justify-between items-center"><span class="text-[10px] font-black text-white uppercase">${c.txt} (${c.hora})</span><span class="text-[9px] text-emerald-200">${fecha.split('-')[2]}/${fecha.split('-')[1]}</span></div>`;
+                    });
+                }
+            });
+
             container.innerHTML = html || "<p class='text-center text-[9px] text-slate-600 uppercase py-4'>Todo al día</p>";
         }
 
-        // SALUD (Con validación de advertencia)
         function darMed(i) {
             const m = b().meds[i];
             const ahora = Date.now();
             if(m.last > 0 && (ahora - m.last) < (m.h * 3600000)) {
-                if(!confirm("⚠️ ADVERTENCIA: Aún no toca la dosis. ¿Confirmas la aplicación anticipada?")) return;
+                if(!confirm(`⚠️ Aún no toca. Faltan ${formatTime((m.last + m.h*3600000) - ahora)}. ¿Dar dosis igualmente?`)) return;
             }
             m.last = ahora;
             addLog(`💊 ${m.n} (${m.q})`);
         }
 
         function addMed() {
-            const n = document.getElementById('m-n').value, h = document.getElementById('m-h').value, q = document.getElementById('m-q').value;
+            const n = document.getElementById('m-n').value, h = document.getElementById('m-h').value, q = document.getElementById('m-q').value, d = document.getElementById('m-d').value;
             if(!n || !h || !q) return;
             if(!b().meds) b().meds = [];
-            b().meds.push({n, h: parseInt(h), q, last: 0}); 
+            b().meds.push({n, h: parseInt(h), q, d: parseInt(d) || 0, last: 0, tsInit: Date.now()}); 
             closeModal('modal-add-med'); save();
         }
 
         function renderSalud() {
             document.getElementById('lista-salud').innerHTML = (b().meds || []).map((m, i) => `
                 <div class="card flex justify-between items-center border-l-4 border-indigo-500 mb-2 relative">
-                    <button onclick="deleteMed(${i})" class="absolute top-2 right-4 text-slate-200 text-[8px] font-black">Borrar</button>
-                    <div><b class="text-indigo-600 text-xs uppercase">${m.n}</b><br><span class="text-[9px] text-slate-400 font-bold uppercase">${m.q} cada ${m.h}h</span></div>
+                    <button onclick="deleteMed(${i})" class="absolute top-2 right-4 text-slate-200 text-[8px] font-black uppercase tracking-widest">Borrar</button>
+                    <div>
+                        <b class="text-indigo-600 text-xs uppercase">${m.n}</b><br>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase">${m.q} cada ${m.h}h</span>
+                        ${m.d > 0 ? `<p class="text-[8px] text-indigo-300 font-black mt-1">DURACIÓN: ${m.d} DÍAS</p>` : ''}
+                    </div>
                     <button onclick="darMed(${i})" class="bg-indigo-600 text-white px-5 py-2 rounded-xl font-black text-[10px]">TOMAR</button>
                 </div>`).join('');
         }
 
-        // NUTRICIÓN
         function setReac(r, btn) {
             foodReacSelected = r;
             document.querySelectorAll('.btn-reac').forEach(b => b.classList.remove('btn-reac-active'));
@@ -287,7 +305,6 @@
             });
         }
 
-        // CALENDARIO (Con marcado de día actual)
         function renderCal() {
             const grid = document.getElementById('cal-grid'), tit = document.getElementById('cal-mes-titulo');
             const y = currentDate.getFullYear(), m = currentDate.getMonth(), hoy = new Date();
@@ -300,16 +317,16 @@
                 const dStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const esHoy = i === hoy.getDate() && m === hoy.getMonth() && y === hoy.getFullYear();
                 const has = b().citas[dStr] && b().citas[dStr].length > 0;
-                grid.innerHTML += `<div onclick="openDay('${dStr}')" class="cal-day ${esHoy ? 'bg-blue-600 text-white' : 'bg-white text-slate-400'}">${i}${has ? '<div class="event-dot"></div>' : ''}</div>`;
+                grid.innerHTML += `<div onclick="openDay('${dStr}')" class="cal-day ${esHoy ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-400'}">${i}${has ? '<div class="event-dot"></div>' : ''}</div>`;
             }
         }
 
-        // FUNCIONES CORE
         function addLog(txt) {
             const h = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
             b().logs.unshift({txt, hora: h, fecha: new Date().toLocaleDateString(), ts: Date.now()});
             save();
         }
+
         function renderLogs() {
             const hoyStr = new Date().toLocaleDateString();
             document.getElementById('diario-hoy').innerHTML = b().logs.filter(l => l.fecha === hoyStr).map(l => `
@@ -318,6 +335,7 @@
                     <span class="text-[9px] font-bold text-slate-300">${l.hora}</span>
                 </div>`).join('');
         }
+
         function saveSettings() { DATA.plazo = document.getElementById('set-plazo').value; save(); }
         function addBibe(ml) { if(!ml) return; DATA.lastBibe = ml; addLog(`🍼 Bibe ${ml}ml`); closeModal('modal-bibe'); }
         function showTab(id) {
@@ -333,12 +351,15 @@
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
         function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCal(); }
         function openDay(f) { selectedDate = f; document.getElementById('cal-modal-fecha').innerText = f; openModal('modal-cal'); }
+        
         function saveCita() {
-            const t = document.getElementById('cal-ev-txt').value;
-            if(!t) return; if(!b().citas[selectedDate]) b().citas[selectedDate] = [];
-            b().citas[selectedDate].push({txt: t}); save(); closeModal('modal-cal');
+            const t = document.getElementById('cal-ev-txt').value, h = document.getElementById('cal-ev-hora').value;
+            if(!t || !h) return; if(!b().citas[selectedDate]) b().citas[selectedDate] = [];
+            b().citas[selectedDate].push({txt: t, hora: h}); save(); closeModal('modal-cal');
         }
-        function deleteMed(i) { if(confirm("¿Borrar?")) { b().meds.splice(i,1); save(); } }
+
+        function deleteMed(i) { if(confirm("¿Eliminar tratamiento?")) { b().meds.splice(i,1); save(); } }
+        
         function finishSetup() { 
             const n = document.getElementById('setup-n').value, f = document.getElementById('setup-f').value, p = document.getElementById('setup-p').value, a = document.getElementById('setup-a').value; 
             if(!n || !f) return;
