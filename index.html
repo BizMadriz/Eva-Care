@@ -1,82 +1,50 @@
-function renderTimeline() {
-    const be = b();
-    const container = document.getElementById('timeline-eventos');
-    let html = "";
-    const ahora = Date.now();
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Eva-Care</title>
 
-    /* ───────── TOMAS ───────── */
-    const ultToma = be.logs.find(l => l.txt.includes('Bibe') || l.txt.includes('Pecho'));
-    if (ultToma) {
-        const rest = (DATA.plazo * 3600000) - (ahora - ultToma.ts);
-        html += `
-        <div class="flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
-            <div class="flex items-center gap-2 text-blue-400">
-                <i class="fa-solid fa-clock text-xs"></i>
-                <p class="text-[9px] font-black uppercase tracking-widest">Próxima Toma</p>
-            </div>
-            <span class="text-sm font-black ${rest < 0 ? 'text-red-500 animate-pulse' : 'text-white'}">
-                ${formatTime(rest)}
-            </span>
-        </div>`;
-    }
-
-    /* ───────── MEDICACIÓN ───────── */
-    (be.meds || []).forEach(m => {
-        if (m.last > 0) {
-            const restMed = (m.last + m.h * 3600000) - ahora;
-            html += `
-            <div class="flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
-                <div class="flex items-center gap-2 text-indigo-400">
-                    <i class="fa-solid fa-pills text-xs"></i>
-                    <p class="text-[9px] font-black uppercase tracking-widest">${m.n}</p>
-                </div>
-                <span class="text-xs font-black ${restMed < 0 ? 'text-red-400 animate-pulse' : 'text-slate-400'}">
-                    ${formatTime(restMed)}
-                </span>
-            </div>`;
-        }
-    });
-
-    /* ───────── AGENDA (15 DÍAS) ───────── */
-    const hoy = new Date();
-    const limite = new Date();
-    limite.setDate(hoy.getDate() + 15);
-
-    const eventos = [];
-
-    Object.keys(be.citas || {}).forEach(fecha => {
-        const f = new Date(fecha);
-        if (f >= hoy && f <= limite) {
-            be.citas[fecha].forEach(c => {
-                eventos.push({
-                    fecha,
-                    hora: c.hora,
-                    txt: c.txt,
-                    ts: new Date(`${fecha}T${c.hora}`).getTime()
-                });
-            });
-        }
-    });
-
-    eventos
-        .sort((a, b) => a.ts - b.ts)
-        .forEach(ev => {
-            html += `
-            <div class="flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
-                <div class="flex items-center gap-2 text-blue-300">
-                    <i class="fa-solid fa-calendar-day text-xs"></i>
-                    <p class="text-[9px] font-black uppercase tracking-widest">
-                        ${ev.txt}
-                    </p>
-                </div>
-                <span class="text-[9px] font-black text-slate-400">
-                    ${ev.fecha} · ${ev.hora}
-                </span>
-            </div>`;
-        });
-
-    container.innerHTML = html || `
-        <p class="text-center text-[8px] text-slate-600 uppercase py-4">
-            Todo al día
-        </p>`;
+<style>
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+  background:linear-gradient(180deg,#f6f8ff,#fff);
+  color:#1b1b1b;
 }
+header{
+  padding:20px;
+  font-size:28px;
+  font-weight:700;
+}
+.panel{
+  background:#0f172a;
+  color:#fff;
+  margin:16px;
+  padding:20px;
+  border-radius:22px;
+}
+.panel h3{
+  margin:0 0 10px;
+  color:#60a5fa;
+  letter-spacing:1px;
+  font-size:14px;
+}
+.evento{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.15);
+}
+.evento:last-child{border-bottom:none}
+.evento span{opacity:.8}
+.ok{opacity:.6;text-align:center}
+nav{
+  position:fixed;
+  bottom:0; left:0; right:0;
+  display:flex;
+  justify-content:space-around;
+  padding:14px;
+  background:linear-gradient(90deg,#dbeafe,#fde68a);
+}
+nav
