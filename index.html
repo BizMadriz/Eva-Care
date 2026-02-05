@@ -3,7 +3,7 @@
 <head>  
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
-    <title>EvaCare V17.0 - Multi-Control</title>  
+    <title>EvaCare V19.0 - Global</title>  
     <script src="https://cdn.tailwindcss.com"></script>  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">  
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
@@ -12,59 +12,54 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');  
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }  
         .hidden { display: none !important; }  
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .cal-day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 0.8rem; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
-        .reac-active { background: #eff6ff; border: 2px solid #2563eb !important; transform: scale(1.1); }
+        .reac-active { background: #dbeafe !important; border: 2px solid #2563eb !important; }
+        .cal-day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 0.8rem; cursor: pointer; font-size: 0.75rem; font-weight: 700; }
+        .aviso-item { border-left: 3px solid #3b82f6; padding-left: 10px; margin-bottom: 8px; }
     </style>  
 </head>  
 <body class="bg-slate-50 text-slate-900 pb-28">
 
 <div id="loading-screen" class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
-    <div class="text-blue-600 text-4xl font-black italic animate-pulse">EvaCare</div>
-    <p class="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Sincronizando...</p>
+    <div class="text-blue-600 text-4xl font-black italic animate-bounce">EvaCare</div>
 </div>
 
 <div id="app-content" class="hidden">
     <header class="p-6 flex justify-between items-center bg-white/80 sticky top-0 z-40 border-b border-slate-100 backdrop-blur-md">
-        <select id="bebe-selector" onchange="switchBebe(this.value)" class="bg-transparent font-black italic text-xl outline-none text-blue-600"></select>
-        <div id="sync-status" class="px-3 py-1.5 rounded-full text-[8px] font-black uppercase flex items-center gap-2"></div>
+        <div class="flex flex-col">
+            <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Editando a:</span>
+            <select id="bebe-selector" onchange="switchBebe(this.value)" class="bg-transparent font-black italic text-xl outline-none text-blue-600"></select>
+        </div>
+        <div id="sync-status"></div>
         <button onclick="openModal('modal-menu')" class="text-slate-400 text-xl"><i class="fa-solid fa-bars-staggered"></i></button>
     </header>
 
     <main id="tab-inicio" class="p-4 space-y-4">
-        <div class="bg-slate-900 rounded-[2.5rem] p-6 text-white shadow-xl relative overflow-hidden">
-            <div id="avisos-ticker" class="space-y-1 relative z-10">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="text-[8px] font-black uppercase tracking-[0.2em] text-blue-400">Estado Actual</span>
+        <div class="bg-slate-900 rounded-[2.5rem] p-6 text-white shadow-xl min-h-[100px]">
+            <h3 class="text-[8px] font-black text-blue-400 uppercase tracking-[0.2em] mb-3">Alertas Familiares</h3>
+            <div id="panel-avisos-global" class="space-y-3">
                 </div>
-                <div id="msg-toma" class="text-lg font-black italic">--:--</div>
-                <div id="msg-med" class="text-[10px] font-bold text-slate-400 uppercase"></div>
-                <div id="msg-cita" class="text-[10px] font-bold text-orange-400 uppercase"></div>
-            </div>
-            <i class="fa-solid fa-bell absolute -right-4 -bottom-4 text-8xl opacity-5"></i>
         </div>
 
-        <div id="lista-compra" class="space-y-2"></div>
+        <div id="lista-compra-global" class="space-y-2"></div>
 
         <div class="grid grid-cols-4 gap-2">
-            <button onclick="addLog('💦 Pis', true)" class="bg-white py-5 rounded-3xl font-black text-cyan-600 text-[10px] border shadow-sm">PIS</button>
-            <button onclick="addLog('💩 Caca', true)" class="bg-white py-5 rounded-3xl font-black text-orange-800 text-[10px] border shadow-sm">CACA</button>
-            <button onclick="addLog('✨ Aseo', true)" class="bg-white py-5 rounded-3xl font-black text-purple-600 text-[10px] border shadow-sm">ASEO</button>
-            <button onclick="addCompraUrgent()" class="bg-yellow-400 text-slate-900 rounded-3xl flex items-center justify-center shadow-lg active:scale-95 transition"><i class="fa-solid fa-cart-shopping"></i></button>
+            <button onclick="addLog('💦 Pis')" class="bg-white py-5 rounded-3xl font-black text-cyan-600 text-[10px] border shadow-sm">PIS</button>
+            <button onclick="addLog('💩 Caca')" class="bg-white py-5 rounded-3xl font-black text-orange-800 text-[10px] border shadow-sm">CACA</button>
+            <button onclick="addLog('✨ Aseo')" class="bg-white py-5 rounded-3xl font-black text-purple-600 text-[10px] border shadow-sm">ASEO</button>
+            <button onclick="addCompra()" class="bg-yellow-400 text-slate-900 rounded-3xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-cart-shopping"></i></button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <button onclick="openModal('modal-pecho')" class="bg-white h-24 rounded-[2rem] border shadow-sm flex flex-col items-center justify-center active:bg-pink-50">
+            <button onclick="openModal('modal-pecho')" class="bg-white h-24 rounded-[2rem] border shadow-sm flex flex-col items-center justify-center">
                 <i class="fa-solid fa-person-breastfeeding text-pink-500 mb-1 text-xl"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Pecho</span>
+                <span class="text-[9px] font-black uppercase">Pecho</span>
             </button>
             <div class="space-y-2">
-                <button onclick="openModal('modal-bibe')" class="w-full bg-white h-16 rounded-3xl border shadow-sm flex items-center justify-center gap-2 active:bg-blue-50">
+                <button onclick="openModal('modal-bibe')" class="w-full bg-white h-16 rounded-3xl border shadow-sm flex items-center justify-center gap-2">
                     <i class="fa-solid fa-bottle-water text-blue-500"></i>
                     <span class="text-[9px] font-black uppercase">Biberón</span>
                 </button>
-                <button id="btn-repetir-bibe" onclick="repetirUltimoBibe()" class="w-full bg-blue-600 text-white h-8 rounded-full text-[8px] font-black uppercase hidden shadow-md">Repetir última</button>
+                <button id="btn-repetir" onclick="repetirBibe()" class="w-full bg-blue-50 text-blue-600 h-8 rounded-full text-[8px] font-black uppercase hidden">Repetir última</button>
             </div>
         </div>
 
@@ -74,56 +69,46 @@
     <main id="tab-nutricion" class="hidden p-4 space-y-4">
         <h2 class="text-2xl font-black italic text-orange-600 px-2">Alimentos</h2>
         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border space-y-4">
-            <input id="food-n" type="text" placeholder="¿Qué ha probado hoy?" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
-            <div class="flex justify-around items-center">
-                <button onclick="setReac('😋', this)" class="food-reac p-4 rounded-2xl text-2xl border-2 border-transparent">😋</button>
-                <button onclick="setReac('🤢', this)" class="food-reac p-4 rounded-2xl text-2xl border-2 border-transparent">🤢</button>
-                <button onclick="setReac('⚠️', this)" class="food-reac p-3 rounded-2xl text-[10px] font-black border-2 border-transparent text-red-500 uppercase">Alergia</button>
+            <input id="food-input" type="text" placeholder="¿Qué ha probado?" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
+            <div class="flex justify-around">
+                <button onclick="setReac('😋', this)" class="reac-btn p-4 rounded-2xl text-2xl border-2 border-transparent">😋</button>
+                <button onclick="setReac('🤢', this)" class="reac-btn p-4 rounded-2xl text-2xl border-2 border-transparent">🤢</button>
+                <button onclick="setReac('⚠️', this)" class="reac-btn p-3 rounded-2xl text-[9px] font-black border-2 border-transparent text-red-500">ALERGIA</button>
             </div>
-            <button onclick="saveFood()" class="w-full bg-orange-500 text-white p-5 rounded-2xl font-black shadow-lg">REGISTRAR</button>
+            <button onclick="saveFood()" class="w-full bg-orange-500 text-white p-5 rounded-2xl font-black">REGISTRAR</button>
         </div>
         <div id="lista-alimentos" class="space-y-2 pb-20"></div>
     </main>
 
     <main id="tab-salud" class="hidden p-4 space-y-6">
-        <section>
-            <h2 class="text-2xl font-black italic text-indigo-600 mb-4 px-2">Crecimiento</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="openModal('modal-peso')" class="bg-white p-6 rounded-[2rem] border shadow-sm flex flex-col items-center">
-                    <i class="fa-solid fa-weight-scale text-indigo-500 text-xl mb-1"></i>
-                    <span id="view-peso" class="font-black text-lg">--.- kg</span>
-                </button>
-                <button onclick="openModal('modal-peso')" class="bg-white p-6 rounded-[2rem] border shadow-sm flex flex-col items-center">
-                    <i class="fa-solid fa-ruler-vertical text-indigo-500 text-xl mb-1"></i>
-                    <span id="view-altura" class="font-black text-lg">-- cm</span>
-                </button>
-            </div>
-            <div id="historial-pesos" class="mt-4 flex gap-2 overflow-x-auto pb-2"></div>
-        </section>
-
-        <section>
-            <h2 class="text-2xl font-black italic text-indigo-600 mb-4 px-2">Tratamientos</h2>
-            <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-5 rounded-[2rem] font-black shadow-lg mb-4">AÑADIR MEDICACIÓN</button>
-            <div id="lista-salud" class="space-y-3"></div>
-        </section>
-
-        <section class="pb-20">
-            <h2 class="text-2xl font-black italic text-indigo-600 mb-4 px-2">Calendario Oficial</h2>
-            <div id="lista-revisiones" class="bg-white rounded-[2rem] border divide-y overflow-hidden shadow-sm"></div>
-        </section>
+        <h2 class="text-2xl font-black italic text-indigo-600 px-2">Salud</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="openModal('modal-peso')" class="bg-white p-6 rounded-[2rem] border shadow-sm flex flex-col items-center">
+                <i class="fa-solid fa-weight-scale text-indigo-500 mb-1 text-xl"></i>
+                <span id="cur-peso" class="font-black text-lg">--.- kg</span>
+            </button>
+            <button onclick="openModal('modal-peso')" class="bg-white p-6 rounded-[2rem] border shadow-sm flex flex-col items-center">
+                <i class="fa-solid fa-ruler-vertical text-indigo-500 mb-1 text-xl"></i>
+                <span id="cur-altura" class="font-black text-lg">-- cm</span>
+            </button>
+        </div>
+        <div id="historial-pesos" class="flex gap-2 overflow-x-auto pb-2"></div>
+        <button onclick="openModal('modal-med')" class="w-full bg-indigo-600 text-white p-5 rounded-[2rem] font-black shadow-lg">NUEVA MEDICACIÓN</button>
+        <div id="lista-meds" class="space-y-3"></div>
+        <div id="lista-revs" class="bg-white rounded-[2rem] border divide-y overflow-hidden shadow-sm mb-20"></div>
     </main>
 
     <main id="tab-cal" class="hidden p-4 space-y-6">
-        <h2 class="text-2xl font-black italic text-blue-600">Agenda Familiar</h2>
-        <div class="bg-white p-4 rounded-[2rem] shadow-sm border">
+        <h2 class="text-2xl font-black italic text-blue-600 px-2">Agenda</h2>
+        <div class="bg-white p-5 rounded-[2rem] shadow-sm border">
             <div class="flex justify-between items-center mb-4 px-2">
-                <button onclick="changeMonth(-1)" class="p-2"><i class="fa-solid fa-chevron-left text-slate-300"></i></button>
-                <h3 id="cal-mes-titulo" class="font-black uppercase text-xs">---</h3>
-                <button onclick="changeMonth(1)" class="p-2"><i class="fa-solid fa-chevron-right text-slate-300"></i></button>
+                <button onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left text-slate-300"></i></button>
+                <h3 id="cal-month" class="font-black uppercase text-xs">---</h3>
+                <button onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right text-slate-300"></i></button>
             </div>
             <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
         </div>
-        <div id="agenda-total-lista" class="space-y-2 pb-20"></div>
+        <div id="agenda-lista" class="space-y-2 pb-20"></div>
     </main>
 
     <nav class="fixed bottom-6 left-6 right-6 h-16 bg-white/90 backdrop-blur-xl rounded-full border border-slate-100 shadow-2xl flex justify-around items-center z-50">  
@@ -131,296 +116,201 @@
         <button onclick="showTab('nutricion')" id="nav-nutricion" class="text-slate-300 p-4"><i class="fa-solid fa-carrot text-xl"></i></button>  
         <button onclick="showTab('salud')" id="nav-salud" class="text-slate-300 p-4"><i class="fa-solid fa-suitcase-medical text-xl"></i></button>  
         <button onclick="showTab('cal')" id="nav-cal" class="text-slate-300 p-4"><i class="fa-solid fa-calendar-day text-xl"></i></button>  
-    </nav> 
+    </nav>
 </div>
 
+<div id="modal-peso" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="in-kg" type="number" step="0.01" placeholder="Peso (kg)" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="in-cm" type="number" placeholder="Altura (cm)" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><button onclick="savePeso()" class="w-full bg-indigo-600 text-white p-5 rounded-xl font-black">GUARDAR</button><button onclick="closeModal('modal-peso')" class="w-full text-slate-300 font-bold text-xs uppercase">Cerrar</button></div></div>
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="in-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-4xl font-black outline-none"><button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black">GUARDAR</button><button onclick="closeModal('modal-bibe')" class="w-full text-slate-300 font-bold text-xs uppercase">Cerrar</button></div></div>
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-end"><div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4 shadow-2xl"><button onclick="addLog('🤱 Pecho Izq', true); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs">IZQ</button><button onclick="addLog('🤱 Pecho Ambos', true); closeModal('modal-pecho')" class="bg-pink-600 p-6 rounded-2xl font-black text-white text-xs">AMBOS</button><button onclick="addLog('🤱 Pecho Der', true); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs">DER</button></div></div>
+<div id="modal-med" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="m-name" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="m-dose" type="text" placeholder="Dosis (2.5ml)" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><div class="grid grid-cols-2 gap-2"><input id="m-gap" type="number" placeholder="Horas" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="m-days" type="number" placeholder="Días" class="w-full p-4 bg-slate-50 rounded-xl font-bold"></div><button onclick="saveMed()" class="w-full bg-indigo-600 text-white p-5 rounded-xl font-black">GUARDAR</button><button onclick="closeModal('modal-med')" class="w-full text-slate-300 font-bold text-xs uppercase">Cerrar</button></div></div>
+<div id="modal-cal" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="c-txt" type="text" placeholder="Evento" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none"><input id="c-time" type="time" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none"><button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-xl font-black uppercase text-xs">Guardar</button><button onclick="closeModal('modal-cal')" class="w-full text-slate-300 font-bold text-xs uppercase">Cancelar</button></div></div>
 <div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-[9500] flex justify-end">
-    <div class="bg-white w-4/5 h-full p-8 flex flex-col shadow-2xl overflow-y-auto">
-        <h2 class="text-3xl font-black italic mb-8">EvaCare Pro</h2>
-        <div class="space-y-6 flex-1">
-            <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                <label class="text-[9px] font-black uppercase text-blue-600 tracking-widest">Tiempos de Toma</label>
-                <div class="flex items-center gap-4 mt-2">
-                    <input type="number" id="cfg-intervalo" class="w-20 p-3 bg-white rounded-xl font-bold shadow-sm" onchange="updateConfig()">
-                    <span class="text-xs font-bold text-slate-400">horas</span>
-                </div>
+    <div class="bg-white w-4/5 h-full p-8 flex flex-col shadow-2xl">
+        <h2 class="text-3xl font-black italic mb-8">Ajustes</h2>
+        <div class="space-y-6 flex-1 overflow-y-auto">
+            <div class="bg-slate-50 p-5 rounded-3xl"><label class="text-[9px] font-black uppercase text-blue-600">Intervalo Tomas (Horas)</label><input type="number" id="cfg-int" class="w-full p-3 bg-white rounded-xl mt-2 font-bold" onchange="updateCfg()"></div>
+            <div class="bg-slate-50 p-5 rounded-3xl"><label class="text-[9px] font-black uppercase text-blue-600">Añadir Niño/Planificación</label>
+                <input type="text" id="new-n" placeholder="Nombre" class="w-full p-3 bg-white rounded-xl mt-2 font-bold">
+                <input type="date" id="new-f" class="w-full p-3 bg-white rounded-xl mt-2 font-bold">
+                <button onclick="addNewBebe()" class="w-full bg-blue-600 text-white p-4 rounded-xl mt-3 font-black text-[10px]">AÑADIR</button>
             </div>
-            <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                <label class="text-[9px] font-black uppercase text-blue-600 tracking-widest">Nuevo Niño</label>
-                <input type="text" id="new-bebe-name" placeholder="Nombre" class="w-full p-3 bg-white rounded-xl mt-2 font-bold shadow-sm outline-none">
-                <input type="date" id="new-bebe-date" class="w-full p-3 bg-white rounded-xl mt-2 font-bold shadow-sm outline-none">
-                <button onclick="addNewBebe()" class="w-full bg-blue-600 text-white p-4 rounded-xl mt-3 font-black text-[10px] uppercase">Añadir con Confirmación</button>
-            </div>
-            <button onclick="reiniciarApp()" class="w-full text-red-500 font-bold text-[10px] uppercase p-4 rounded-2xl bg-red-50">Cerrar Sesión</button>
+            <button onclick="localStorage.clear();location.reload()" class="w-full text-red-500 font-bold text-[10px] uppercase p-4 rounded-2xl bg-red-50">Cerrar Sesión</button>
         </div>
-        <button onclick="closeModal('modal-menu')" class="mt-4 p-4 text-slate-300 font-black text-xs">VOLVER</button>
+        <button onclick="closeModal('modal-menu')" class="mt-4 p-4 text-slate-300 font-black">VOLVER</button>
     </div>
 </div>
 
-<div id="modal-peso" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><h3 class="text-center font-black text-xs uppercase text-indigo-600">Registro de Crecimiento</h3><input id="p-kg" type="number" step="0.01" placeholder="Peso (kg)" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold"><input id="p-cm" type="number" placeholder="Altura (cm)" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold"><button onclick="saveCrecimiento()" class="w-full bg-indigo-600 text-white p-5 rounded-xl font-black">GUARDAR DATOS</button><button onclick="closeModal('modal-peso')" class="w-full text-slate-300 font-bold text-center text-[10px] uppercase">Cerrar</button></div></div>
-
-<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-4xl font-black outline-none"><button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black">GUARDAR TOMA</button><button onclick="closeModal('modal-bibe')" class="w-full text-slate-300 font-bold uppercase text-[10px]">Cancelar</button></div></div>
-
-<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-end"><div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4 shadow-2xl"><button onclick="addLog('🤱 Pecho Izq', true); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs">IZQ</button><button onclick="addLog('🤱 Pecho Ambos', true); closeModal('modal-pecho')" class="bg-pink-600 p-6 rounded-2xl font-black text-white text-xs text-center">AMBOS</button><button onclick="addLog('🤱 Pecho Der', true); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs">DER</button></div></div>
-
-<div id="modal-add-med" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="m-n" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="m-d" type="text" placeholder="Dosis (ej: 3ml)" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><div class="grid grid-cols-2 gap-2"><input id="m-h" type="number" placeholder="Horas" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="m-p" type="number" placeholder="Días totales" class="w-full p-4 bg-slate-50 rounded-xl font-bold"></div><button onclick="addMed()" class="w-full bg-indigo-600 text-white p-5 rounded-xl font-black">AÑADIR TRATAMIENTO</button><button onclick="closeModal('modal-add-med')" class="w-full text-slate-300 font-bold text-center text-[10px] uppercase">Cerrar</button></div></div>
-
-<div id="modal-cal" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><h3 id="cal-modal-fecha" class="text-center font-black text-blue-600 text-[10px] uppercase tracking-widest">Nueva Cita</h3><input id="cal-ev-txt" type="text" placeholder="¿Qué ocurre?" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none"><input id="cal-ev-hora" type="time" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none"><button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-xl font-black uppercase text-xs">Agendar</button><button onclick="closeModal('modal-cal')" class="w-full text-slate-300 font-bold text-center text-[10px] uppercase">Cancelar</button></div></div>
-
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I", databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com", projectId: "evacare-24cae" };
-    try { firebase.initializeApp(firebaseConfig); } catch(e) {}
-    const db = firebase.database();
+    const fbCfg = { apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I", databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com", projectId: "evacare-24cae" };
+    firebase.initializeApp(fbCfg); const db = firebase.database();
 
-    let DATA = null;
-    let familyId = localStorage.getItem('EVA_CARE_FAMILY_ID');
-    let bebeIdx = parseInt(localStorage.getItem('EVA_CARE_BEBE_IDX') || 0);
-    let currentDate = new Date();
-    let selectedDate = new Date().toISOString().split('T')[0];
-    let currentReac = "";
+    let DATA = null, familyId = localStorage.getItem('EVA_CARE_FAMILY_ID'), bIdx = parseInt(localStorage.getItem('EVA_CARE_BEBE_IDX') || 0);
+    let curMonth = new Date(), selDate = new Date().toISOString().split('T')[0], curReac = "";
 
-    const REVISIONES = [
-        { edad: "7 DÍAS", con: "Enfermería + Pediatría", vac: false },
-        { edad: "15 DÍAS", con: "Pediatría", vac: false },
-        { edad: "1 MES", con: "Enfermería", vac: false },
-        { edad: "2 MESES", con: "Enfermería + Pediatría", vac: true },
-        { edad: "4 MESES", con: "Enfermería", vac: true },
-        { edad: "6 MESES", con: "Enfermería + Pediatría", vac: false },
-        { edad: "11 MESES", con: "Sólo vacuna (enfermería)", vac: true },
-        { edad: "12 MESES", con: "Enfermería + Pediatría", vac: true },
-        { edad: "15 MESES", con: "Enfermería", vac: true },
-        { edad: "2 AÑOS", con: "Enfermería", vac: false },
-        { edad: "3 AÑOS", con: "Sólo vacuna (enfermería)", vac: true },
-        { edad: "4 AÑOS", con: "Enfermería", vac: false },
-        { edad: "6 AÑOS", con: "Enfermería + Pediatría", vac: true },
-        { edad: "9 AÑOS", con: "Enfermería", vac: false },
-        { edad: "12 AÑOS", con: "Enfermería", vac: true },
-        { edad: "14 AÑOS", con: "Enfermería + Pediatría", vac: true }
-    ];
+    const REVS = [{e:"7 Días",c:"Pediatría"},{e:"15 Días",c:"Pediatría"},{e:"1 Mes",c:"Enf"},{e:"2 Meses",c:"Enf+Ped",v:true},{e:"4 Meses",c:"Enf",v:true},{e:"6 Meses",c:"Enf+Ped"},{e:"11 Meses",c:"Vac",v:true},{e:"12 Meses",c:"Enf+Ped",v:true},{e:"15 Meses",c:"Enf",v:true},{e:"2 Años",c:"Enf"},{e:"6 Años",c:"Enf+Ped",v:true}];
 
     function init() {
-        if (!familyId) {
-            document.body.innerHTML = '<div class="p-10">Error: No hay familia configurada. Reinicia la app. <button onclick="localStorage.clear();location.reload()">Reset</button></div>';
-            return;
-        }
-        startSync();
-    }
-
-    function startSync() {
-        db.ref('familias/' + familyId).on('value', (snap) => {
-            const val = snap.val();
-            if (val) {
-                DATA = val;
-                if(!DATA.intervalo) DATA.intervalo = 3;
-                localStorage.setItem('EVA_CARE_DATA', JSON.stringify(DATA));
-                render();
-                updateStatus('ok');
-                document.getElementById('loading-screen').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-            }
+        if(!familyId) { familyId = prompt("ID Familia:"); if(familyId) { localStorage.setItem('EVA_CARE_FAMILY_ID', familyId); location.reload(); } return; }
+        db.ref('familias/' + familyId).on('value', snap => {
+            DATA = snap.val(); if(!DATA) { DATA = { intervalo:3, bebes:[{n:"Bebé",f:new Date().toISOString().split('T')[0]}] }; sync(); }
+            render(); document.getElementById('loading-screen').classList.add('hidden'); document.getElementById('app-content').classList.remove('hidden');
         });
     }
 
-    function sync() {
-        updateStatus('sync');
-        db.ref('familias/' + familyId).set(DATA)
-            .then(() => updateStatus('ok'))
-            .catch(() => updateStatus('offline'));
+    function sync() { 
+        document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-blue-500 animate-pulse"></i>';
+        db.ref('familias/' + familyId).set(DATA).then(() => {
+            document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-cloud-check text-green-500"></i>';
+        });
     }
 
-    function updateStatus(s) {
-        const el = document.getElementById('sync-status');
-        if(s==='ok'){ el.innerHTML='<i class="fa-solid fa-cloud-check text-green-500"></i>'; el.className="px-2 py-1 bg-green-50 rounded-full"; }
-        if(s==='sync'){ el.innerHTML='<i class="fa-solid fa-cloud-arrow-up text-blue-500 animate-bounce"></i>'; el.className="px-2 py-1 bg-blue-50 rounded-full"; }
-        if(s==='offline'){ el.innerHTML='<i class="fa-solid fa-cloud-slash text-red-500"></i>'; el.className="px-2 py-1 bg-red-50 rounded-full"; }
-    }
-
-    // --- ACCIONES CORE ---
-    function addLog(txt, resetsTimer = false) {
-        const b = DATA.bebes[bebeIdx];
-        if(!b.logs) b.logs = [];
-        const entry = { txt, hora: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts: Date.now() };
+    // ACCIONES
+    function addLog(txt, resets = false) {
+        const b = DATA.bebes[bIdx]; if(!b.logs) b.logs = [];
+        const entry = { txt, h: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), ts: Date.now() };
         b.logs.unshift(entry);
-        if(resetsTimer && (txt.includes('Pecho') || txt.includes('Biberón'))) b.lastToma = entry.ts;
-        if(txt.includes('Biberón')) b.lastBibeMl = txt.split('ml')[0].split(' ').pop();
-        render(); sync();
+        if(resets) b.lastToma = entry.ts;
+        if(txt.includes('Biberón')) b.lastMl = txt.split('ml')[0].split(' ').pop();
+        sync();
     }
 
-    function addBibe() {
-        const ml = document.getElementById('bibe-ml').value;
-        if(ml) { addLog(`🍼 Biberón ${ml}ml`, true); closeModal('modal-bibe'); document.getElementById('bibe-ml').value=""; }
+    function addBibe() { const ml = document.getElementById('in-ml').value; if(ml){ addLog(`🍼 Biberón ${ml}ml`, true); closeModal('modal-bibe'); document.getElementById('in-ml').value=""; } }
+    function repetirBibe() { if(DATA.bebes[bIdx].lastMl) addLog(`🍼 Biberón ${DATA.bebes[bIdx].lastMl}ml`, true); }
+    
+    function addCompra() { 
+        const item = prompt("Necesito comprar..."); 
+        if(item){ 
+            if(!DATA.compraFamiliar) DATA.compraFamiliar = [];
+            // Añadimos quién lo necesita para claridad global
+            DATA.compraFamiliar.push({txt: item, para: DATA.bebes[bIdx].n}); 
+            sync(); 
+        } 
     }
 
-    function repetirUltimoBibe() {
-        const ml = DATA.bebes[bebeIdx].lastBibeMl;
-        if(ml) addLog(`🍼 Biberón ${ml}ml`, true);
-    }
-
-    function addCompraUrgent() {
-        const item = prompt("¿Qué falta para " + DATA.bebes[bebeIdx].n + "?");
-        if(item) {
-            const b = DATA.bebes[bebeIdx];
-            if(!b.compra) b.compra = [];
-            b.compra.push(item);
-            render(); sync();
-        }
-    }
-
-    function saveCrecimiento() {
-        const b = DATA.bebes[bebeIdx];
-        const kg = document.getElementById('p-kg').value, cm = document.getElementById('p-cm').value;
-        if(kg || cm) {
-            if(!b.historialPeso) b.historialPeso = [];
-            b.historialPeso.unshift({ kg, cm, fecha: new Date().toLocaleDateString() });
-            b.peso = kg || b.peso; b.altura = cm || b.altura;
-            closeModal('modal-peso'); render(); sync();
-        }
+    function savePeso() { 
+        const b = DATA.bebes[bIdx], kg = document.getElementById('in-kg').value, cm = document.getElementById('in-cm').value;
+        if(kg||cm){ if(!b.hPeso) b.hPeso = []; b.hPeso.unshift({kg,cm,f:new Date().toLocaleDateString()}); b.peso=kg||b.peso; b.altura=cm||b.altura; closeModal('modal-peso'); sync(); }
     }
 
     function saveFood() {
-        const n = document.getElementById('food-n').value;
-        if(!n) return;
-        const b = DATA.bebes[bebeIdx];
-        if(!b.foods) b.foods = [];
-        b.foods.push({ n, r: currentReac || '❓' });
-        document.getElementById('food-n').value = "";
-        currentReac = ""; 
-        document.querySelectorAll('.food-reac').forEach(x=>x.classList.remove('reac-active'));
-        render(); sync();
+        const n = document.getElementById('food-input').value; if(!n) return;
+        if(!DATA.bebes[bIdx].foods) DATA.bebes[bIdx].foods = [];
+        DATA.bebes[bIdx].foods.push({n, r:curReac||'❓'}); document.getElementById('food-input').value=""; curReac=""; 
+        document.querySelectorAll('.reac-btn').forEach(x=>x.classList.remove('reac-active')); sync();
     }
 
-    function addMed() {
-        const n = document.getElementById('m-n').value, d = document.getElementById('m-d').value, h = document.getElementById('m-h').value, p = document.getElementById('m-p').value;
-        if(n && h) {
-            const b = DATA.bebes[bebeIdx];
-            if(!b.meds) b.meds = [];
-            b.meds.push({ n, d, h, p, ts: Date.now() });
-            closeModal('modal-add-med'); render(); sync();
-        }
+    function saveMed() {
+        const n = document.getElementById('m-name').value, g = document.getElementById('m-gap').value;
+        if(n&&g){ if(!DATA.bebes[bIdx].meds) DATA.bebes[bIdx].meds = []; DATA.bebes[bIdx].meds.push({n, d:document.getElementById('m-dose').value, g, p:document.getElementById('m-days').value, ts:Date.now()}); closeModal('modal-med'); sync(); }
     }
 
     function saveCita() {
-        const t = document.getElementById('cal-ev-txt').value, h = document.getElementById('cal-ev-hora').value;
-        if(!t) return;
-        const b = DATA.bebes[bebeIdx];
-        if(!b.citas) b.citas = {};
-        if(!b.citas[selectedDate]) b.citas[selectedDate] = [];
-        b.citas[selectedDate].push({ txt: t, hora: h });
-        closeModal('modal-cal'); render(); sync();
+        const t = document.getElementById('c-txt').value; if(!t) return;
+        if(!DATA.bebes[bIdx].citas) DATA.bebes[bIdx].citas = {}; if(!DATA.bebes[bIdx].citas[selDate]) DATA.bebes[bIdx].citas[selDate] = [];
+        DATA.bebes[bIdx].citas[selDate].push({t, h:document.getElementById('c-time').value}); closeModal('modal-cal'); sync();
     }
 
-    function agendarRevision(txt) {
-        selectedDate = new Date().toISOString().split('T')[0];
-        document.getElementById('cal-ev-txt').value = "Revisión: " + txt;
-        showTab('cal'); openModal('modal-cal');
-    }
-
-    // --- RENDERIZADO ---
+    // RENDERIZADO LÓGICO
     function render() {
-        if(!DATA) return;
-        const b = DATA.bebes[bebeIdx];
+        const bActivo = DATA.bebes[bIdx];
+        document.getElementById('bebe-selector').innerHTML = DATA.bebes.map((x,i)=>`<option value="${i}" ${i===bIdx?'selected':''}>${x.n.toUpperCase()}</option>`).join('');
         
-        // Selector
-        document.getElementById('bebe-selector').innerHTML = DATA.bebes.map((x,i)=>`<option value="${i}" ${i===bebeIdx?'selected':''}>${x.n.toUpperCase()}</option>`).join('');
+        // --- 1. PANEL DE AVISOS GLOBAL ---
+        let htmlAvisos = "";
+        const hoyStr = new Date().toISOString().split('T')[0];
         
-        // Ticker de Avisos
-        const int = (DATA.intervalo || 3) * 3600000;
-        const tomaRest = b.lastToma ? (b.lastToma + int) - Date.now() : null;
-        if(tomaRest && tomaRest > 0) {
-            const hrs = Math.floor(tomaRest/3600000), mins = Math.floor((tomaRest%3600000)/60000);
-            document.getElementById('msg-toma').innerText = `Próxima toma: ${hrs}h ${mins}min`;
-            document.getElementById('msg-toma').className = "text-lg font-black italic text-blue-400";
-        } else {
-            document.getElementById('msg-toma').innerText = "TOCA ALIMENTAR AHORA";
-            document.getElementById('msg-toma').className = "text-lg font-black italic text-red-500 animate-pulse";
-        }
+        DATA.bebes.forEach(bebe => {
+            // Tomas
+            const intMs = (DATA.intervalo || 3) * 3600000;
+            const rest = bebe.lastToma ? (bebe.lastToma + intMs) - Date.now() : -1;
+            if(rest <= 0) {
+                htmlAvisos += `<div class="aviso-item"><span class="text-red-500 font-black">${bebe.n}:</span> <span class="text-xs">¡Toca toma ya!</span></div>`;
+            } else {
+                const h = Math.floor(rest/3600000), m = Math.floor((rest%3600000)/60000);
+                htmlAvisos += `<div class="aviso-item"><span class="text-blue-400 font-black">${bebe.n}:</span> <span class="text-xs">Toma en ${h}h ${m}m</span></div>`;
+            }
+            // Medicinas (solo si existen)
+            (bebe.meds || []).forEach(m => {
+                htmlAvisos += `<div class="aviso-item" style="border-left-color: #a855f7"><span class="text-purple-400 font-black">${bebe.n}:</span> <span class="text-xs">${m.n} (${m.d})</span></div>`;
+            });
+            // Citas próximas (15 días)
+            const citas = bebe.citas || {};
+            Object.keys(citas).forEach(fecha => {
+                if(fecha >= hoyStr) {
+                    citas[fecha].forEach(c => {
+                        htmlAvisos += `<div class="aviso-item" style="border-left-color: #f97316"><span class="text-orange-400 font-black">${bebe.n} (${fecha}):</span> <span class="text-xs">${c.t}</span></div>`;
+                    });
+                }
+            });
+        });
+        document.getElementById('panel-avisos-global').innerHTML = htmlAvisos || '<p class="text-[10px] text-slate-500">No hay avisos pendientes.</p>';
 
-        const mNext = (b.meds||[]).length ? "Medicinas activas: " + b.meds.length : "Sin medicación";
-        document.getElementById('msg-med').innerText = mNext;
-
-        // Compras
-        const divCompra = document.getElementById('lista-compra');
-        divCompra.innerHTML = (b.compra || []).map((x,i)=>`
-            <div class="bg-yellow-100 p-4 rounded-3xl flex justify-between items-center text-[10px] font-black uppercase text-yellow-700 fade-in shadow-sm border border-yellow-200">
-                <span>🛒 Comprar: ${x}</span>
-                <button onclick="DATA.bebes[bebeIdx].compra.splice(${i},1); render(); sync()"><i class="fa-solid fa-circle-check text-xl"></i></button>
+        // --- 2. COMPRA GLOBAL ---
+        document.getElementById('lista-compra-global').innerHTML = (DATA.compraFamiliar || []).map((x,i)=>`
+            <div class="bg-yellow-100 p-4 rounded-3xl flex justify-between items-center text-[10px] font-black uppercase text-yellow-700 shadow-sm border border-yellow-200">
+                <span>🛒 ${x.txt} <small class="opacity-50">(${x.para})</small></span>
+                <button onclick="DATA.compraFamiliar.splice(${i},1);sync()"><i class="fa-solid fa-check-circle text-xl"></i></button>
             </div>`).join('');
 
-        // Bibe repetidor
-        const btnRep = document.getElementById('btn-repetir-bibe');
-        if(b.lastBibeMl) { btnRep.innerText = `REPETIR ${b.lastBibeMl}ml`; btnRep.classList.remove('hidden'); }
-        else { btnRep.classList.add('hidden'); }
+        // --- 3. DIARIO Y BOTONES (DEL NIÑO SELECCIONADO) ---
+        const btnRep = document.getElementById('btn-repetir');
+        if(bActivo.lastMl) { btnRep.innerText=`Repetir ${bActivo.lastMl}ml`; btnRep.classList.remove('hidden'); } else { btnRep.classList.add('hidden'); }
+        
+        document.getElementById('diario-hoy').innerHTML = (bActivo.logs||[]).slice(0,10).map(l=>`
+            <div class="bg-white p-4 rounded-2xl flex justify-between border-b shadow-sm"><span class="font-bold text-xs">${l.txt}</span><span class="text-[9px] font-black text-slate-300">${l.h}</span></div>`).join('');
 
-        // Diario
-        document.getElementById('diario-hoy').innerHTML = (b.logs || []).slice(0,10).map((l,i)=>`
-            <div class="bg-white p-4 rounded-2xl flex justify-between border-b shadow-sm fade-in">
-                <span class="font-bold text-slate-700 text-xs">${l.txt}</span>
-                <span class="text-[9px] font-black text-slate-300">${l.hora}</span>
-            </div>`).join('');
+        // Salud (Niño activo)
+        document.getElementById('cur-peso').innerText = bActivo.peso ? bActivo.peso+"kg" : "--.-kg";
+        document.getElementById('cur-altura').innerText = bActivo.altura ? bActivo.altura+"cm" : "--cm";
+        document.getElementById('historial-pesos').innerHTML = (bActivo.hPeso||[]).slice(0,5).map(h=>`<div class="bg-indigo-50 p-2 rounded-xl text-[10px] font-bold text-indigo-700 min-w-[70px] text-center border">${h.f}<br>${h.kg}kg</div>`).join('');
+        document.getElementById('lista-meds').innerHTML = (bActivo.meds||[]).map((m,i)=>`<div class="bg-white p-4 rounded-2xl border shadow-sm flex justify-between"><div><p class="font-black text-xs text-indigo-600">${m.n}</p><p class="text-[8px] font-bold text-slate-400">Cada ${m.g}h</p></div><button onclick="DATA.bebes[bIdx].meds.splice(${i},1);sync()" class="text-red-200"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+        document.getElementById('lista-revs').innerHTML = REVS.map((r,i)=>`<div class="p-4 flex justify-between items-center"><div class="text-xs font-black">${r.e}</div><div class="flex gap-2"><button onclick="agendarRev('${r.e}')" class="text-[8px] font-bold bg-slate-100 p-2 rounded-lg text-slate-500">+CITA</button><input type="checkbox" onchange="toggleRev(${i})" ${bActivo.revs&&bActivo.revs[i]?'checked':''} class="w-5 h-5 accent-blue-600"></div></div>`).join('');
+        document.getElementById('lista-alimentos').innerHTML = (bActivo.foods||[]).map(f=>`<div class="bg-white p-4 rounded-2xl flex justify-between shadow-sm font-bold text-xs"><span>${f.n}</span><span>${f.r}</span></div>`).join('');
 
-        // Salud y Crecimiento
-        document.getElementById('view-peso').innerText = b.peso ? b.peso + " kg" : "--.- kg";
-        document.getElementById('view-altura').innerText = b.altura ? b.altura + " cm" : "-- cm";
-        document.getElementById('historial-pesos').innerHTML = (b.historialPeso || []).slice(0,5).map(h=>`
-            <div class="bg-indigo-50 p-3 rounded-xl min-w-[80px] text-center border border-indigo-100">
-                <div class="text-[8px] font-black text-indigo-400">${h.fecha}</div>
-                <div class="text-[10px] font-bold text-indigo-700">${h.kg}kg</div>
-            </div>`).join('');
-
-        document.getElementById('lista-salud').innerHTML = (b.meds || []).map((m,i)=>`
-            <div class="bg-white p-5 rounded-[2rem] border shadow-sm flex justify-between items-center">
-                <div><div class="font-black text-xs uppercase text-indigo-600">${m.n} (${m.d})</div><div class="text-[9px] font-bold text-slate-400 uppercase">Cada ${m.h}h - ${m.p} días</div></div>
-                <button onclick="DATA.bebes[bebeIdx].meds.splice(${i},1); render(); sync()" class="text-red-200"><i class="fa-solid fa-trash-can"></i></button>
-            </div>`).join('');
-
-        // Revisiones
-        document.getElementById('lista-revisiones').innerHTML = REVISIONES.map((r,i)=>`
-            <div class="p-5 flex items-center justify-between bg-white">
-                <div class="flex-1">
-                    <div class="font-black text-xs uppercase">${r.edad}</div>
-                    <div class="text-[8px] font-bold text-slate-400">${r.con}</div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="agendarRevision('${r.edad}')" class="text-[8px] font-black bg-slate-100 px-3 py-2 rounded-lg text-slate-500 uppercase">+ Cita</button>
-                    <input type="checkbox" onchange="toggleRev(${i})" ${b.revs && b.revs[i]?'checked':''} class="w-6 h-6 rounded-full accent-blue-600">
-                </div>
-            </div>`).join('');
-
-        // Alimentos
-        document.getElementById('lista-alimentos').innerHTML = (b.foods || []).map(x=>`
-            <div class="bg-white p-4 rounded-2xl flex justify-between border shadow-sm font-bold text-xs"><span>${x.n}</span><span>${x.r}</span></div>`).join('');
-
-        renderCal(); renderAgenda();
-        document.getElementById('cfg-intervalo').value = DATA.intervalo;
+        renderCal();
+        document.getElementById('cfg-int').value = DATA.intervalo;
     }
 
     function renderCal() {
         const grid = document.getElementById('cal-grid'); grid.innerHTML = "";
-        const y = currentDate.getFullYear(), m = currentDate.getMonth();
-        document.getElementById('cal-mes-titulo').innerText = new Intl.DateTimeFormat('es',{month:'long',year:'numeric'}).format(currentDate);
+        const y = curMonth.getFullYear(), m = curMonth.getMonth();
+        document.getElementById('cal-month').innerText = new Intl.DateTimeFormat('es',{month:'long',year:'numeric'}).format(curMonth);
         const start = (new Date(y,m,1).getDay()+6)%7, days = new Date(y,m+1,0).getDate();
         for(let i=0;i<start;i++) grid.innerHTML+=`<div></div>`;
-        for(let i=1;i<=days;i++) {
+        for(let i=1;i<=days;i++){
             const d = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-            const hasCita = DATA.bebes[bebeIdx].citas && DATA.bebes[bebeIdx].citas[d];
-            grid.innerHTML+=`<div onclick="selectedDate='${d}';render();" class="cal-day ${d===selectedDate?'bg-blue-600 text-white shadow-lg':'bg-slate-50'} ${hasCita && d!==selectedDate?'border-2 border-blue-200':''}">${i}</div>`;
+            const has = DATA.bebes[bIdx].citas && DATA.bebes[bIdx].citas[d];
+            grid.innerHTML += `<div onclick="selDate='${d}';render()" class="cal-day ${d===selDate?'bg-blue-600 text-white shadow-lg':(has?'bg-blue-100 text-blue-600':'bg-slate-50')}">${i}</div>`;
         }
+        let list = ""; const citas = DATA.bebes[bIdx].citas || {};
+        if(citas[selDate]) citas[selDate].forEach((c,i) => {
+            list += `<div class="bg-white p-4 rounded-2xl border-l-4 border-blue-600 flex justify-between items-center shadow-sm"><div><p class="text-[8px] font-black text-blue-500">${c.h||'--:--'}</p><p class="text-xs font-bold">${c.t}</p></div><button onclick="DATA.bebes[bIdx].citas['${selDate}'].splice(${i},1);sync()" class="text-slate-200"><i class="fa-solid fa-xmark"></i></button></div>`;
+        });
+        document.getElementById('agenda-lista').innerHTML = list || '<p class="text-center text-[9px] font-bold text-slate-300 py-10">SIN CITAS</p>';
     }
 
-    function renderAgenda() {
-        const b = DATA.bebes[bebeIdx];
-        let h = "", proximas = 0;
-        const todayStr = new Date().toISOString().split('T')[0];
-        
-        Object.keys(b.citas || {}).sort().forEach(fecha => {
-            if(fecha >= todayStr) {
-                b.citas[fecha].forEach((c,i) => {
-                    proximas++;
-                    h += `<div class="bg-white p-4 rounded-2xl border-l-4 border-blue-600 flex justify-between items-center shadow-sm">
-                        <div><div class="text-[8px] font-black text-blue-500 uppercase">${fecha} @ ${c.hora}</div><div class="font-bold text-xs uppercase">${c.txt}</div></div>
-                        <button onclick="DATA.bebes[bebeIdx].citas['${fecha}'].splice(${i},1); render(); sync()" class="text-slate-200"><i class="fa-solid fa-xmark"></i></button>
-                    </div>`;
-                });
-            }
-        });
-        document.
+    // UTILS
+    function toggleRev(i) { if(!DATA.bebes[bIdx].revs) DATA.bebes[bIdx].revs = {}; DATA.bebes[bIdx].revs[i] = !DATA.bebes[bIdx].revs[i]; sync(); }
+    function agendarRev(txt) { selDate = new Date().toISOString().split('T')[0]; document.getElementById('c-txt').value = "Revisión "+txt; showTab('cal'); openModal('modal-cal'); }
+    function switchBebe(v) { bIdx = parseInt(v); localStorage.setItem('EVA_CARE_BEBE_IDX', v); render(); }
+    function updateCfg() { DATA.intervalo = document.getElementById('cfg-int').value; sync(); }
+    function setReac(r, b) { curReac = r; document.querySelectorAll('.reac-btn').forEach(x=>x.classList.remove('reac-active')); b.classList.add('reac-active'); }
+    function addNewBebe() {
+        const n = document.getElementById('new-n').value, f = document.getElementById('new-f').value;
+        if(n && f) { 
+            const existe = DATA.bebes.find(x => x.n.toLowerCase() === n.toLowerCase());
+            if(existe) { alert("Ya existe alguien con ese nombre."); return; }
+            DATA.bebes.push({n,f,logs:[],meds:[],foods:[],citas:{},compra:[],hPeso:[]}); 
+            sync(); closeModal('modal-menu'); 
+        }
+    }
+    function showTab(t) { document.querySelectorAll('main').forEach(m=>m.classList.add('hidden')); document.getElementById('tab-'+t).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b=>b.className='text-slate-300 p-4'); document.getElementById('nav-'+t).className='text-blue-600 p-4'; }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function changeMonth(v) { curMonth.setMonth(curMonth.getMonth()+v); render(); }
+
+    init();
+    setInterval(render, 30000); // Actualiza avisos cada 30s
+</script>
+</body>
+</html>
