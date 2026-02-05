@@ -3,7 +3,7 @@
 <head>  
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
-    <title>EvaCare V12.5 - Fix Loading</title>  
+    <title>EvaCare V12.8 - Smart Onboarding</title>  
     <script src="https://cdn.tailwindcss.com"></script>  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">  
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
@@ -12,34 +12,69 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');  
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }  
         .hidden { display: none !important; }  
-        .card { background: white; border-radius: 1.5rem; padding: 1.2rem; shadow: 0 4px 15px rgba(0,0,0,0.03); }  
-        .cal-day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 0.8rem; font-size: 0.8rem; font-weight: 700; position: relative; }  
-        .hoy { background-color: #2563eb !important; color: white !important; }  
-        .seleccionado { border: 2px solid #2563eb !important; }  
+        .card { background: white; border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }  
+        input { border: 2px solid transparent !important; transition: all 0.3s; }
+        input:focus { border-color: #2563eb !important; background: white !important; }
+        .btn-reac-active { background-color: #ffedd5 !important; border: 2px solid #f97316 !important; }
     </style>  
 </head>  
 <body class="bg-slate-50 text-slate-900 pb-28">
 
-<div id="loading-screen" class="fixed inset-0 bg-white z-[9000] flex flex-col items-center justify-center">
-    <div class="text-blue-600 text-3xl font-black italic animate-pulse">EvaCare</div>
-    <div class="text-[10px] font-bold text-slate-300 mt-2 tracking-widest uppercase">Sincronizando...</div>
+<div id="loading-screen" class="fixed inset-0 bg-white z-[9000] flex flex-col items-center justify-center text-center p-6">
+    <div class="text-blue-600 text-4xl font-black italic animate-pulse mb-2">EvaCare</div>
+    <div class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">Sincronizando...</div>
 </div>
 
-<div id="setup-wizard" class="fixed inset-0 bg-white z-[8000] flex flex-col p-8 hidden">  
-    <div id="step-1" class="step-div flex flex-col h-full justify-center space-y-6">  
-        <h2 class="text-4xl font-extrabold italic text-blue-600">EvaCare</h2>  
-        <input id="setup-family" type="text" placeholder="ID Familia (ej: LosGarcia)" class="w-full p-5 bg-slate-100 rounded-3xl text-xl font-bold outline-none border-none">
+<div id="setup-wizard" class="fixed inset-0 bg-white z-[8000] flex flex-col p-8 hidden overflow-y-auto">  
+    
+    <div id="step-0" class="step-div flex flex-col h-full justify-center space-y-8">
+        <div class="text-center">
+            <h2 class="text-4xl font-black italic text-blue-600">EvaCare</h2>
+            <p class="text-slate-400 font-bold text-xs mt-2 uppercase tracking-tighter">Gestión compartida para tu bebé</p>
+        </div>
+        <div class="space-y-4">
+            <button onclick="goJoin()" class="w-full bg-slate-900 text-white p-6 rounded-[2rem] font-black flex items-center justify-between group">
+                <div class="text-left">
+                    <span class="block text-lg">Unirse a Familia</span>
+                    <span class="text-[9px] opacity-50 uppercase">Ya tengo un código familiar</span>
+                </div>
+                <i class="fa-solid fa-arrow-right mr-2"></i>
+            </button>
+            <button onclick="irAStep(1)" class="w-full bg-blue-600 text-white p-6 rounded-[2rem] font-black flex items-center justify-between">
+                <div class="text-left">
+                    <span class="block text-lg">Nueva Familia</span>
+                    <span class="text-[9px] opacity-70 uppercase">Empezar de cero hoy</span>
+                </div>
+                <i class="fa-solid fa-plus mr-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="step-join" class="step-div hidden flex flex-col h-full justify-center space-y-6">
+        <h2 class="text-3xl font-black italic">Introduce el ID</h2>
+        <input id="join-id" type="text" placeholder="Ej: LosGarcia2024" class="w-full p-6 bg-slate-100 rounded-3xl text-xl font-bold outline-none">
+        <button onclick="processJoin()" class="bg-slate-900 text-white p-6 rounded-3xl font-black uppercase">Entrar ahora</button>
+        <button onclick="irAStep(0)" class="text-slate-400 font-bold text-sm">Volver atrás</button>
+    </div>
+
+    <div id="step-1" class="step-div hidden flex flex-col h-full justify-center space-y-6">  
+        <h2 class="text-3xl font-black italic">ID de Familia</h2>  
+        <input id="setup-family" type="text" placeholder="Crea un nombre único" class="w-full p-6 bg-slate-100 rounded-3xl text-xl font-bold outline-none">
+        <p class="text-[11px] text-slate-400 px-2 leading-tight font-medium">Este es el código que darás a tu pareja para sincronizar los datos.</p>
         <button onclick="irAStep(2)" class="bg-blue-600 text-white p-6 rounded-3xl font-black uppercase shadow-lg">Siguiente</button>  
+        <button onclick="irAStep(0)" class="text-slate-400 font-bold text-sm">Volver</button>
     </div>  
+
     <div id="step-2" class="step-div hidden flex flex-col h-full justify-center space-y-6">  
-        <h2 class="text-3xl font-extrabold text-slate-900">Bebé</h2>  
-        <input id="setup-n" type="text" placeholder="¿Cómo se llama?" class="w-full p-5 bg-slate-100 rounded-3xl text-2xl font-bold outline-none">  
+        <h2 class="text-3xl font-black">Nombre del Bebé</h2>  
+        <input id="setup-n" type="text" placeholder="¿Cómo se llama?" class="w-full p-6 bg-slate-100 rounded-3xl text-2xl font-bold outline-none">  
         <button onclick="irAStep(3)" class="bg-blue-600 text-white p-6 rounded-3xl font-black uppercase">Siguiente</button>  
     </div>  
+
     <div id="step-3" class="step-div hidden flex flex-col h-full justify-center space-y-6">  
-        <h2 class="text-3xl font-extrabold text-slate-900">Nacimiento</h2>  
-        <input id="setup-f" type="date" class="w-full p-5 bg-slate-100 rounded-3xl text-xl font-bold outline-none">  
-        <button onclick="finishSetup()" class="bg-slate-900 text-white p-6 rounded-3xl font-black uppercase shadow-2xl">Empezar</button>  
+        <h2 class="text-3xl font-black">Nacimiento</h2>  
+        <input id="setup-f" type="date" class="w-full p-6 bg-slate-100 rounded-3xl text-xl font-bold outline-none">  
+        <button onclick="finishCreate()" class="bg-slate-900 text-white p-6 rounded-3xl font-black uppercase shadow-2xl">Crear Familia</button>  
     </div>  
 </div>  
 
@@ -56,12 +91,13 @@
             <span class="text-2xl font-extrabold text-slate-900 italic">EvaCare</span>  
             <button onclick="openModal('modal-menu')" class="text-slate-300"><i class="fa-solid fa-bars-staggered"></i></button>  
         </header>  
-        <div class="bg-blue-600 p-6 rounded-[2.5rem] text-white shadow-xl">  
-            <h2 id="view-nombre" class="text-2xl font-black italic uppercase">---</h2>  
-            <p id="view-edad" class="text-[10px] font-bold opacity-70 tracking-widest mt-1 uppercase"></p>  
+        <div class="bg-blue-600 p-6 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">  
+            <h2 id="view-nombre" class="text-2xl font-black italic uppercase relative z-10">---</h2>  
+            <p id="view-edad" class="text-[10px] font-bold opacity-70 tracking-widest mt-1 uppercase relative z-10"></p>  
+            <i class="fa-solid fa-baby absolute -right-2 -bottom-2 text-7xl opacity-10"></i>
         </div>  
         <div class="bg-slate-900 rounded-[2rem] p-5 text-white shadow-2xl">  
-            <div id="timeline-eventos" class="text-sm font-bold text-blue-400 italic">Analizando...</div>  
+            <div id="timeline-eventos" class="text-sm font-bold text-blue-400 italic text-center">Calculando...</div>  
         </div>  
         <div id="lista-compra" class="hidden space-y-2"></div>
         <div class="grid grid-cols-4 gap-2">  
@@ -71,15 +107,15 @@
             <button onclick="addCompraUrgent()" class="bg-yellow-400 text-slate-900 rounded-3xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-cart-plus"></i></button>  
         </div>  
         <div class="grid grid-cols-2 gap-4">  
-            <button onclick="openModal('modal-pecho')" class="bg-white h-24 rounded-[2rem] flex flex-col items-center justify-center border shadow-sm"><i class="fa-solid fa-person-breastfeeding text-pink-500 mb-1"></i><span class="text-[9px] font-black uppercase">Pecho</span></button>  
-            <button onclick="openModal('modal-bibe')" class="bg-white h-24 rounded-[2rem] flex flex-col items-center justify-center border shadow-sm"><i class="fa-solid fa-bottle-water text-blue-500 mb-1"></i><span class="text-[9px] font-black uppercase">Biberón</span></button>  
+            <button onclick="openModal('modal-pecho')" class="bg-white h-24 rounded-[2rem] flex flex-col items-center justify-center border shadow-sm"><i class="fa-solid fa-person-breastfeeding text-pink-500 mb-1 text-xl"></i><span class="text-[9px] font-black uppercase">Pecho</span></button>  
+            <button onclick="openModal('modal-bibe')" class="bg-white h-24 rounded-[2rem] flex flex-col items-center justify-center border shadow-sm"><i class="fa-solid fa-bottle-water text-blue-500 mb-1 text-xl"></i><span class="text-[9px] font-black uppercase">Biberón</span></button>  
         </div>  
-        <div id="diario-hoy" class="space-y-2 pb-10"></div>  
+        <div id="diario-hoy" class="space-y-2 pb-10 text-[11px] font-bold"></div>  
     </main>
 
-    <main id="tab-nutricion" class="hidden p-4 space-y-4">
-        <h2 class="text-2xl font-black italic mt-4 text-orange-600">Nutrición</h2>
-        <div class="bg-white p-6 rounded-3xl space-y-4">
+    <main id="tab-nutricion" class="hidden p-4 space-y-4 pt-6">
+        <h2 class="text-2xl font-black italic text-orange-600 px-2">Nutrición</h2>
+        <div class="bg-white p-6 rounded-3xl space-y-4 shadow-sm border">
             <input id="food-n" type="text" placeholder="Alimento..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
             <div class="grid grid-cols-2 gap-4">
                 <button onclick="setReac('😋', this)" class="btn-reac bg-slate-50 p-4 rounded-2xl text-2xl">😋</button>
@@ -90,75 +126,54 @@
         <div id="lista-alimentos" class="space-y-2"></div>
     </main>
 
-    <main id="tab-salud" class="hidden p-4 space-y-4">
-        <h2 class="text-2xl font-black italic mt-4 text-indigo-600">Salud</h2>
-        <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-5 rounded-3xl font-black">Nuevo Medicamento</button>
+    <main id="tab-salud" class="hidden p-4 space-y-4 pt-6">
+        <h2 class="text-2xl font-black italic text-indigo-600 px-2">Salud</h2>
+        <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-5 rounded-3xl font-black shadow-lg">Nuevo Tratamiento</button>
         <div id="lista-salud" class="space-y-3"></div>
     </main>
 
-    <main id="tab-cal" class="hidden p-4 space-y-6">
-        <h2 class="text-2xl font-black italic mt-4 text-blue-600">Agenda</h2>
-        <div class="bg-white p-4 rounded-3xl">
+    <main id="tab-cal" class="hidden p-4 space-y-6 pt-6">
+        <h2 class="text-2xl font-black italic text-blue-600 px-2">Agenda</h2>
+        <div id="cal-grid-container" class="bg-white p-4 rounded-3xl shadow-sm border">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                <h3 id="cal-mes-titulo" class="font-black uppercase text-xs">---</h3>
+                <h3 id="cal-mes-titulo" class="font-black uppercase text-xs"></h3>
                 <button onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
             <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
         </div>
-        <div id="agenda-total-lista" class="space-y-2"></div>
+        <div id="agenda-total-lista" class="space-y-2 pb-10"></div>
     </main>
 </div>
 
 <div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-[9500] flex justify-end">
     <div class="bg-white w-4/5 h-full p-8 flex flex-col">
         <h2 class="text-3xl font-black italic mb-10">Ajustes</h2>
-        <div class="bg-slate-50 p-4 rounded-2xl mb-4">
-            <p class="text-[9px] font-black text-blue-600 mb-1">ID FAMILIA</p>
-            <p id="view-family-id" class="font-bold text-slate-800 break-all"></p>
+        <div class="space-y-4">
+            <div class="bg-slate-50 p-5 rounded-3xl">
+                <p class="text-[9px] font-black text-blue-600 mb-1 uppercase tracking-widest">ID Familia</p>
+                <p id="view-family-id" class="font-bold text-slate-800 break-all text-xs"></p>
+            </div>
+            <div class="bg-slate-50 p-5 rounded-3xl">
+                <p class="text-[9px] font-black text-blue-600 mb-2 uppercase tracking-widest">Plazo Tomas</p>
+                <div class="flex items-center justify-between">
+                    <button onclick="updatePlazo(-0.5)" class="text-blue-600 font-bold p-2 text-xl">-</button>
+                    <span id="view-plazo" class="font-black text-slate-800 text-lg">3h</span>
+                    <button onclick="updatePlazo(0.5)" class="text-blue-600 font-bold p-2 text-xl">+</button>
+                </div>
+            </div>
         </div>
-        <button onclick="reiniciarApp()" class="w-full text-red-500 p-4 border border-red-50 rounded-2xl font-bold text-[10px]">CERRAR SESIÓN</button>
+        <button onclick="reiniciarApp()" class="w-full mt-10 text-red-500 p-4 border border-red-50 rounded-2xl font-bold text-[10px] uppercase">Cerrar Sesión</button>
         <button onclick="closeModal('modal-menu')" class="mt-auto p-4 text-slate-300 text-center font-bold">CERRAR</button>
     </div>
 </div>
 
-<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6">
-    <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
-        <input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-4xl font-black outline-none border-none">
-        <button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black">REGISTRAR</button>
-        <button onclick="closeModal('modal-bibe')" class="w-full text-slate-300 font-bold">CANCELAR</button>
-    </div>
-</div>
-
-<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-end">
-    <div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4">
-        <button onclick="addLog('🤱 Pecho Izq'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center">IZQ</button>
-        <button onclick="addLog('🤱 Ambos'); closeModal('modal-pecho')" class="bg-pink-100 p-6 rounded-2xl font-black text-pink-700 text-xs text-center">AMBOS</button>
-        <button onclick="addLog('🤱 Pecho Der'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center">DER</button>
-    </div>
-</div>
-
-<div id="modal-add-med" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6">
-    <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
-        <input id="m-n" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold">
-        <input id="m-h" type="number" placeholder="Horas" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold">
-        <button onclick="addMed()" class="w-full bg-indigo-600 text-white p-5 rounded-xl font-black">GUARDAR</button>
-        <button onclick="closeModal('modal-add-med')" class="w-full text-slate-300 font-bold text-center">CERRAR</button>
-    </div>
-</div>
-
-<div id="modal-cal" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6">
-    <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
-        <h3 id="cal-modal-fecha" class="text-center font-black text-blue-600 text-xs"></h3>
-        <input id="cal-ev-txt" type="text" placeholder="Evento" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold">
-        <input id="cal-ev-hora" type="time" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold">
-        <button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-xl font-black">GUARDAR</button>
-        <button onclick="closeModal('modal-cal')" class="w-full text-slate-300 font-bold text-center">CERRAR</button>
-    </div>
-</div>
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-4xl font-black outline-none"><button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black">REGISTRAR</button><button onclick="closeModal('modal-bibe')" class="w-full text-slate-300 font-bold">CANCELAR</button></div></div>
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-end"><div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4 shadow-2xl"><button onclick="addLog('🤱 Pecho Izq'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center">IZQ</button><button onclick="addLog('🤱 Ambos'); closeModal('modal-pecho')" class="bg-pink-100 p-6 rounded-2xl font-black text-pink-700 text-xs text-center">AMBOS</button><button onclick="addLog('🤱 Pecho Der'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center">DER</button></div></div>
+<div id="modal-add-med" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><input id="m-n" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold"><input id="m-h" type="number" placeholder="Horas" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold"><button onclick="addMed()" class="w-full bg-indigo-600 text-white p-5 rounded-xl font-black">GUARDAR</button><button onclick="closeModal('modal-add-med')" class="w-full text-slate-300 font-bold text-center">CERRAR</button></div></div>
+<div id="modal-cal" class="hidden fixed inset-0 bg-black/80 z-[9500] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4"><h3 id="cal-modal-fecha" class="text-center font-black text-blue-600 text-[10px] uppercase tracking-widest"></h3><input id="cal-ev-txt" type="text" placeholder="¿Qué ocurre?" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold"><input id="cal-ev-hora" type="time" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold"><button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-xl font-black shadow-lg uppercase text-xs">Guardar</button><button onclick="closeModal('modal-cal')" class="w-full text-slate-300 font-bold text-center text-[10px] uppercase">Cerrar</button></div></div>
 
 <script>
-    // 1. FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
         databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com",
@@ -167,7 +182,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 2. STATE
     let DATA = { idx: 0, bebes: [], plazo: 3 };
     let familyId = localStorage.getItem('EVA_CARE_FAMILY_ID');
     let currentDate = new Date();
@@ -176,61 +190,75 @@
 
     const b = () => DATA.bebes[DATA.idx];
 
-    // 3. INIT ENGINE (FIXED)
+    // LÓGICA DE INICIO
     function init() {
         if (!familyId) {
             hideLoading();
             showWizard();
+            irAStep(0);
         } else {
-            document.getElementById('view-family-id').innerText = familyId;
-            // Timeout de seguridad: si en 3 segundos no hay respuesta de Firebase, algo va mal
-            const cloudTimeout = setTimeout(() => {
-                if (document.getElementById('app-content').classList.contains('hidden')) {
-                    alert("Sin respuesta de la nube. Comprueba tu conexión o ID.");
-                    reiniciarApp();
-                }
-            }, 5000);
-
-            db.ref('familias/' + familyId).on('value', (snap) => {
-                clearTimeout(cloudTimeout);
-                const cloud = snap.val();
-                if (cloud) {
-                    DATA = cloud;
-                    render();
-                    hideLoading();
-                    showApp();
-                } else {
-                    hideLoading();
-                    showWizard();
-                }
-            });
+            startCloudSync();
         }
     }
 
-    function hideLoading() { document.getElementById('loading-screen').classList.add('hidden'); }
-    function showWizard() { document.getElementById('setup-wizard').classList.remove('hidden'); }
-    function showApp() { document.getElementById('app-content').classList.remove('hidden'); }
+    function startCloudSync() {
+        document.getElementById('view-family-id').innerText = familyId;
+        const cloudTimeout = setTimeout(() => {
+            if (document.getElementById('app-content').classList.contains('hidden')) {
+                alert("ID no encontrado o sin internet.");
+                reiniciarApp();
+            }
+        }, 8000);
 
-    function save() { if (familyId) db.ref('familias/' + familyId).set(DATA); }
+        db.ref('familias/' + familyId).on('value', (snap) => {
+            clearTimeout(cloudTimeout);
+            const cloud = snap.val();
+            if (cloud && cloud.bebes) {
+                DATA = cloud;
+                render();
+                hideLoading();
+                showApp();
+            } else {
+                alert("Esta familia aún no ha sido creada.");
+                reiniciarApp();
+            }
+        });
+    }
 
-    // 4. LOGIC
+    // NAVEGACIÓN WIZARD
     function irAStep(n) {
         document.querySelectorAll('.step-div').forEach(d => d.classList.add('hidden'));
         document.getElementById('step-' + n).classList.remove('hidden');
     }
 
-    function finishSetup() {
-        const fid = document.getElementById('setup-family').value.trim();
+    function goJoin() { irAStep('join'); }
+
+    function processJoin() {
+        const id = document.getElementById('join-id').value.trim();
+        if(!id) return;
+        familyId = id;
+        localStorage.setItem('EVA_CARE_FAMILY_ID', id);
+        location.reload();
+    }
+
+    function finishCreate() {
+        const id = document.getElementById('setup-family').value.trim();
         const n = document.getElementById('setup-n').value.trim();
         const f = document.getElementById('setup-f').value;
-        if (!fid || !n || !f) { alert("¡Faltan campos!"); return; }
+        if(!id || !n || !f) { alert("Completa todos los datos."); return; }
         
-        familyId = fid;
-        localStorage.setItem('EVA_CARE_FAMILY_ID', familyId);
-        DATA.bebes = [{ n, f, logs: [], meds: [], compra: [], citas: {}, foods: [] }];
+        familyId = id;
+        localStorage.setItem('EVA_CARE_FAMILY_ID', id);
+        DATA = { idx: 0, plazo: 3, bebes: [{ n, f, logs: [], meds: [], compra: [], citas: {}, foods: [] }] };
         save();
-        location.reload(); // Recargamos para entrar en el flujo normal de sync
+        location.reload();
     }
+
+    // FUNCIONES APP
+    function hideLoading() { document.getElementById('loading-screen').classList.add('hidden'); }
+    function showWizard() { document.getElementById('setup-wizard').classList.remove('hidden'); }
+    function showApp() { document.getElementById('app-content').classList.remove('hidden'); }
+    function save() { if (familyId) db.ref('familias/' + familyId).set(DATA); }
 
     function addLog(txt) {
         if(!b().logs) b().logs = [];
@@ -243,65 +271,41 @@
         if(ml) { addLog(`🍼 Bibe ${ml}ml`); document.getElementById('bibe-ml').value = ""; closeModal('modal-bibe'); }
     }
 
-    function saveFood() {
-        const n = document.getElementById('food-n').value;
-        if(n) { if(!b().foods) b().foods=[]; b().foods.push({ n, r: foodReacSelected || '?' }); save(); document.getElementById('food-n').value=""; }
-    }
+    function updatePlazo(val) { DATA.plazo = Math.max(1, (DATA.plazo || 3) + val); save(); }
+    function saveFood() { const n = document.getElementById('food-n').value; if(n) { if(!b().foods) b().foods=[]; b().foods.push({ n, r: foodReacSelected || '?' }); save(); document.getElementById('food-n').value=""; } }
+    function addMed() { const n = document.getElementById('m-n').value, h = document.getElementById('m-h').value; if(n && h) { if(!b().meds) b().meds=[]; b().meds.push({ n, h: parseFloat(h) }); save(); closeModal('modal-add-med'); } }
+    function saveCita() { const txt = document.getElementById('cal-ev-txt').value; if(!txt) return; if(!b().citas) b().citas = {}; if(!b().citas[selectedDate]) b().citas[selectedDate] = []; b().citas[selectedDate].push({ txt, hora: document.getElementById('cal-ev-hora').value }); save(); closeModal('modal-cal'); }
 
-    function addMed() {
-        const n = document.getElementById('m-n').value, h = document.getElementById('m-h').value;
-        if(n && h) { if(!b().meds) b().meds=[]; b().meds.push({ n, h: parseFloat(h) }); save(); closeModal('modal-add-med'); }
-    }
-
-    function saveCita() {
-        const txt = document.getElementById('cal-ev-txt').value;
-        if(!txt) return;
-        if(!b().citas) b().citas = {};
-        if(!b().citas[selectedDate]) b().citas[selectedDate] = [];
-        b().citas[selectedDate].push({ txt, hora: document.getElementById('cal-ev-hora').value });
-        save(); closeModal('modal-cal');
-    }
-
-    // 5. RENDERS
+    // RENDERIZADO
     function render() {
         if (!DATA.bebes || DATA.bebes.length === 0) return;
         const be = b();
         document.getElementById('view-nombre').innerText = be.n;
         document.getElementById('view-edad').innerText = calcularEdad(be.f);
-        renderLogs();
-        renderTimeline();
-        renderSalud();
-        renderFoods();
-        renderCal();
-        renderAgendaTotal();
-        renderCompra();
+        document.getElementById('view-plazo').innerText = (DATA.plazo || 3) + "h";
+        document.getElementById('view-family-id').innerText = familyId;
+        renderLogs(); renderTimeline(); renderSalud(); renderFoods(); renderCal(); renderAgendaTotal(); renderCompra();
     }
 
     function renderLogs() {
         const logs = b().logs || [];
-        document.getElementById('diario-hoy').innerHTML = logs.slice(0, 15).map((l, i) => `
-            <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-50">
-                <span class="font-bold text-[11px] text-slate-700">${l.txt}</span>
-                <div class="flex items-center gap-3">
-                    <span class="text-[9px] font-bold text-slate-300">${l.hora}</span>
-                    <button onclick="b().logs.splice(${i},1); save()" class="text-slate-100"><i class="fa-solid fa-circle-xmark"></i></button>
-                </div>
-            </div>`).join('');
+        document.getElementById('diario-hoy').innerHTML = logs.slice(0, 15).map((l, i) => `<div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-50"><span>${l.txt}</span><div class="flex items-center gap-3"><span class="text-[9px] font-bold text-slate-300">${l.hora}</span><button onclick="b().logs.splice(${i},1); save()" class="text-slate-100"><i class="fa-solid fa-circle-xmark"></i></button></div></div>`).join('');
     }
 
     function renderTimeline() {
         const logs = b().logs || [];
         const ult = logs.find(l => l.txt.includes('Bibe') || l.txt.includes('Pecho'));
-        document.getElementById('timeline-eventos').innerText = ult ? `Última toma: ${ult.hora}` : "Sin registros hoy";
+        let h = "¡Todo listo!";
+        if(ult) {
+            const r = ((DATA.plazo || 3) * 3600000) - (Date.now() - ult.ts);
+            h = r > 0 ? `Siguiente toma en ${Math.floor(r/60000)} min` : "¡Toca comer!";
+        }
+        document.getElementById('timeline-eventos').innerText = h;
     }
 
     function renderSalud() {
         const meds = b().meds || [];
-        document.getElementById('lista-salud').innerHTML = meds.map((m, i) => `
-            <div class="card flex justify-between items-center">
-                <b class="text-sm uppercase">${m.n} (${m.h}h)</b>
-                <button onclick="b().meds.splice(${i},1); save()" class="text-red-100"><i class="fa-solid fa-trash"></i></button>
-            </div>`).join('');
+        document.getElementById('lista-salud').innerHTML = meds.map((m, i) => `<div class="card flex justify-between"><b>${m.n} (${m.h}h)</b><button onclick="b().meds.splice(${i},1); save()" class="text-red-100"><i class="fa-solid fa-trash"></i></button></div>`).join('');
     }
 
     function renderFoods() {
@@ -329,7 +333,7 @@
         let h = "";
         const citas = b().citas || {};
         Object.keys(citas).sort().forEach(f => {
-            citas[f].forEach((c, idx) => h += `<div class="card mb-2 flex justify-between"><div><p class="text-[8px] text-slate-300">${f}</p><b class="text-xs uppercase">${c.txt}</b></div><button onclick="b().citas['${f}'].splice(${idx},1); save()"><i class="fa-solid fa-trash text-[10px] text-slate-200"></i></button></div>`);
+            citas[f].forEach((c, idx) => h += `<div class="card mb-2 flex justify-between border-l-4 border-blue-500"><div><p class="text-[8px] text-slate-300">${f}</p><b class="text-xs">${c.txt}</b></div><button onclick="b().citas['${f}'].splice(${idx},1); save()"><i class="fa-solid fa-trash text-slate-200"></i></button></div>`);
         });
         document.getElementById('agenda-total-lista').innerHTML = h;
     }
@@ -337,11 +341,10 @@
     function renderCompra() {
         const comp = b().compra || [];
         const d = document.getElementById('lista-compra');
-        d.innerHTML = comp.map((item, i) => `<div class="bg-yellow-100 p-3 rounded-2xl flex justify-between items-center"><span class="text-[10px] font-black uppercase text-yellow-700">Comprar: ${item}</span><button onclick="b().compra.splice(${i},1); save()"><i class="fa-solid fa-check"></i></button></div>`).join('');
+        d.innerHTML = comp.map((item, i) => `<div class="bg-yellow-50 p-3 rounded-2xl flex justify-between items-center"><span class="text-[10px] font-black uppercase text-yellow-700">Falta: ${item}</span><button onclick="b().compra.splice(${i},1); save()"><i class="fa-solid fa-check"></i></button></div>`).join('');
         comp.length > 0 ? d.classList.remove('hidden') : d.classList.add('hidden');
     }
 
-    // 6. UTILS
     function showTab(t) { 
         document.querySelectorAll('main').forEach(m => m.classList.add('hidden')); 
         document.getElementById('tab-'+t).classList.remove('hidden'); 
@@ -353,8 +356,8 @@
     function changeMonth(d) { currentDate.setMonth(currentDate.getMonth() + d); renderCal(); }
     function openDay(d) { selectedDate = d; document.getElementById('cal-modal-fecha').innerText = d; renderCal(); openModal('modal-cal'); }
     function setReac(r, btn) { foodReacSelected = r; document.querySelectorAll('.btn-reac').forEach(b => b.classList.remove('btn-reac-active')); btn.classList.add('btn-reac-active'); }
-    function addCompraUrgent() { const i = prompt("¿Qué falta?"); if(i) { if(!b().compra) b().compra=[]; b().compra.push(i); save(); } }
-    function calcularEdad(f) { const d = Math.floor((Date.now() - new Date(f).getTime()) / 86400000); return d + " DÍAS"; }
+    function addCompraUrgent() { const i = prompt("¿Qué falta comprar?"); if(i) { if(!b().compra) b().compra=[]; b().compra.push(i); save(); } }
+    function calcularEdad(f) { const dias = Math.floor((Date.now() - new Date(f).getTime()) / 86400000); return dias < 30 ? dias + " DÍAS" : Math.floor(dias/30) + " MESES"; }
     function reiniciarApp() { if(confirm("¿Cerrar sesión?")) { localStorage.clear(); location.reload(); } }
 
     init();
