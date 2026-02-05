@@ -3,7 +3,7 @@
 <head>  
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
-    <title>EvaCare V12.3</title>  
+    <title>EvaCare V12.3 - Fixed</title>  
     <script src="https://cdn.tailwindcss.com"></script>  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">  
     <style>  
@@ -68,115 +68,99 @@
     <div id="lista-compra" class="hidden space-y-2"></div>  
 
     <div class="grid grid-cols-4 gap-2">  
-        <button onclick="addLog('💦 Pis')" class="bg-white py-4 rounded-2xl font-bold text-cyan-600 text-[10px] border shadow-sm">PIS</button>  
-        <button onclick="addLog('💩 Caca')" class="bg-white py-4 rounded-2xl font-bold text-orange-800 text-[10px] border shadow-sm">CACA</button>  
-        <button onclick="addLog('✨ Aseo')" class="bg-white py-4 rounded-2xl font-bold text-purple-600 text-[10px] border shadow-sm">ASEO</button>  
+        <button onclick="addLog('💦 Pis')" class="bg-white py-4 rounded-2xl font-bold text-cyan-600 text-[10px] border">PIS</button>  
+        <button onclick="addLog('💩 Caca')" class="bg-white py-4 rounded-2xl font-bold text-orange-800 text-[10px] border">CACA</button>  
+        <button onclick="addLog('✨ Aseo')" class="bg-white py-4 rounded-2xl font-bold text-purple-600 text-[10px] border">ASEO</button>  
         <button onclick="addCompraUrgent()" class="bg-yellow-400 text-slate-900 rounded-2xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-cart-plus"></i></button>  
     </div>  
 
     <div class="grid grid-cols-2 gap-4">  
-        <button onclick="openModal('modal-pecho')" class="bg-white h-20 rounded-3xl flex flex-col items-center justify-center border shadow-sm"><i class="fa-solid fa-person-breastfeeding text-pink-500 mb-1"></i><span class="text-[9px] font-black uppercase">Pecho</span></button>  
-        <button onclick="openModal('modal-bibe')" class="bg-white h-20 rounded-3xl flex flex-col items-center justify-center border shadow-sm"><i class="fa-solid fa-bottle-water text-blue-500 mb-1"></i><span class="text-[9px] font-black uppercase">Biberón</span></button>  
+        <button onclick="openModal('modal-pecho')" class="bg-white h-20 rounded-3xl flex flex-col items-center justify-center border"><i class="fa-solid fa-person-breastfeeding text-pink-500 mb-1"></i><span class="text-[9px] font-black uppercase">Pecho</span></button>  
+        <button onclick="openModal('modal-bibe')" class="bg-white h-20 rounded-3xl flex flex-col items-center justify-center border"><i class="fa-solid fa-bottle-water text-blue-500 mb-1"></i><span class="text-[9px] font-black uppercase">Biberón</span></button>  
     </div>  
 
-    <div id="diario-hoy" class="space-y-2 pt-4"></div>  
+    <div id="diario-hoy" class="space-y-2"></div>  
 </main>
 
-<main id="tab-nutricion" class="hidden p-4 space-y-4">  
-    <h2 class="text-2xl font-black italic mt-4 px-2 text-orange-600">Nutrición</h2>  
-    <div class="card space-y-4">  
-        <input id="food-n" type="text" placeholder="Nombre del alimento..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">  
-        <div class="grid grid-cols-2 gap-4">  
-            <button onclick="setReac('😋', this)" class="btn-reac bg-slate-50 p-4 rounded-2xl text-2xl">😋</button>  
-            <button onclick="setReac('🤢', this)" class="btn-reac bg-slate-50 p-4 rounded-2xl text-2xl">🤢</button>  
-        </div>  
-        <button onclick="saveFood()" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-black uppercase text-[10px]">Guardar Alimento</button>  
-    </div>  
-    <div class="pt-4 px-2">  
-        <input id="food-search" type="text" onkeyup="filterFoods()" placeholder="🔍 Buscar alimento..." class="w-full p-4 bg-white rounded-2xl text-xs font-bold shadow-sm border outline-none">  
-    </div>  
-    <div id="lista-alimentos" class="space-y-2"></div>  
+<main id="tab-nutricion" class="hidden p-4 space-y-4">
+    <h2 class="text-2xl font-black italic mt-4 px-2 text-orange-600">Nutrición</h2>
+    <div class="card space-y-4">
+        <input id="food-n" type="text" placeholder="Nombre alimento..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none">
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="setReac('😋', this)" class="btn-reac bg-slate-50 p-4 rounded-2xl text-2xl">😋</button>
+            <button onclick="setReac('🤢', this)" class="btn-reac bg-slate-50 p-4 rounded-2xl text-2xl">🤢</button>
+        </div>
+        <button onclick="saveFood()" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-black uppercase text-[10px]">Guardar</button>
+    </div>
+    <div id="lista-alimentos" class="space-y-2"></div>
 </main>
 
-<main id="tab-salud" class="hidden p-4 space-y-4">  
-    <h2 class="text-2xl font-black italic mt-4 px-2 text-indigo-600">Salud</h2>  
-    <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-5 rounded-3xl font-black flex items-center justify-between shadow-lg"><span>Añadir Tratamiento</span><i class="fa-solid fa-pills text-lg"></i></button>  
-    <div id="lista-salud" class="space-y-3"></div>  
+<main id="tab-salud" class="hidden p-4 space-y-4">
+    <h2 class="text-2xl font-black italic mt-4 px-2 text-indigo-600">Salud</h2>
+    <button onclick="openModal('modal-add-med')" class="w-full bg-indigo-600 text-white p-5 rounded-3xl font-black">Añadir Tratamiento</button>
+    <div id="lista-salud" class="space-y-3"></div>
 </main>
 
-<main id="tab-cal" class="hidden p-4 space-y-6">  
-    <h2 class="text-2xl font-black italic mt-4 px-2 text-blue-600">Agenda</h2>  
-    <div class="card">  
-        <div class="flex justify-between items-center mb-6">  
-            <button onclick="changeMonth(-1)" class="p-2"><i class="fa-solid fa-chevron-left text-slate-300"></i></button>  
-            <h3 id="cal-mes-titulo" class="font-black uppercase text-xs tracking-[0.2em] text-blue-600">---</h3>  
-            <button onclick="changeMonth(1)" class="p-2"><i class="fa-solid fa-chevron-right text-slate-300"></i></button>  
-        </div>  
-        <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>  
-    </div>  
-    <div class="space-y-4">  
-        <h4 class="text-[10px] font-black uppercase text-slate-400 px-2 tracking-widest">Listado de Eventos</h4>  
-        <div id="agenda-total-lista" class="space-y-2"></div>  
-    </div>  
+<main id="tab-cal" class="hidden p-4 space-y-6">
+    <h2 class="text-2xl font-black italic mt-4 px-2 text-blue-600">Agenda</h2>
+    <div class="card">
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <h3 id="cal-mes-titulo" class="font-black uppercase text-xs">---</h3>
+            <button onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
+    </div>
+    <div id="agenda-total-lista" class="space-y-2"></div>
 </main>
-
-<div id="modal-cal" class="hidden fixed inset-0 bg-black/80 z-[6000] flex items-center justify-center p-6">  
-    <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4 shadow-2xl">  
-        <h3 id="cal-modal-fecha" class="text-center font-black text-blue-600 uppercase text-xs"></h3>  
-        <input id="cal-ev-txt" type="text" placeholder="¿Qué ocurre?" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">  
-        <input id="cal-ev-hora" type="time" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">  
-        <button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase text-xs">Guardar en Agenda</button>  
-        <button onclick="closeModal('modal-cal')" class="w-full text-slate-300 font-bold uppercase text-[10px] text-center">Cerrar</button>  
-    </div>  
-</div>
 
 <div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-[6000] flex justify-end">
-    <div class="bg-white w-4/5 h-full p-8 flex flex-col shadow-2xl">
+    <div class="bg-white w-4/5 h-full p-8 flex flex-col">
         <h2 class="text-3xl font-black italic mb-10">Ajustes</h2>
-        <div class="space-y-6">
-            <div class="bg-slate-50 p-6 rounded-3xl">
-                <p class="text-[10px] font-black text-blue-600 uppercase mb-2">Intervalo tomas (h)</p>
-                <input id="set-plazo" type="number" class="w-full p-4 rounded-xl font-bold bg-white border-none outline-none">
-            </div>
-            <button onclick="saveSettings()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase text-xs">Guardar</button>
-            <button onclick="reiniciarApp()" class="w-full p-4 text-red-500 font-bold text-[10px] uppercase">Eliminar todos los datos</button>
-        </div>
-        <button onclick="closeModal('modal-menu')" class="mt-auto p-4 text-slate-300 font-bold text-[10px] uppercase">Cerrar</button>
+        <input id="set-plazo" type="number" class="w-full p-4 bg-slate-50 rounded-xl mb-4" placeholder="Intervalo tomas">
+        <button onclick="saveSettings()" class="w-full bg-blue-600 text-white p-4 rounded-xl mb-4">Guardar</button>
+        <button onclick="reiniciarApp()" class="w-full text-red-500 p-4">Borrar Todo</button>
+        <button onclick="closeModal('modal-menu')" class="mt-auto p-4 text-slate-300">Cerrar</button>
     </div>
 </div>
 
 <div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[6000] flex items-center justify-center p-6">
     <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
-        <input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-3xl font-black border-none outline-none">
+        <input id="bibe-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-3xl text-center text-3xl font-black outline-none">
         <button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black">REGISTRAR</button>
-        <button onclick="closeModal('modal-bibe')" class="w-full text-slate-300 text-center font-bold text-[10px]">CANCELAR</button>
+        <button onclick="closeModal('modal-bibe')" class="w-full text-slate-300">CANCELAR</button>
     </div>
 </div>
 
 <div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[6000] flex items-end">
-    <div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4 shadow-2xl">
-        <button onclick="addLog('🤱 Pecho Izq'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center border border-pink-100">IZQ</button>
-        <button onclick="addLog('🤱 Ambos'); closeModal('modal-pecho')" class="bg-pink-100 p-6 rounded-2xl font-black text-pink-700 text-xs text-center border border-pink-200">AMBOS</button>
-        <button onclick="addLog('🤱 Pecho Der'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center border border-pink-100">DER</button>
+    <div class="bg-white w-full p-10 rounded-t-[3rem] grid grid-cols-3 gap-4">
+        <button onclick="addLog('🤱 Pecho Izq'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600">IZQ</button>
+        <button onclick="addLog('🤱 Ambos'); closeModal('modal-pecho')" class="bg-pink-100 p-6 rounded-2xl font-black text-pink-700">AMBOS</button>
+        <button onclick="addLog('🤱 Pecho Der'); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600">DER</button>
     </div>
 </div>
 
 <div id="modal-add-med" class="hidden fixed inset-0 bg-black/80 z-[6000] flex items-center justify-center p-6">
-    <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4 shadow-2xl">
-        <h3 class="text-center font-black text-indigo-600 uppercase text-[10px]">Nuevo Tratamiento</h3>
-        <input id="m-n" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">
-        <div class="grid grid-cols-2 gap-2">
-            <input id="m-q" type="text" placeholder="Dosis" class="p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">
-            <input id="m-h" type="number" placeholder="Cada h" class="p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">
-        </div>
-        <input id="m-d" type="number" placeholder="Días totales" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none">
-        <button onclick="addMed()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black text-xs">GUARDAR</button>
-        <button onclick="closeModal('modal-add-med')" class="w-full text-center text-slate-300 text-[10px] font-bold">CERRAR</button>
+    <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
+        <input id="m-n" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-xl outline-none">
+        <input id="m-h" type="number" placeholder="Cada x horas" class="w-full p-4 bg-slate-50 rounded-xl outline-none">
+        <button onclick="addMed()" class="w-full bg-indigo-600 text-white p-5 rounded-xl font-black">GUARDAR</button>
+        <button onclick="closeModal('modal-add-med')" class="w-full text-slate-300">CERRAR</button>
+    </div>
+</div>
+
+<div id="modal-cal" class="hidden fixed inset-0 bg-black/80 z-[6000] flex items-center justify-center p-6">
+    <div class="bg-white w-full rounded-[2.5rem] p-8 space-y-4">
+        <h3 id="cal-modal-fecha" class="text-center font-black text-blue-600"></h3>
+        <input id="cal-ev-txt" type="text" placeholder="Evento" class="w-full p-4 bg-slate-50 rounded-xl">
+        <input id="cal-ev-hora" type="time" class="w-full p-4 bg-slate-50 rounded-xl">
+        <button onclick="saveCita()" class="w-full bg-black text-white p-5 rounded-xl font-black">GUARDAR</button>
+        <button onclick="closeModal('modal-cal')" class="w-full text-slate-300">CERRAR</button>
     </div>
 </div>
 
 <script>
-    // --- LÓGICA DE DATOS ---
+    // --- DATOS ---
     let DATA = JSON.parse(localStorage.getItem('EVA_CARE_V12')) || { idx: 0, bebes: [], plazo: 3 };
     let currentDate = new Date();
     let selectedDate = new Date().toISOString().split('T')[0];
@@ -189,40 +173,154 @@
         render(); 
     }
 
-    // --- RENDERIZADO GENERAL ---
+    // --- RENDER ---
     function render() {
+        const wizard = document.getElementById('setup-wizard');
         if (!DATA.bebes || DATA.bebes.length === 0) {
-            document.getElementById('setup-wizard').classList.remove('hidden');
+            wizard.classList.remove('hidden');
             return;
         }
-        document.getElementById('setup-wizard').classList.add('hidden');
+        wizard.classList.add('hidden');
 
         const be = b();
         document.getElementById('view-nombre').innerText = be.n;
-        document.getElementById('view-edad').innerText = calcularEdad(be.f) + " de vida";
-        document.getElementById('set-plazo').value = DATA.plazo;
+        document.getElementById('view-edad').innerText = calcularEdad(be.f) + " DE VIDA";
         
         renderTimeline();
         renderLogs();
         renderSalud();
         renderFoods();
         renderCal();
-        renderCompra();
         renderAgendaTotal();
+        renderCompra();
     }
 
-    // --- GESTIÓN DE PESTAÑAS Y MODALES ---
-    function showTab(tab) {
-        document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
-        document.getElementById('tab-' + tab).classList.remove('hidden');
-        document.querySelectorAll('nav button').forEach(btn => btn.className = 'text-slate-300 p-4');
-        document.getElementById('nav-' + tab).className = 'text-blue-600 p-4';
-    }
-
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-    // --- SETUP ---
+    // --- WIZARD ---
     function irAStep(n) {
         document.querySelectorAll('.step-div').forEach(d => d.classList.add('hidden'));
-        document.getElementById('step
+        document.getElementById('step-' + n).classList.remove('hidden');
+    }
+
+    function finishSetup() {
+        const n = document.getElementById('setup-n').value;
+        const f = document.getElementById('setup-f').value;
+        if(!n || !f) { alert("Completa nombre y fecha"); return; }
+        
+        DATA.bebes.push({ 
+            n, f, p: document.getElementById('setup-p').value, logs: [], meds: [], compra: [], citas: {}, foods: [] 
+        });
+        DATA.idx = DATA.bebes.length - 1;
+        save(); // Aquí llama a render() y oculta el wizard
+    }
+
+    // --- ACCIONES ---
+    function addLog(txt) {
+        b().logs.unshift({ txt, hora: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts: Date.now() });
+        save();
+    }
+
+    function addBibe() {
+        const ml = document.getElementById('bibe-ml').value;
+        if(ml) { addLog(`🍼 Biberón ${ml}ml`); document.getElementById('bibe-ml').value = ""; closeModal('modal-bibe'); }
+    }
+
+    function renderLogs() {
+        document.getElementById('diario-hoy').innerHTML = b().logs.slice(0, 10).map((l, i) => `
+            <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                <span class="font-bold text-xs">${l.txt}</span>
+                <span class="text-[10px] text-slate-300">${l.hora}</span>
+            </div>
+        `).join('');
+    }
+
+    // --- SALUD / NUTRICIÓN ---
+    function addMed() {
+        const n = document.getElementById('m-n').value;
+        const h = document.getElementById('m-h').value;
+        if(n && h) { b().meds.push({ n, h: parseFloat(h), last: Date.now() }); save(); closeModal('modal-add-med'); }
+    }
+
+    function renderSalud() {
+        document.getElementById('lista-salud').innerHTML = b().meds.map((m, i) => `
+            <div class="card flex justify-between items-center">
+                <b class="text-sm">${m.n} (${m.h}h)</b>
+                <button onclick="b().meds.splice(${i},1); save()" class="text-red-200"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `).join('');
+    }
+
+    function saveFood() {
+        const n = document.getElementById('food-n').value;
+        if(n) { b().foods.push({ n, r: foodReacSelected || '?' }); document.getElementById('food-n').value = ""; save(); }
+    }
+
+    function renderFoods() {
+        document.getElementById('lista-alimentos').innerHTML = b().foods.map(f => `
+            <div class="bg-white p-4 rounded-2xl flex justify-between border">
+                <span class="font-bold text-xs uppercase">${f.n}</span>
+                <span>${f.r}</span>
+            </div>
+        `).join('');
+    }
+
+    // --- AGENDA ---
+    function openDay(d) { selectedDate = d; document.getElementById('cal-modal-fecha').innerText = d; openModal('modal-cal'); }
+
+    function saveCita() {
+        const txt = document.getElementById('cal-ev-txt').value;
+        if(!txt) return;
+        if(!b().citas[selectedDate]) b().citas[selectedDate] = [];
+        b().citas[selectedDate].push({ txt, hora: document.getElementById('cal-ev-hora').value });
+        closeModal('modal-cal'); save();
+    }
+
+    function renderCal() {
+        const grid = document.getElementById('cal-grid');
+        const y = currentDate.getFullYear(), m = currentDate.getMonth();
+        document.getElementById('cal-mes-titulo').innerText = new Intl.DateTimeFormat('es', { month: 'long' }).format(currentDate);
+        grid.innerHTML = "";
+        const days = new Date(y, m + 1, 0).getDate();
+        for (let i = 1; i <= days; i++) {
+            const dStr = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+            const has = b().citas[dStr] && b().citas[dStr].length > 0;
+            grid.innerHTML += `<div onclick="openDay('${dStr}')" class="cal-day bg-white ${dStr===selectedDate?'seleccionado':''}">${i}${has?'<div class="event-dot"></div>':''}</div>`;
+        }
+    }
+
+    function renderAgendaTotal() {
+        let h = "";
+        Object.keys(b().citas).forEach(f => {
+            b().citas[f].forEach(c => h += `<div class="card text-xs"><b>${f}</b>: ${c.txt} (${c.hora})</div>`);
+        });
+        document.getElementById('agenda-total-lista').innerHTML = h;
+    }
+
+    // --- TIMELINE ---
+    function renderTimeline() {
+        let html = "";
+        const ultToma = b().logs.find(l => l.txt.includes('Bibe') || l.txt.includes('Pecho'));
+        if(ultToma) {
+            const r = (DATA.plazo * 3600000) - (Date.now() - ultToma.ts);
+            html += `<div class="text-[10px] text-white">Próxima toma: ${r > 0 ? Math.floor(r/60000)+'m' : '¡AHORA!'}</div>`;
+        }
+        document.getElementById('timeline-eventos').innerHTML = html || "Sin avisos";
+    }
+
+    // --- HELPERS ---
+    function showTab(t) { document.querySelectorAll('main').forEach(m => m.classList.add('hidden')); document.getElementById('tab-'+t).classList.remove('hidden'); }
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function calcularEdad(f) { return Math.floor((Date.now() - new Date(f).getTime()) / 86400000) + " DÍAS"; }
+    function reiniciarApp() { if(confirm("¿Borrar todo?")) { localStorage.clear(); location.reload(); } }
+    function setReac(r, btn) { foodReacSelected = r; document.querySelectorAll('.btn-reac').forEach(b => b.classList.remove('btn-reac-active')); btn.classList.add('btn-reac-active'); }
+    function addCompraUrgent() { const i = prompt("Falta..."); if(i) { b().compra.push(i); save(); } }
+    function renderCompra() { 
+        const d = document.getElementById('lista-compra');
+        d.innerHTML = b().compra.map((item, i) => `<div class="bg-yellow-100 p-2 rounded-xl text-[10px] font-bold">🛒 COMPRAR: ${item}</div>`).join('');
+        b().compra.length > 0 ? d.classList.remove('hidden') : d.classList.add('hidden');
+    }
+
+    render();
+</script>
+</body>
+</html>
