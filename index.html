@@ -3,69 +3,74 @@
 <head>  
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
-    <title>EvaCare V20.0 - Auditada</title>  
+    <title>EvaCare V21.0 - Acceso Corregido</title>  
     <script src="https://cdn.tailwindcss.com"></script>  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">  
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <style>  
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');  
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }  
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }  
         .hidden { display: none !important; }  
-        .reac-active { background: #dbeafe !important; border: 2px solid #2563eb !important; }
-        .aviso-item { border-left: 4px solid #3b82f6; padding: 4px 12px; margin-bottom: 8px; border-radius: 4px; background: rgba(255,255,255,0.05); }
-        .cal-day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 1rem; cursor: pointer; font-size: 0.8rem; font-weight: 800; transition: 0.2s; }
+        .reac-active { background: #dbeafe !important; border: 2px solid #2563eb !important; transform: scale(1.1); }
+        .aviso-item { border-left: 4px solid #3b82f6; padding: 10px; margin-bottom: 8px; border-radius: 12px; background: rgba(255,255,255,0.1); }
+        input, button { outline: none !important; }
     </style>  
 </head>  
 <body class="bg-slate-50 text-slate-900 pb-32">
 
-<div id="setup-screen" class="fixed inset-0 bg-white z-[10000] flex flex-col items-center justify-center p-10 hidden">
+<div id="setup-screen" class="fixed inset-0 bg-white z-[10000] flex flex-col items-center justify-center p-8 hidden">
     <div class="text-blue-600 text-5xl font-black italic mb-2">EvaCare</div>
-    <div class="h-1 w-12 bg-blue-600 mb-8 rounded-full"></div>
-    <p class="text-[10px] font-black text-slate-400 mb-6 uppercase tracking-[0.3em] text-center">Gestión Familiar</p>
-    <input id="family-id-input" type="text" placeholder="ID DE FAMILIA" class="w-full p-5 bg-slate-100 rounded-[2rem] mb-4 font-bold text-center outline-none border-2 border-transparent focus:border-blue-500 transition-all uppercase">
-    <button onclick="saveFamilyId()" class="w-full bg-slate-900 text-white p-5 rounded-[2rem] font-black shadow-xl active:scale-95 transition-transform">ACCEDER</button>
+    <p class="text-[10px] font-black text-slate-400 mb-10 uppercase tracking-[0.3em]">Gestión de Bebés</p>
+    
+    <div id="login-form" class="w-full space-y-4">
+        <div class="bg-slate-100 p-6 rounded-[2.5rem]">
+            <p class="text-[9px] font-black text-slate-400 uppercase mb-2 text-center">Introduce el nombre de tu familia</p>
+            <input id="family-id-input" type="text" placeholder="Ej: FamiliaPerez" class="w-full bg-transparent text-center font-bold text-2xl uppercase text-slate-700">
+        </div>
+        <button onclick="checkFamily()" class="w-full bg-blue-600 text-white p-6 rounded-[2.5rem] font-black shadow-xl active:scale-95 transition-all">CONTINUAR</button>
+    </div>
+
+    <div id="create-form" class="w-full space-y-4 hidden animate-fade-in">
+        <div class="bg-blue-50 p-6 rounded-[2.5rem] border-2 border-blue-100 text-center">
+            <p class="text-blue-600 font-black text-sm mb-1">¡Ese ID está disponible!</p>
+            <p class="text-slate-500 text-[10px]">¿Quieres crear una nueva cuenta familiar con este nombre?</p>
+        </div>
+        <button onclick="createNewFamily()" class="w-full bg-slate-900 text-white p-6 rounded-[2.5rem] font-black shadow-xl">SÍ, CREAR FAMILIA</button>
+        <button onclick="location.reload()" class="w-full text-slate-400 font-bold text-xs">USAR OTRO NOMBRE</button>
+    </div>
 </div>
 
 <div id="loading-screen" class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
-    <div class="text-blue-600 text-4xl font-black italic animate-bounce">EvaCare</div>
-    <div class="mt-4 text-[8px] font-bold text-slate-400 uppercase tracking-widest">Sincronizando Nube...</div>
+    <div class="text-blue-600 text-4xl font-black italic animate-pulse">EvaCare</div>
 </div>
 
 <div id="app-content" class="hidden">
     <header class="p-6 flex justify-between items-center bg-white/80 sticky top-0 z-40 border-b border-slate-100 backdrop-blur-md">
         <div class="flex flex-col">
-            <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Ficha de:</span>
+            <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Cuidando a:</span>
             <select id="bebe-selector" onchange="switchBebe(this.value)" class="bg-transparent font-black italic text-2xl outline-none text-blue-600 cursor-pointer"></select>
         </div>
-        <div id="sync-status" class="text-xl"></div>
+        <div id="sync-status"></div>
         <button onclick="openModal('modal-menu')" class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400"><i class="fa-solid fa-bars-staggered"></i></button>
     </header>
 
     <main id="tab-inicio" class="p-4 space-y-4">
         <div class="bg-slate-900 rounded-[2.5rem] p-7 text-white shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em]">Alertas Familiares</h3>
-                <i class="fa-solid fa-bell text-blue-500 animate-pulse text-xs"></i>
-            </div>
-            <div id="panel-avisos-global" class="space-y-3 min-h-[40px]"></div>
+            <div id="panel-avisos-global" class="space-y-2"></div>
         </div>
 
-        <div id="lista-compra-global" class="grid gap-2"></div>
+        <div id="lista-compra-global" class="space-y-2"></div>
 
         <div class="grid grid-cols-4 gap-3">
-            <button onclick="addLog('💦 Pis')" class="bg-white aspect-square rounded-[2rem] font-black text-cyan-600 text-[10px] border shadow-sm flex flex-col items-center justify-center gap-2">
-                <i class="fa-solid fa-droplet text-lg"></i>PIS</button>
-            <button onclick="addLog('💩 Caca')" class="bg-white aspect-square rounded-[2rem] font-black text-orange-800 text-[10px] border shadow-sm flex flex-col items-center justify-center gap-2">
-                <i class="fa-solid fa-poop text-lg"></i>CACA</button>
-            <button onclick="addLog('✨ Aseo')" class="bg-white aspect-square rounded-[2rem] font-black text-purple-600 text-[10px] border shadow-sm flex flex-col items-center justify-center gap-2">
-                <i class="fa-solid fa-sparkles text-lg"></i>ASEO</button>
-            <button onclick="addCompra()" class="bg-yellow-400 text-slate-900 rounded-[2rem] flex items-center justify-center shadow-lg text-xl active:scale-90 transition-transform">
-                <i class="fa-solid fa-cart-shopping"></i></button>
+            <button onclick="addLog('💦 Pis')" class="bg-white py-6 rounded-[2rem] font-black text-cyan-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-droplet text-lg"></i>PIS</button>
+            <button onclick="addLog('💩 Caca')" class="bg-white py-6 rounded-[2rem] font-black text-orange-800 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-poop text-lg"></i>CACA</button>
+            <button onclick="addLog('✨ Aseo')" class="bg-white py-6 rounded-[2rem] font-black text-purple-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-sparkles text-lg"></i>ASEO</button>
+            <button onclick="addCompra()" class="bg-yellow-400 text-slate-900 rounded-[2rem] flex items-center justify-center shadow-lg text-xl"><i class="fa-solid fa-cart-shopping"></i></button>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <button onclick="openModal('modal-pecho')" class="bg-white h-28 rounded-[2.5rem] border shadow-sm flex flex-col items-center justify-center group active:bg-pink-50">
+            <button onclick="openModal('modal-pecho')" class="bg-white h-28 rounded-[2.5rem] border shadow-sm flex flex-col items-center justify-center active:bg-pink-50">
                 <i class="fa-solid fa-person-breastfeeding text-pink-500 mb-2 text-2xl"></i>
                 <span class="text-[10px] font-black uppercase tracking-widest">Pecho</span>
             </button>
@@ -74,106 +79,80 @@
                     <i class="fa-solid fa-bottle-water text-blue-500 text-xl"></i>
                     <span class="text-[10px] font-black uppercase tracking-widest">Biberón</span>
                 </button>
-                <button id="btn-repetir" onclick="repetirBibe()" class="w-full bg-blue-600 text-white h-9 rounded-full text-[9px] font-black uppercase tracking-tighter hidden shadow-md italic">Repetir última</button>
+                <button id="btn-repetir" onclick="repetirBibe()" class="w-full bg-blue-600 text-white h-9 rounded-full text-[9px] font-black uppercase shadow-md hidden italic">Repetir última</button>
             </div>
         </div>
 
-        <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 mt-6">Actividad Reciente</h3>
         <div id="diario-hoy" class="space-y-2 pb-10"></div>
     </main>
 
     <main id="tab-nutricion" class="hidden p-4 space-y-5">
-        <h2 class="text-3xl font-black italic text-orange-600 px-2">Nutrición</h2>
+        <h2 class="text-3xl font-black italic text-orange-600 px-2">Comida</h2>
         <div class="bg-white p-7 rounded-[3rem] shadow-sm border space-y-5">
-            <input id="food-input" type="text" placeholder="Ej: Papilla de pera..." class="w-full p-5 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-orange-200">
+            <input id="food-input" type="text" placeholder="Ej: Puré de verduras" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none">
             <div class="flex justify-around bg-slate-50 p-3 rounded-2xl">
-                <button onclick="setReac('😋', this)" class="reac-btn p-4 rounded-xl text-3xl transition-all">😋</button>
-                <button onclick="setReac('🤢', this)" class="reac-btn p-4 rounded-xl text-3xl transition-all">🤢</button>
-                <button onclick="setReac('⚠️', this)" class="reac-btn px-4 rounded-xl text-[10px] font-black text-red-500 border-2 border-transparent transition-all">ALERGIA</button>
+                <button onclick="setReac('😋', this)" class="reac-btn p-4 rounded-xl text-3xl">😋</button>
+                <button onclick="setReac('🤢', this)" class="reac-btn p-4 rounded-xl text-3xl">🤢</button>
+                <button onclick="setReac('⚠️', this)" class="reac-btn px-4 rounded-xl text-[10px] font-black text-red-500">ALERGIA</button>
             </div>
-            <button onclick="saveFood()" class="w-full bg-orange-500 text-white p-5 rounded-2xl font-black shadow-lg shadow-orange-200 uppercase">Registrar Alimento</button>
+            <button onclick="saveFood()" class="w-full bg-orange-500 text-white p-5 rounded-2xl font-black">GUARDAR</button>
         </div>
-        <div id="lista-alimentos" class="space-y-2 pb-20"></div>
+        <div id="lista-alimentos" class="space-y-2"></div>
     </main>
 
-    <main id="tab-salud" class="hidden p-4 space-y-6">
-        <h2 class="text-3xl font-black italic text-indigo-600 px-2">Salud</h2>
-        <div class="grid grid-cols-2 gap-4">
-            <button onclick="openModal('modal-peso')" class="bg-white p-7 rounded-[2.5rem] border shadow-sm flex flex-col items-center">
-                <i class="fa-solid fa-weight-scale text-indigo-500 mb-2 text-2xl"></i>
-                <span id="cur-peso" class="font-black text-xl">--.- kg</span>
-            </button>
-            <button onclick="openModal('modal-peso')" class="bg-white p-7 rounded-[2.5rem] border shadow-sm flex flex-col items-center">
-                <i class="fa-solid fa-ruler-vertical text-indigo-500 mb-2 text-2xl"></i>
-                <span id="cur-altura" class="font-black text-xl">-- cm</span>
-            </button>
-        </div>
-        <div id="historial-pesos" class="flex gap-2 overflow-x-auto pb-4 px-2 no-scrollbar"></div>
-        
-        <button onclick="openModal('modal-med')" class="w-full bg-indigo-600 text-white p-5 rounded-[2rem] font-black shadow-lg shadow-indigo-100 flex items-center justify-center gap-3">
-            <i class="fa-solid fa-plus-circle"></i> NUEVA MEDICACIÓN
-        </button>
-        
-        <div id="lista-meds" class="space-y-3"></div>
-        <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2">Calendario de Revisiones</h3>
-        <div id="lista-revs" class="bg-white rounded-[2.5rem] border divide-y overflow-hidden shadow-sm mb-20"></div>
-    </main>
-
-    <main id="tab-cal" class="hidden p-4 space-y-6">
-        <h2 class="text-3xl font-black italic text-blue-600 px-2">Agenda</h2>
-        <div class="bg-white p-6 rounded-[3rem] shadow-sm border">
-            <div class="flex justify-between items-center mb-6">
-                <button onclick="changeMonth(-1)" class="w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-chevron-left text-slate-300"></i></button>
-                <h3 id="cal-month" class="font-black uppercase text-xs tracking-widest">---</h3>
-                <button onclick="changeMonth(1)" class="w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-chevron-right text-slate-300"></i></button>
-            </div>
-            <div id="cal-grid" class="grid grid-cols-7 gap-2"></div>
-        </div>
-        <div id="agenda-lista" class="space-y-3 pb-20"></div>
-    </main>
-
-    <nav class="fixed bottom-6 left-6 right-6 h-18 bg-white/90 backdrop-blur-xl rounded-full border border-slate-100 shadow-2xl flex justify-around items-center z-50 px-4">  
-        <button onclick="showTab('inicio')" id="nav-inicio" class="text-blue-600 p-4 transition-all"><i class="fa-solid fa-house-chimney text-2xl"></i></button>  
-        <button onclick="showTab('nutricion')" id="nav-nutricion" class="text-slate-300 p-4 transition-all"><i class="fa-solid fa-carrot text-2xl"></i></button>  
-        <button onclick="showTab('salud')" id="nav-salud" class="text-slate-300 p-4 transition-all"><i class="fa-solid fa-suitcase-medical text-2xl"></i></button>  
-        <button onclick="showTab('cal')" id="nav-cal" class="text-slate-300 p-4 transition-all"><i class="fa-solid fa-calendar-day text-2xl"></i></button>  
+    <nav class="fixed bottom-6 left-6 right-6 h-18 bg-white/90 backdrop-blur-xl rounded-full border shadow-2xl flex justify-around items-center z-50">  
+        <button onclick="showTab('inicio')" id="nav-inicio" class="text-blue-600 p-4"><i class="fa-solid fa-house-chimney text-2xl"></i></button>  
+        <button onclick="showTab('nutricion')" id="nav-nutricion" class="text-slate-300 p-4"><i class="fa-solid fa-carrot text-2xl"></i></button>  
+        <button onclick="showTab('salud')" id="nav-salud" class="text-slate-300 p-4"><i class="fa-solid fa-suitcase-medical text-2xl"></i></button>  
+        <button onclick="showTab('cal')" id="nav-cal" class="text-slate-300 p-4"><i class="fa-solid fa-calendar-day text-2xl"></i></button>  
     </nav>
 </div>
 
-<div id="modal-peso" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[3rem] p-10 space-y-5"><input id="in-kg" type="number" step="0.01" placeholder="Peso (kg)" class="w-full p-5 bg-slate-50 rounded-2xl font-bold text-center text-2xl"><input id="in-cm" type="number" placeholder="Altura (cm)" class="w-full p-5 bg-slate-50 rounded-2xl font-bold text-center text-2xl"><button onclick="savePeso()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black uppercase">Guardar</button><button onclick="closeModal('modal-peso')" class="w-full text-slate-400 font-bold text-[10px] uppercase">Cerrar</button></div></div>
-<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[3rem] p-10 space-y-5"><div class="text-center font-black text-blue-600 uppercase text-[10px] tracking-widest">Cantidad en ml</div><input id="in-ml" type="number" placeholder="000" class="w-full p-8 bg-slate-100 rounded-3xl text-center text-6xl font-black outline-none"><button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black text-xl">GUARDAR</button><button onclick="closeModal('modal-bibe')" class="w-full text-slate-400 font-bold text-[10px] uppercase">Cancelar</button></div></div>
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[3rem] p-10 space-y-5"><input id="in-ml" type="number" placeholder="ml" class="w-full p-8 bg-slate-100 rounded-3xl text-center text-6xl font-black"><button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black text-xl shadow-lg">GUARDAR</button><button onclick="closeModal('modal-bibe')" class="w-full text-slate-400 font-bold text-xs uppercase">Cerrar</button></div></div>
 <div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-end"><div class="bg-white w-full p-10 rounded-t-[4rem] grid grid-cols-3 gap-4 shadow-2xl"><button onclick="addLog('🤱 Izquierdo', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">IZQUIERDO</button><button onclick="addLog('🤱 Ambos', true); closeModal('modal-pecho')" class="bg-pink-600 p-8 rounded-3xl font-black text-white text-[10px]">AMBOS</button><button onclick="addLog('🤱 Derecho', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">DERECHO</button></div></div>
-<div id="modal-med" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[3rem] p-10 space-y-4"><input id="m-name" type="text" placeholder="Medicamento" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="m-dose" type="text" placeholder="Dosis (ej: 2.5ml)" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="m-gap" type="number" placeholder="Cada cuántas horas?" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><button onclick="saveMed()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-black">Añadir Tratamiento</button><button onclick="closeModal('modal-med')" class="w-full text-slate-400 font-bold text-[10px] uppercase">Cerrar</button></div></div>
-<div id="modal-cal" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[3rem] p-10 space-y-4"><input id="c-txt" type="text" placeholder="Título de la cita" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><input id="c-time" type="time" class="w-full p-4 bg-slate-50 rounded-xl font-bold"><button onclick="saveCita()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black">Agendar</button><button onclick="closeModal('modal-cal')" class="w-full text-slate-400 font-bold text-[10px] uppercase">Cancelar</button></div></div>
-<div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-[11000] flex justify-end">
-    <div class="bg-white w-4/5 h-full p-10 flex flex-col shadow-2xl">
-        <h2 class="text-4xl font-black italic mb-10">Ajustes</h2>
-        <div class="space-y-8 flex-1 overflow-y-auto no-scrollbar">
-            <div class="bg-slate-50 p-6 rounded-[2rem]"><label class="text-[9px] font-black uppercase text-blue-600 tracking-widest">Frecuencia Tomas (Horas)</label><input type="number" id="cfg-int" class="w-full p-4 bg-white rounded-2xl mt-3 font-black text-xl" onchange="updateCfg()"></div>
-            <div class="bg-slate-50 p-6 rounded-[2rem]"><label class="text-[9px] font-black uppercase text-blue-600 tracking-widest">Registrar Nuevo Miembro</label>
-                <input type="text" id="new-n" placeholder="Nombre" class="w-full p-4 bg-white rounded-2xl mt-3 font-bold">
-                <input type="date" id="new-f" class="w-full p-4 bg-white rounded-2xl mt-2 font-bold">
-                <button onclick="addNewBebe()" class="w-full bg-blue-600 text-white p-5 rounded-2xl mt-4 font-black text-[10px] tracking-widest">AÑADIR A LA FAMILIA</button>
-            </div>
-            <button onclick="localStorage.clear();location.reload()" class="w-full text-red-500 font-black text-[10px] uppercase p-6 rounded-3xl bg-red-50 tracking-[0.2em]">Cerrar Sesión Familiar</button>
-        </div>
-        <button onclick="closeModal('modal-menu')" class="mt-4 p-4 text-slate-300 font-black text-xs uppercase">Volver</button>
-    </div>
-</div>
+<div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-[11000] flex justify-end"><div class="bg-white w-4/5 h-full p-10 flex flex-col"><h2 class="text-4xl font-black italic mb-10">Ajustes</h2><div class="space-y-6 flex-1 overflow-y-auto no-scrollbar"><div class="bg-slate-50 p-6 rounded-[2rem]"><label class="text-[9px] font-black text-blue-600 uppercase">Añadir otro Bebé</label><input type="text" id="new-n" placeholder="Nombre" class="w-full p-4 bg-white rounded-2xl mt-2 font-bold"><button onclick="addNewBebe()" class="w-full bg-blue-600 text-white p-4 rounded-2xl mt-3 font-black text-[10px]">AÑADIR</button></div><button onclick="localStorage.clear();location.reload()" class="w-full text-red-500 font-black text-[10px] uppercase p-6 rounded-3xl bg-red-50">Cerrar Sesión</button></div><button onclick="closeModal('modal-menu')" class="mt-4 p-4 text-slate-300 font-black">VOLVER</button></div></div>
 
 <script>
-    // CONFIGURACIÓN FIREBASE
     const fbCfg = { apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I", databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com", projectId: "evacare-24cae" };
     firebase.initializeApp(fbCfg); const db = firebase.database();
 
     let DATA = null, familyId = localStorage.getItem('EVA_CARE_FAMILY_ID'), bIdx = parseInt(localStorage.getItem('EVA_CARE_BEBE_IDX') || 0);
-    let curMonth = new Date(), selDate = new Date().toISOString().split('T')[0], curReac = "";
+    let curReac = "";
 
-    const REVS = [{e:"7 Días"},{e:"15 Días"},{e:"1 Mes"},{e:"2 Meses"},{e:"4 Meses"},{e:"6 Meses"},{e:"12 Meses"},{e:"18 Meses"},{e:"2 Años"}];
-
-    function saveFamilyId() {
+    // --- SISTEMA DE ACCESO (FIXED) ---
+    function checkFamily() {
         const id = document.getElementById('family-id-input').value.trim().toUpperCase();
-        if(id) { localStorage.setItem('EVA_CARE_FAMILY_ID', id); location.reload(); }
+        if(!id) return alert("Escribe un nombre para tu familia");
+        
+        db.ref('familias/' + id).once('value', snap => {
+            if(snap.exists()) {
+                localStorage.setItem('EVA_CARE_FAMILY_ID', id);
+                location.reload();
+            } else {
+                // Si no existe, mostramos el formulario de creación
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('create-form').classList.remove('hidden');
+                // Guardamos el ID temporalmente en una variable global para el siguiente paso
+                window.pendingId = id;
+            }
+        });
+    }
+
+    function createNewFamily() {
+        const id = window.pendingId;
+        const initialData = {
+            intervalo: 3,
+            compraFamiliar: [],
+            bebes: [{
+                n: "Mi Bebé",
+                logs: [], meds: [], foods: [], hPeso: [],
+                f: new Date().toISOString().split('T')[0]
+            }]
+        };
+        db.ref('familias/' + id).set(initialData).then(() => {
+            localStorage.setItem('EVA_CARE_FAMILY_ID', id);
+            location.reload();
+        });
     }
 
     function init() {
@@ -183,120 +162,48 @@
             return;
         }
         db.ref('familias/' + familyId).on('value', snap => {
-            DATA = snap.val(); 
-            if(!DATA) { 
-                DATA = { intervalo:3, compraFamiliar:[], bebes:[{n:"Bebé 1", f:new Date().toISOString().split('T')[0], logs:[], meds:[], foods:[], citas:{}, hPeso:[]}] }; 
-                sync();
-            }
-            // Asegurar que el bIdx existe si se borraron niños
+            DATA = snap.val();
+            if(!DATA) { localStorage.clear(); location.reload(); return; }
             if(!DATA.bebes[bIdx]) bIdx = 0;
-            render(); 
-            document.getElementById('loading-screen').classList.add('hidden'); 
+            render();
+            document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
         });
     }
 
-    function sync() { 
-        document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-blue-400 animate-pulse"></i>';
-        db.ref('familias/' + familyId).set(DATA).then(() => {
-            document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-cloud-check text-green-500"></i>';
-        });
-    }
-
+    // --- RENDERIZADO Y BOTONES ---
     function render() {
-        if(!DATA) return;
-        const bActivo = DATA.bebes[bIdx];
+        const b = DATA.bebes[bIdx];
         document.getElementById('bebe-selector').innerHTML = DATA.bebes.map((x,i)=>`<option value="${i}" ${i===bIdx?'selected':''}>${x.n.toUpperCase()}</option>`).join('');
 
-        // --- 1. RENDER AVISOS GLOBAL ---
+        // Avisos Globales de todos los bebés
         let htmlAvisos = "";
         DATA.bebes.forEach(bebe => {
-            const intMs = (DATA.intervalo || 3) * 3600000;
-            const rest = bebe.lastToma ? (bebe.lastToma + intMs) - Date.now() : -1;
-            if(rest <= 0) {
-                htmlAvisos += `<div class="aviso-item"><span class="text-red-500 font-black">${bebe.n}:</span> <span class="text-[11px]">¡Toca toma ya!</span></div>`;
-            } else {
-                const h = Math.floor(rest/3600000), m = Math.floor((rest%3600000)/60000);
-                htmlAvisos += `<div class="aviso-item" style="border-left-color: #22c55e"><span class="text-green-400 font-black">${bebe.n}:</span> <span class="text-[11px]">Toma en ${h}h ${m}m</span></div>`;
+            const msProxima = (bebe.lastToma || 0) + (DATA.intervalo * 3600000);
+            const restMs = msProxima - Date.now();
+            if(restMs <= 0) {
+                htmlAvisos += `<div class="aviso-item border-red-500 text-red-100 font-bold text-xs"><i class="fa-solid fa-clock mr-2"></i>${bebe.n}: Toca toma</div>`;
             }
-            (bebe.meds || []).forEach(m => {
-                htmlAvisos += `<div class="aviso-item" style="border-left-color: #a855f7"><span class="text-purple-400 font-black">${bebe.n}:</span> <span class="text-[11px]">${m.n} (${m.d})</span></div>`;
-            });
         });
-        document.getElementById('panel-avisos-global').innerHTML = htmlAvisos || '<p class="text-[10px] text-slate-500 italic">Todo en orden en la familia</p>';
+        document.getElementById('panel-avisos-global').innerHTML = htmlAvisos || '<p class="text-[10px] text-blue-400 font-black uppercase text-center tracking-widest">Sin alertas pendientes</p>';
 
-        // --- 2. RENDER COMPRA GLOBAL ---
+        // Compra
         document.getElementById('lista-compra-global').innerHTML = (DATA.compraFamiliar || []).map((x,i)=>`
-            <div class="bg-yellow-100 p-5 rounded-[2rem] flex justify-between items-center text-[11px] font-extrabold uppercase text-yellow-800 shadow-sm border border-yellow-200">
+            <div class="bg-yellow-100 p-4 rounded-3xl flex justify-between items-center text-[10px] font-black uppercase text-yellow-800">
                 <span>🛒 ${x.txt} <small class="opacity-50">(${x.para})</small></span>
-                <button onclick="DATA.compraFamiliar.splice(${i},1);sync()" class="bg-yellow-500 text-white w-8 h-8 rounded-full shadow-inner"><i class="fa-solid fa-check"></i></button>
+                <button onclick="removeCompra(${i})" class="bg-yellow-500 text-white w-8 h-8 rounded-full shadow-lg"><i class="fa-solid fa-check"></i></button>
             </div>`).join('');
 
-        // --- 3. REPETIR BIBE ---
+        // Botón repetir
         const btnRep = document.getElementById('btn-repetir');
-        if(bActivo.lastMl) { btnRep.innerText=`Repetir ${bActivo.lastMl}ml`; btnRep.classList.remove('hidden'); } else { btnRep.classList.add('hidden'); }
+        if(b.lastMl) { btnRep.innerText=`Repetir ${b.lastMl}ml`; btnRep.classList.remove('hidden'); } else { btnRep.classList.add('hidden'); }
 
-        // --- 4. DIARIO BEBÉ SELECCIONADO ---
-        document.getElementById('diario-hoy').innerHTML = (bActivo.logs||[]).slice(0,12).map(l=>`
-            <div class="bg-white p-5 rounded-3xl flex justify-between items-center border-b border-slate-50 shadow-sm">
-                <span class="font-bold text-xs text-slate-700">${l.txt}</span>
-                <span class="text-[9px] font-black text-slate-300 bg-slate-50 px-3 py-1 rounded-full">${l.h}</span>
-            </div>`).join('');
-
-        // --- 5. SALUD Y PESO ---
-        document.getElementById('cur-peso').innerText = bActivo.peso ? bActivo.peso+"kg" : "--.-kg";
-        document.getElementById('cur-altura').innerText = bActivo.altura ? bActivo.altura+"cm" : "--cm";
-        document.getElementById('historial-pesos').innerHTML = (bActivo.hPeso||[]).slice(0,10).map(h=>`
-            <div class="bg-indigo-50 p-4 rounded-3xl text-[10px] font-black text-indigo-700 min-w-[90px] text-center border-2 border-indigo-100">
-                <span class="text-[8px] opacity-60">${h.f}</span><br>${h.kg}kg
-            </div>`).join('');
-        document.getElementById('lista-meds').innerHTML = (bActivo.meds||[]).map((m,i)=>`
-            <div class="bg-white p-5 rounded-3xl border shadow-sm flex justify-between items-center">
-                <div><p class="font-black text-xs text-indigo-600">${m.n}</p><p class="text-[9px] font-bold text-slate-400">Dosis: ${m.d} cada ${m.g}h</p></div>
-                <button onclick="DATA.bebes[bIdx].meds.splice(${i},1);sync()" class="text-red-200 p-2"><i class="fa-solid fa-trash-can"></i></button>
-            </div>`).join('');
-
-        // --- 6. REVISIONES Y NUTRICIÓN ---
-        document.getElementById('lista-revs').innerHTML = REVS.map((r,i)=>`
-            <div class="p-5 flex justify-between items-center">
-                <div class="text-xs font-black text-slate-600">${r.e}</div>
-                <div class="flex gap-2">
-                    <button onclick="agendarRev('${r.e}')" class="text-[9px] font-black bg-slate-50 text-slate-400 px-4 py-2 rounded-xl">AGENDAR</button>
-                    <input type="checkbox" onchange="toggleRev(${i})" ${bActivo.revs&&bActivo.revs[i]?'checked':''} class="w-6 h-6 rounded-full accent-blue-600">
-                </div>
-            </div>`).join('');
-        document.getElementById('lista-alimentos').innerHTML = (bActivo.foods||[]).map(f=>`
-            <div class="bg-white p-5 rounded-3xl flex justify-between shadow-sm font-black text-xs border-l-4 ${f.r==='⚠️'?'border-red-500':'border-orange-400'}">
-                <span>${f.n}</span><span>${f.r}</span>
-            </div>`).join('');
-
-        renderCal();
-        document.getElementById('cfg-int').value = DATA.intervalo;
+        // Historial
+        document.getElementById('diario-hoy').innerHTML = (b.logs||[]).slice(0,10).map(l=>`<div class="bg-white p-5 rounded-3xl flex justify-between items-center border-b shadow-sm"><span class="font-bold text-xs text-slate-600">${l.txt}</span><span class="text-[9px] font-black text-slate-300">${l.h}</span></div>`).join('');
     }
 
-    function renderCal() {
-        const grid = document.getElementById('cal-grid'); grid.innerHTML = "";
-        const y = curMonth.getFullYear(), m = curMonth.getMonth();
-        document.getElementById('cal-month').innerText = new Intl.DateTimeFormat('es',{month:'long',year:'numeric'}).format(curMonth);
-        const start = (new Date(y,m,1).getDay()+6)%7, days = new Date(y,m+1,0).getDate();
-        for(let i=0;i<start;i++) grid.innerHTML+=`<div></div>`;
-        for(let i=1;i<=days;i++){
-            const d = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-            const b = DATA.bebes[bIdx];
-            const has = b.citas && b.citas[d] && b.citas[d].length > 0;
-            grid.innerHTML += `<div onclick="selDate='${d}';render()" class="cal-day ${d===selDate?'bg-blue-600 text-white shadow-lg scale-110':(has?'bg-blue-100 text-blue-600 border-2 border-blue-200':'bg-slate-50 text-slate-400')}">${i}</div>`;
-        }
-        let list = ""; const citas = DATA.bebes[bIdx].citas || {};
-        if(citas[selDate]) citas[selDate].forEach((c,i) => {
-            list += `<div class="bg-white p-5 rounded-3xl border-l-4 border-blue-600 flex justify-between items-center shadow-sm animate-fade-in">
-                <div><p class="text-[9px] font-black text-blue-500 mb-1">${c.h||'--:--'}</p><p class="text-xs font-black">${c.t}</p></div>
-                <button onclick="DATA.bebes[bIdx].citas['${selDate}'].splice(${i},1);sync()" class="text-slate-200 p-2"><i class="fa-solid fa-circle-xmark"></i></button>
-            </div>`;
-        });
-        document.getElementById('agenda-lista').innerHTML = list || '<p class="text-center text-[10px] font-black text-slate-300 py-10 uppercase tracking-widest">No hay eventos</p>';
-    }
-
-    // --- ACCIONES CORE ---
+    // --- ACCIONES ---
+    function sync() { db.ref('familias/' + familyId).set(DATA); }
     function addLog(txt, resets = false) {
         const b = DATA.bebes[bIdx]; if(!b.logs) b.logs = [];
         const entry = { txt, h: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), ts: Date.now() };
@@ -305,44 +212,17 @@
     function addBibe() { const ml = document.getElementById('in-ml').value; if(ml){ addLog(`🍼 Biberón ${ml}ml`, true); DATA.bebes[bIdx].lastMl = ml; closeModal('modal-bibe'); document.getElementById('in-ml').value=""; } }
     function repetirBibe() { if(DATA.bebes[bIdx].lastMl) addLog(`🍼 Biberón ${DATA.bebes[bIdx].lastMl}ml`, true); }
     function addCompra() { const item = prompt("Necesito comprar..."); if(item){ if(!DATA.compraFamiliar) DATA.compraFamiliar = []; DATA.compraFamiliar.push({txt:item, para:DATA.bebes[bIdx].n}); sync(); } }
-    function savePeso() { 
-        const kg = document.getElementById('in-kg').value, cm = document.getElementById('in-cm').value;
-        if(kg||cm){ const b = DATA.bebes[bIdx]; if(!b.hPeso) b.hPeso = []; b.hPeso.unshift({kg,cm,f:new Date().toLocaleDateString()}); b.peso=kg||b.peso; b.altura=cm||b.altura; closeModal('modal-peso'); sync(); }
-    }
-    function saveFood() {
-        const n = document.getElementById('food-input').value; if(n){ if(!DATA.bebes[bIdx].foods) DATA.bebes[bIdx].foods = []; DATA.bebes[bIdx].foods.push({n, r:curReac||'❓'}); document.getElementById('food-input').value=""; curReac=""; document.querySelectorAll('.reac-btn').forEach(x=>x.classList.remove('reac-active')); sync(); }
-    }
-    function saveMed() {
-        const n = document.getElementById('m-name').value, g = document.getElementById('m-gap').value, d = document.getElementById('m-dose').value;
-        if(n&&g){ if(!DATA.bebes[bIdx].meds) DATA.bebes[bIdx].meds = []; DATA.bebes[bIdx].meds.push({n,g,d}); closeModal('modal-med'); sync(); }
-    }
-    function saveCita() {
-        const t = document.getElementById('c-txt').value, h = document.getElementById('c-time').value;
-        if(t){ if(!DATA.bebes[bIdx].citas) DATA.bebes[bIdx].citas = {}; if(!DATA.bebes[bIdx].citas[selDate]) DATA.bebes[bIdx].citas[selDate] = []; DATA.bebes[bIdx].citas[selDate].push({t,h}); closeModal('modal-cal'); sync(); }
-    }
-
-    // --- UTILS ---
-    function toggleRev(i) { if(!DATA.bebes[bIdx].revs) DATA.bebes[bIdx].revs = {}; DATA.bebes[bIdx].revs[i] = !DATA.bebes[bIdx].revs[i]; sync(); }
+    function removeCompra(i) { DATA.compraFamiliar.splice(i,1); sync(); }
     function switchBebe(v) { bIdx = parseInt(v); localStorage.setItem('EVA_CARE_BEBE_IDX', v); render(); }
-    function updateCfg() { DATA.intervalo = document.getElementById('cfg-int').value; sync(); }
+    function saveFood() { const n = document.getElementById('food-input').value; if(n){ if(!DATA.bebes[bIdx].foods) DATA.bebes[bIdx].foods = []; DATA.bebes[bIdx].foods.push({n, r:curReac||'❓'}); document.getElementById('food-input').value=""; curReac=""; document.querySelectorAll('.reac-btn').forEach(x=>x.classList.remove('reac-active')); sync(); } }
     function setReac(r, b) { curReac = r; document.querySelectorAll('.reac-btn').forEach(x=>x.classList.remove('reac-active')); b.classList.add('reac-active'); }
-    function addNewBebe() { 
-        const n = document.getElementById('new-n').value, f = document.getElementById('new-f').value;
-        if(n && f) { DATA.bebes.push({n,f,logs:[],meds:[],foods:[],citas:{},hPeso:[]}); sync(); closeModal('modal-menu'); }
-    }
-    function showTab(t) { 
-        document.querySelectorAll('main').forEach(m=>m.classList.add('hidden')); 
-        document.getElementById('tab-'+t).classList.remove('hidden'); 
-        document.querySelectorAll('nav button').forEach(b=>b.className='text-slate-300 p-4'); 
-        document.getElementById('nav-'+t).className='text-blue-600 p-4 scale-110 transition-all'; 
-    }
+    function addNewBebe() { const n = document.getElementById('new-n').value; if(n) { DATA.bebes.push({n, logs:[], meds:[], foods:[], hPeso:[]}); sync(); closeModal('modal-menu'); } }
+    function showTab(t) { document.querySelectorAll('main').forEach(m=>m.classList.add('hidden')); document.getElementById('tab-'+t).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(b=>b.className='text-slate-300 p-4'); document.getElementById('nav-'+t).className='text-blue-600 p-4'; }
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-    function changeMonth(v) { curMonth.setMonth(curMonth.getMonth()+v); render(); }
-    function agendarRev(txt) { selDate = new Date().toISOString().split('T')[0]; document.getElementById('c-txt').value = "Revisión "+txt; showTab('cal'); openModal('modal-cal'); }
 
     init();
-    setInterval(render, 30000); // Refresco de avisos cada 30s
+    setInterval(render, 30000);
 </script>
 </body>
 </html>
