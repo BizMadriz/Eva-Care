@@ -3,203 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvaCare V30.0 - Final Full</title>
+<title>EvaCare V30 - Final</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background:#f1f5f9; }
-    .hidden { display:none!important; }
-    .rounded-card { border-radius: 1.5rem; }
-    .shadow-card { box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .hidden { display: none !important; }
+    .reac-active { background: #dbeafe !important; border: 2px solid #2563eb !important; transform: scale(1.05); }
+    .aviso-item { border-left: 4px solid #3b82f6; padding: 6px 12px; margin-bottom: 8px; border-radius: 8px; background: rgba(255,255,255,0.08); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
 </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900">
 
-<!-- LOADING -->
-<div id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
-    <h1 class="text-4xl font-black text-blue-600 italic mb-4 animate-bounce">EvaCare</h1>
-    <p class="text-sm text-gray-400">Iniciando...</p>
+<!-- Loading -->
+<div id="loading-screen" class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center p-6">
+    <div class="text-blue-600 text-4xl font-black italic animate-bounce mb-4">EvaCare</div>
+    <div id="status-msg" class="text-slate-400 text-[10px] uppercase tracking-widest">Iniciando...</div>
 </div>
 
-<!-- LOGIN -->
-<div id="auth-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50 hidden p-6">
-    <h1 class="text-3xl font-black text-blue-600 mb-4">EvaCare</h1>
-    <input id="email-input" type="email" placeholder="Email" class="w-full p-4 mb-3 rounded-card border">
-    <input id="pass-input" type="password" placeholder="Contraseña" class="w-full p-4 mb-3 rounded-card border">
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-4 mb-2 rounded-card font-bold">Acceder</button>
-    <button onclick="signup()" class="w-full bg-gray-200 p-4 mb-2 rounded-card font-bold">Crear Cuenta</button>
-    <p id="auth-msg" class="text-red-500 text-sm mt-2"></p>
-</div>
-
-<!-- APP -->
-<div id="app-screen" class="hidden p-6">
-    <header class="flex justify-between items-center mb-6">
-        <h1 class="text-xl font-black text-blue-600">EvaCare</h1>
-        <button onclick="logout()" class="text-sm bg-red-50 px-3 py-1 rounded-card font-bold text-red-500">Cerrar sesión</button>
-    </header>
-
-    <!-- HIJOS -->
-    <section class="mb-6">
-        <h2 class="font-black text-gray-700 mb-2">Hijos / Usuarios</h2>
-        <div id="child-list" class="space-y-3 mb-3"></div>
-        <button onclick="showAddChildModal()" class="bg-green-500 text-white px-4 py-2 rounded-card font-bold">Añadir Hijo / Usuario</button>
-    </section>
-
-    <!-- LOGS -->
-    <section>
-        <h2 class="font-black text-gray-700 mb-2">Logs de Actividad</h2>
-        <div id="logs" class="space-y-2"></div>
-        <button onclick="addLogPrompt()" class="bg-blue-600 text-white px-4 py-2 rounded-card font-bold mt-2">Añadir Log</button>
-    </section>
-</div>
-
-<!-- MODAL AÑADIR/EDITAR HIJO -->
-<div id="child-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6">
-    <div class="bg-white p-6 rounded-card w-full max-w-md shadow-card">
-        <h3 class="text-xl font-black mb-4">Añadir / Editar Hijo</h3>
-        <input id="child-name" type="text" placeholder="Nombre" class="w-full p-3 mb-2 rounded-card border">
-        <input id="child-dob" type="date" placeholder="Fecha de nacimiento" class="w-full p-3 mb-2 rounded-card border">
-        <input id="child-weight" type="number" placeholder="Peso nacimiento (kg)" class="w-full p-3 mb-2 rounded-card border">
-        <input id="child-height" type="number" placeholder="Altura nacimiento (cm)" class="w-full p-3 mb-2 rounded-card border">
-        <div class="flex justify-end gap-2 mt-4">
-            <button onclick="saveChild()" class="bg-blue-600 text-white px-4 py-2 rounded-card font-bold">Guardar</button>
-            <button onclick="closeChildModal()" class="bg-gray-200 px-4 py-2 rounded-card font-bold">Cancelar</button>
-        </div>
+<!-- Login / Registro -->
+<div id="login-screen" class="fixed inset-0 bg-white z-[10000] flex flex-col items-center justify-center p-10 hidden">
+    <div class="text-blue-600 text-5xl font-black italic mb-4">EvaCare</div>
+    <input id="email-input" type="email" placeholder="Correo electrónico" class="w-full p-5 bg-slate-100 rounded-2xl mb-4 font-bold text-center outline-none">
+    <input id="pass-input" type="password" placeholder="Contraseña" class="w-full p-5 bg-slate-100 rounded-2xl mb-4 font-bold text-center outline-none">
+    <div class="flex gap-4 mb-4">
+        <button onclick="login()" class="flex-1 bg-blue-600 text-white p-4 rounded-2xl font-black">Entrar</button>
+        <button onclick="register()" class="flex-1 bg-green-600 text-white p-4 rounded-2xl font-black">Crear cuenta</button>
     </div>
+    <p class="text-[10px] text-slate-400 italic">Después de registrarte, podrás crear o unirte a una familia.</p>
+</div>
+
+<!-- Familia -->
+<div id="family-screen" class="fixed inset-0 bg-white z-[10000] flex flex-col items-center justify-center p-10 hidden">
+    <div class="text-blue-600 text-5xl font-black italic mb-4">EvaCare</div>
+    <p class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-[0.3em]">Gestión Familiar</p>
+    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black mb-4">Crear familia</button>
+    <input id="family-code-input" type="text" placeholder="Código de familia" class="w-full p-5 bg-slate-100 rounded-2xl mb-4 font-bold text-center outline-none">
+    <button onclick="joinFamily()" class="w-full bg-green-600 text-white p-5 rounded-2xl font-black">Unirse a familia</button>
+    <p id="family-msg" class="text-[10px] text-red-500 mt-2"></p>
+</div>
+
+<!-- App -->
+<div id="app-content" class="hidden min-h-screen pb-32">
+
+<header class="p-6 flex justify-between items-center bg-white border-b sticky top-0 z-50">
+    <div>
+        <p class="text-[8px] font-bold text-slate-400 uppercase">Familia:</p>
+        <h1 id="display-family" class="text-xl font-black text-blue-600 italic">---</h1>
+    </div>
+    <button onclick="logout()" class="text-[10px] font-black text-red-400 bg-red-50 px-4 py-2 rounded-full">Salir</button>
+</header>
+
+<main class="p-4 space-y-4">
+    <div id="panel-avisos-global" class="space-y-3"></div>
+    <div id="child-list" class="space-y-4"></div>
+    <button onclick="addChild()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black">Añadir hijo</button>
+</main>
+
 </div>
 
 <script>
-    // --- CONFIG ---
+    // --- Config Firebase ---
     const fbCfg = {
         apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
         authDomain: "evacare-24cae.firebaseapp.com",
-        databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com",
+        databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "evacare-24cae"
     };
     firebase.initializeApp(fbCfg);
     const auth = firebase.auth();
     const db = firebase.database();
 
-    let currentUser = null;
-    let editingChildKey = null;
+    // --- Variables ---
+    let uid = localStorage.getItem('EVA_CARE_UID');
+    let familyId = localStorage.getItem('EVA_CARE_FAMILY_ID');
+    let DATA = null;
 
-    // --- INIT ---
-    auth.onAuthStateChanged(user=>{
-        document.getElementById('loading-screen').classList.add('hidden');
-        if(user){
-            currentUser = user;
-            showApp();
-            loadChildren();
-            loadLogs();
-        } else {
-            document.getElementById('auth-screen').classList.remove('hidden');
-        }
-    });
+    // --- Funciones de Login ---
+    function showScreen(id){
+        ['loading-screen','login-screen','family-screen','app-content'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
 
-    // --- LOGIN / SIGNUP ---
     function login(){
-        const email = document.getElementById('email-input').value;
-        const pass = document.getElementById('pass-input').value;
+        const email = document.getElementById('email-input').value.trim();
+        const pass = document.getElementById('pass-input').value.trim();
+        if(!email || !pass) return alert("Email y contraseña obligatorios");
+        showScreen('loading-screen');
         auth.signInWithEmailAndPassword(email,pass)
-            .catch(err=>{document.getElementById('auth-msg').innerText = err.message;});
+        .then(res=>{
+            uid=res.user.uid;
+            localStorage.setItem('EVA_CARE_UID',uid);
+            showScreen('family-screen');
+        })
+        .catch(err=>{ alert(err.message); showScreen('login-screen'); });
     }
-    function signup(){
-        const email = document.getElementById('email-input').value;
-        const pass = document.getElementById('pass-input').value;
+
+    function register(){
+        const email = document.getElementById('email-input').value.trim();
+        const pass = document.getElementById('pass-input').value.trim();
+        if(!email || !pass) return alert("Email y contraseña obligatorios");
+        showScreen('loading-screen');
         auth.createUserWithEmailAndPassword(email,pass)
-            .catch(err=>{document.getElementById('auth-msg').innerText = err.message;});
-    }
-    function logout(){ auth.signOut(); }
-
-    // --- APP SCREEN ---
-    function showApp(){
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('app-screen').classList.remove('hidden');
+        .then(res=>{
+            uid=res.user.uid;
+            localStorage.setItem('EVA_CARE_UID',uid);
+            showScreen('family-screen');
+        })
+        .catch(err=>{ alert(err.message); showScreen('login-screen'); });
     }
 
-    // --- CHILD MANAGEMENT ---
-    function loadChildren(){
-        const ref = db.ref(`users/${currentUser.uid}/children`);
-        ref.on('value', snap=>{
-            const data = snap.val() || {};
-            const list = document.getElementById('child-list');
-            list.innerHTML = '';
-            Object.entries(data).forEach(([key,child])=>{
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center bg-white p-3 rounded-card shadow-card';
-                div.innerHTML = `<div>
-                    <p class="font-bold">${child.name}</p>
-                    <p class="text-sm text-gray-500">Nacimiento: ${child.dob || '-'} | Peso: ${child.weight || '-'}kg | Altura: ${child.height || '-'}cm</p>
+    // --- Funciones Familia ---
+    function generateCode(len=6){
+        return Math.random().toString(36).substring(2,len+2).toUpperCase();
+    }
+
+    function createFamily(){
+        if(!uid) return;
+        const code = generateCode();
+        familyId = code;
+        localStorage.setItem('EVA_CARE_FAMILY_ID',familyId);
+        db.ref('familias/'+familyId).set({creator:uid, members:{[uid]:true}, children:{}, logs:{}})
+        .then(()=>loadFamily());
+        alert("Familia creada. Código: "+code);
+    }
+
+    function joinFamily(){
+        const code = document.getElementById('family-code-input').value.trim().toUpperCase();
+        if(!code) return;
+        db.ref('familias/'+code+'/members/'+uid).set(true)
+        .then(()=>{ familyId=code; localStorage.setItem('EVA_CARE_FAMILY_ID',familyId); loadFamily(); })
+        .catch(err=>alert(err.message));
+    }
+
+    function loadFamily(){
+        if(!uid || !familyId) return;
+        showScreen('loading-screen');
+        db.ref('familias/'+familyId).on('value',snap=>{
+            DATA = snap.val();
+            document.getElementById('display-family').innerText = familyId;
+            renderChildren();
+            renderAvisos();
+            showScreen('app-content');
+        });
+    }
+
+    function logout(){
+        auth.signOut();
+        localStorage.clear();
+        location.reload();
+    }
+
+    // --- Funciones Hijos ---
+    function renderChildren(){
+        const container = document.getElementById('child-list');
+        container.innerHTML='';
+        if(!DATA.children) DATA.children={};
+        Object.entries(DATA.children).forEach(([cid,c])=>{
+            const div = document.createElement('div');
+            div.className="bg-white p-4 rounded-2xl shadow flex justify-between items-center";
+            div.innerHTML=`
+                <div>
+                    <p class="font-black text-sm">Nombre: <input value="${c.name}" onblur="updateChild('${cid}','name',this.value)" class="border p-1 rounded"/></p>
+                    <p class="text-[10px]">Nacimiento: <input type="date" value="${c.birth}" onblur="updateChild('${cid}','birth',this.value)"/></p>
+                    <p class="text-[10px]">Peso: <input type="number" value="${c.weight||''}" onblur="updateChild('${cid}','weight',this.value)" step="0.01"/> kg</p>
+                    <p class="text-[10px]">Talla: <input type="number" value="${c.height||''}" onblur="updateChild('${cid}','height',this.value)"/> cm</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="editChild('${key}')" class="text-blue-600 font-bold">Editar</button>
-                    <button onclick="deleteChild('${key}')" class="text-red-500 font-bold">Eliminar</button>
-                </div>`;
-                list.appendChild(div);
-            });
+                <button onclick="deleteChild('${cid}')" class="text-red-500 font-black">X</button>
+            `;
+            container.appendChild(div);
         });
     }
 
-    function showAddChildModal(){ editingChildKey=null; document.getElementById('child-name').value=''; document.getElementById('child-dob').value=''; document.getElementById('child-weight').value=''; document.getElementById('child-height').value=''; document.getElementById('child-modal').classList.remove('hidden'); }
-    function closeChildModal(){ document.getElementById('child-modal').classList.add('hidden'); }
-
-    function saveChild(){
-        const name = document.getElementById('child-name').value;
-        const dob = document.getElementById('child-dob').value;
-        const weight = document.getElementById('child-weight').value;
-        const height = document.getElementById('child-height').value;
-        if(!name) return alert('Nombre requerido');
-
-        const ref = db.ref(`users/${currentUser.uid}/children`);
-        if(editingChildKey){
-            ref.child(editingChildKey).set({name,dob,weight,height});
-        } else {
-            const key = ref.push().key;
-            ref.child(key).set({name,dob,weight,height});
-        }
-        closeChildModal();
+    function addChild(){
+        const cid = generateCode(8);
+        if(!DATA.children) DATA.children={};
+        DATA.children[cid]={name:"Nuevo hijo",birth:"",weight:"",height:""};
+        db.ref('familias/'+familyId+'/children/'+cid).set(DATA.children[cid]);
     }
 
-    function editChild(key){
-        editingChildKey = key;
-        db.ref(`users/${currentUser.uid}/children/${key}`).once('value').then(snap=>{
-            const child = snap.val();
-            document.getElementById('child-name').value = child.name;
-            document.getElementById('child-dob').value = child.dob || '';
-            document.getElementById('child-weight').value = child.weight || '';
-            document.getElementById('child-height').value = child.height || '';
-            document.getElementById('child-modal').classList.remove('hidden');
+    function updateChild(cid,field,value){
+        db.ref('familias/'+familyId+'/children/'+cid+'/'+field).set(value);
+    }
+
+    function deleteChild(cid){
+        db.ref('familias/'+familyId+'/children/'+cid).remove();
+    }
+
+    // --- Avisos ---
+    function renderAvisos(){
+        const container = document.getElementById('panel-avisos-global');
+        container.innerHTML='';
+        if(!DATA.logs) DATA.logs={};
+        Object.values(DATA.logs).forEach(l=>{
+            const div=document.createElement('div');
+            div.className='aviso-item';
+            div.innerText=l.txt;
+            container.appendChild(div);
         });
     }
 
-    function deleteChild(key){
-        if(confirm('¿Eliminar este usuario?')) db.ref(`users/${currentUser.uid}/children/${key}`).remove();
-    }
-
-    // --- LOGS ---
-    function loadLogs(){
-        const ref = db.ref(`users/${currentUser.uid}/logs`);
-        ref.on('value', snap=>{
-            const data = snap.val() || {};
-            const list = document.getElementById('logs');
-            list.innerHTML = '';
-            Object.values(data).reverse().forEach(log=>{
-                const div = document.createElement('div');
-                div.className = 'bg-white p-3 rounded-card shadow-card text-sm';
-                div.textContent = `${log.txt} (${log.h || ''})`;
-                list.appendChild(div);
-            });
-        });
-    }
-
-    function addLogPrompt(){
-        const txt = prompt("Descripción del log:");
-        if(!txt) return;
-        const ref = db.ref(`users/${currentUser.uid}/logs`);
-        const ts = Date.now();
-        ref.child(ts).set({txt,h:new Date().toLocaleTimeString()});
+    // --- Inicio ---
+    if(uid && familyId){
+        loadFamily();
+    } else {
+        showScreen('login-screen');
     }
 </script>
 </body>
