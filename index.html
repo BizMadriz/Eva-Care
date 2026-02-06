@@ -3,217 +3,290 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>EvaCare V32.0 - Auth Fix</title>
-
+<title>EvaCare V33.0 - Full Features</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
     .hidden { display: none !important; }
+    .tab-active { color: #2563eb; position: relative; }
+    .tab-active::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #2563eb; border-radius: 50%; }
+    .btn-action:active { transform: scale(0.95); }
 </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-slate-50 text-slate-900 pb-32">
 
 <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-[500]">
-  <div class="text-blue-600 text-5xl font-black italic animate-pulse">EvaCare</div>
-  <p id="loading-msg" class="text-[10px] font-bold text-slate-400 mt-4 uppercase tracking-widest">Iniciando sesión...</p>
-  <button id="btn-emergency" onclick="location.reload()" class="hidden mt-8 text-red-500 font-bold text-xs underline">REINTENTAR CONEXIÓN</button>
+    <div class="text-blue-600 text-5xl font-black italic animate-pulse">EvaCare</div>
 </div>
 
 <div id="login" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
-  <h1 class="text-4xl font-black text-blue-600 mb-8 italic">EvaCare</h1>
-  <div class="space-y-3">
-    <input id="email" type="email" class="w-full p-5 bg-white border rounded-2xl outline-none" placeholder="Email">
-    <input id="pass" type="password" class="w-full p-5 bg-white border rounded-2xl outline-none" placeholder="Contraseña">
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">Entrar</button>
-    <button onclick="register()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">Crear cuenta</button>
-  </div>
+    <h1 class="text-4xl font-black text-blue-600 mb-8 italic">EvaCare</h1>
+    <div class="space-y-3">
+        <input id="email" type="email" class="w-full p-5 bg-white border rounded-2xl" placeholder="Email">
+        <input id="pass" type="password" class="w-full p-5 bg-white border rounded-2xl" placeholder="Contraseña">
+        <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">Entrar</button>
+        <button onclick="register()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">Crear cuenta</button>
+    </div>
 </div>
 
 <div id="familySetup" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
-  <h2 class="text-2xl font-black mb-6">Configura tu Familia</h2>
-  <div class="space-y-6">
-    <div class="bg-white p-6 rounded-3xl border">
-        <input id="familyName" class="w-full p-4 bg-slate-50 rounded-xl mb-3" placeholder="Nombre de tu familia">
-        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear Nueva</button>
+    <h2 class="text-2xl font-black mb-6">Configurar Familia</h2>
+    <input id="familyName" class="w-full p-4 bg-white border rounded-xl mb-3" placeholder="Nombre Familia">
+    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black mb-6">Crear Nueva</button>
+    <div class="border-t pt-6">
+        <input id="joinCode" class="w-full p-4 bg-white border rounded-xl mb-3 uppercase" placeholder="Código">
+        <button onclick="joinFamily()" class="w-full bg-green-600 text-white p-4 rounded-xl font-black">Unirse</button>
     </div>
-    <div class="bg-slate-900 p-6 rounded-3xl">
-        <input id="joinCode" class="w-full p-4 bg-white/10 text-white rounded-xl mb-3 uppercase" placeholder="Código de Invitación">
-        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse a Familia</button>
-    </div>
-  </div>
 </div>
 
-<div id="app" class="hidden min-h-screen pb-20">
-  <header class="p-6 bg-white border-b flex justify-between items-center sticky top-0 z-50">
-    <div>
-        <h1 id="familyTitle" class="text-lg font-black text-blue-600 italic leading-none"></h1>
-        <span class="text-[9px] font-bold text-slate-400">ID: <span id="inviteCode" class="select-all"></span></span>
-    </div>
-    <button onclick="logout()" class="text-red-500 text-xl p-2"><i class="fa-solid fa-power-off"></i></button>
-  </header>
+<div id="app" class="hidden">
+    <header class="p-6 bg-white flex justify-between items-center sticky top-0 z-40 border-b">
+        <div>
+            <h1 id="familyTitle" class="text-lg font-black text-blue-600 italic leading-none"></h1>
+            <span class="text-[9px] font-bold text-slate-400">ID: <span id="inviteCode"></span></span>
+        </div>
+        <select id="bebeSelector" onchange="switchBebe(this.value)" class="bg-slate-100 text-[10px] font-bold px-4 py-2 rounded-full outline-none border-none"></select>
+    </header>
 
-  <main class="p-4 space-y-4">
-    <div id="children-container" class="space-y-4"></div>
-    <button onclick="addChild()" class="w-full p-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-xs uppercase">+ Añadir Bebé</button>
-  </main>
+    <nav class="flex justify-around p-4 bg-white border-b text-[10px] font-black uppercase tracking-widest text-slate-400">
+        <button id="tab-btn-home" onclick="showTab('home')" class="tab-active">Diario</button>
+        <button id="tab-btn-med" onclick="showTab('med')">Salud</button>
+        <button id="tab-btn-food" onclick="showTab('food')">Comida</button>
+    </nav>
+
+    <main class="p-4">
+        <div id="tab-home" class="space-y-4">
+            <div id="alert-toma" class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-xl"></div>
+
+            <div class="grid grid-cols-4 gap-2">
+                <button onclick="quickLog('💦 Pis')" class="btn-action bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-droplet text-cyan-500"></i><span class="text-[8px] font-black">PIS</span>
+                </button>
+                <button onclick="quickLog('💩 Caca')" class="btn-action bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-poop text-orange-700"></i><span class="text-[8px] font-black">CACA</span>
+                </button>
+                <button onclick="openModal('modal-bibe')" class="btn-action bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-bottle-water text-blue-500"></i><span class="text-[8px] font-black">BIBE</span>
+                </button>
+                <button onclick="openModal('modal-pecho')" class="btn-action bg-pink-500 p-4 rounded-2xl shadow-lg flex flex-col items-center gap-1 text-white">
+                    <i class="fa-solid fa-person-breastfeeding"></i><span class="text-[8px] font-black">PECHO</span>
+                </button>
+            </div>
+
+            <div id="logs-container" class="space-y-2"></div>
+        </div>
+
+        <div id="tab-med" class="hidden space-y-4">
+            <button onclick="addMed()" class="w-full p-4 bg-red-50 text-red-600 rounded-2xl font-black text-xs">+ REGISTRAR MEDICINA</button>
+            <div id="med-container" class="space-y-2"></div>
+        </div>
+
+        <div id="tab-food" class="hidden space-y-4">
+            <button onclick="addFood()" class="w-full p-4 bg-green-50 text-green-600 rounded-2xl font-black text-xs">+ REGISTRAR ALIMENTO NUEVO</button>
+            <div id="food-container" class="space-y-2"></div>
+        </div>
+    </main>
+</div>
+
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[600] flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-xs rounded-[2.5rem] p-8 space-y-4">
+        <h3 class="font-black text-center">Cantidad en ml</h3>
+        <input id="in-ml" type="number" placeholder="120" class="w-full p-4 bg-slate-100 rounded-2xl text-center text-3xl font-black outline-none">
+        <button onclick="saveBibe()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">GUARDAR</button>
+        <button onclick="closeModal('modal-bibe')" class="w-full text-slate-400 font-bold text-xs uppercase">Cancelar</button>
+    </div>
+</div>
+
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[600] flex items-end">
+    <div class="bg-white w-full p-8 rounded-t-[3rem] grid grid-cols-3 gap-3">
+        <button onclick="quickLog('🤱 Izquierdo', true); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center">IZQ</button>
+        <button onclick="quickLog('🤱 Ambos', true); closeModal('modal-pecho')" class="bg-pink-600 p-6 rounded-2xl font-black text-white text-xs text-center">AMBOS</button>
+        <button onclick="quickLog('🤱 Derecho', true); closeModal('modal-pecho')" class="bg-pink-50 p-6 rounded-2xl font-black text-pink-600 text-xs text-center">DER</button>
+    </div>
 </div>
 
 <script>
-/* FIREBASE CONFIG */
+/* CONFIG & INIT - Reutilizamos tus credenciales */
 const firebaseConfig = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
   databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "evacare-24cae"
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let uid = null;
-let familyId = localStorage.getItem("familyId");
-let familyData = null;
+let uid = null, familyId = localStorage.getItem("familyId"), familyData = null, bIdx = 0;
 
-/* CONTROL DE VISTAS */
-const show = id => {
-  ["loading","login","familySetup","app"].forEach(x=>document.getElementById(x).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-};
-
-/* AUTH LISTENER */
+/* AUTH */
 auth.onAuthStateChanged(user => {
-  if (user) {
-    uid = user.uid;
-    checkFamily();
-  } else {
-    document.getElementById('loading').classList.add('hidden');
-    show("login");
-  }
+    if (user) { uid = user.uid; checkFamily(); }
+    else { document.getElementById('loading').classList.add('hidden'); show('login'); }
 });
 
-function login(){
-  auth.signInWithEmailAndPassword(email.value, pass.value).catch(e=>alert("Error: " + e.message));
+function login() { auth.signInWithEmailAndPassword(email.value, pass.value).catch(e=>alert(e.message)); }
+function register() { auth.createUserWithEmailAndPassword(email.value, pass.value).catch(e=>alert(e.message)); }
+function logout() { auth.signOut(); localStorage.clear(); location.reload(); }
+
+/* NAVEGACIÓN */
+const show = id => {
+    ["loading","login","familySetup","app"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+};
+
+function showTab(tab) {
+    ["home", "med", "food"].forEach(t => {
+        document.getElementById('tab-'+t).classList.add('hidden');
+        document.getElementById('tab-btn-'+t).classList.remove('tab-active');
+    });
+    document.getElementById('tab-'+tab).classList.remove('hidden');
+    document.getElementById('tab-btn-'+tab).classList.add('tab-active');
 }
 
-function register(){
-  auth.createUserWithEmailAndPassword(email.value, pass.value).catch(e=>alert("Error: " + e.message));
+/* DATABASE */
+function checkFamily() {
+    if(!familyId) show("familySetup");
+    else loadData();
 }
 
-function logout(){
-  auth.signOut();
-  localStorage.clear();
-  location.reload();
-}
-
-/* LOGICA FAMILIA */
-function checkFamily(){
-  if(!familyId){ 
-    show("familySetup"); 
-  } else {
-    loadFamily();
-  }
-}
-
-function loadFamily(){
-  document.getElementById('loading-msg').innerText = "Conectando a la nube...";
-  
-  // Timeout por si Firebase no responde
-  const timeout = setTimeout(() => {
-    document.getElementById('btn-emergency').classList.remove('hidden');
-    document.getElementById('loading-msg').innerText = "La conexión está tardando demasiado...";
-  }, 7000);
-
-  db.ref("familias/" + familyId).on("value", snap => {
-    clearTimeout(timeout);
-    familyData = snap.val();
-    
-    if(!familyData) {
-      localStorage.removeItem("familyId");
-      show("familySetup");
-      return;
-    }
-    
-    render();
-    show("app");
-  }, error => {
-    alert("Error de Firebase: " + error.message);
-  });
-}
-
-function createFamily(){
-  const name = familyName.value.trim();
-  if(!name) return alert("Pon un nombre");
-  
-  const newId = db.ref("familias").push().key;
-  const invite = Math.random().toString(36).substring(2,8).toUpperCase();
-  
-  db.ref("familias/"+newId).set({
-    name: name,
-    inviteCode: invite,
-    members: { [uid]: "owner" },
-    children: {}
-  }).then(() => {
-    localStorage.setItem("familyId", newId);
-    familyId = newId;
-    loadFamily();
-  });
-}
-
-function joinFamily(){
-    const code = joinCode.value.trim().toUpperCase();
-    db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap => {
-        if(!snap.exists()) return alert("Código no válido");
-        const fid = Object.keys(snap.val())[0];
-        localStorage.setItem("familyId", fid);
-        familyId = fid;
-        db.ref(`familias/${fid}/members/${uid}`).set("member");
-        loadFamily();
+function loadData() {
+    db.ref("familias/" + familyId).on("value", snap => {
+        familyData = snap.val();
+        if(!familyData) { show("familySetup"); return; }
+        render();
+        show("app");
+        document.getElementById('loading').classList.add('hidden');
     });
 }
 
-function render(){
-  familyTitle.innerText = familyData.name;
-  inviteCode.innerText = familyData.inviteCode;
-  
-  const container = document.getElementById('children-container');
-  container.innerHTML = "";
-  
-  Object.entries(familyData.children || {}).forEach(([id, c]) => {
-    container.innerHTML += `
-        <div class="bg-white p-6 rounded-[2rem] border shadow-sm">
-            <h3 class="font-black text-xl text-slate-700">${c.name}</h3>
-            <p class="text-xs text-slate-400 mb-4">Registro de actividades</p>
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="addLog('${id}', '💦 Pis')" class="bg-slate-50 p-4 rounded-2xl font-bold text-xs">💦 PIS</button>
-                <button onclick="addLog('${id}', '💩 Caca')" class="bg-slate-50 p-4 rounded-2xl font-bold text-xs">💩 CACA</button>
-            </div>
-            <div id="logs-${id}" class="mt-4 space-y-1 text-[10px] text-slate-500 italic">
-                ${Object.values(c.logs || {}).reverse().slice(0,3).map(l => `<div>• ${l.txt} (${l.h})</div>`).join('')}
-            </div>
+function createFamily() {
+    const name = familyName.value.trim();
+    if(!name) return;
+    const fid = db.ref("familias").push().key;
+    const invite = Math.random().toString(36).substring(2,8).toUpperCase();
+    db.ref("familias/"+fid).set({
+        name, inviteCode: invite, members: {[uid]:"owner"}, intervalo: 3,
+        children: { [Date.now()]: { name: "Bebé 1", logs: {}, meds: {}, foods: {} } }
+    }).then(() => { localStorage.setItem("familyId", fid); familyId = fid; loadData(); });
+}
+
+function joinFamily() {
+    const code = joinCode.value.trim().toUpperCase();
+    db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap => {
+        if(!snap.exists()) return alert("Código inválido");
+        const fid = Object.keys(snap.val())[0];
+        localStorage.setItem("familyId", fid); familyId = fid;
+        db.ref(`familias/${fid}/members/${uid}`).set("member");
+        loadData();
+    });
+}
+
+/* RENDER & LOGIC */
+function render() {
+    familyTitle.innerText = familyData.name;
+    inviteCode.innerText = familyData.inviteCode;
+    
+    const childrenKeys = Object.keys(familyData.children || {});
+    const cid = childrenKeys[bIdx];
+    const c = familyData.children[cid];
+
+    // Selector
+    bebeSelector.innerHTML = childrenKeys.map((k, i) => `<option value="${i}" ${i==bIdx?'selected':''}>${familyData.children[k].name.toUpperCase()}</option>`).join('');
+
+    // Alerta Toma
+    const ultima = c.lastToma || 0;
+    const proxima = ultima + (familyData.intervalo * 3600000);
+    const mFaltan = Math.round((proxima - Date.now()) / 60000);
+    
+    document.getElementById('alert-toma').innerHTML = `
+        <p class="text-[8px] font-black text-blue-400 uppercase mb-1">Próxima Toma</p>
+        <div class="flex justify-between items-end">
+            <h2 class="text-3xl font-black italic">${mFaltan > 0 ? 'En '+mFaltan+' min' : '¡TOCA YA!'}</h2>
+            <span class="text-[10px] text-slate-400">Cada ${familyData.intervalo}h</span>
         </div>
     `;
-  });
+
+    // Logs Diario
+    const logs = Object.values(c.logs || {}).sort((a,b)=>b.ts - a.ts);
+    document.getElementById('logs-container').innerHTML = logs.slice(0,10).map(l => `
+        <div class="bg-white p-4 rounded-2xl border shadow-sm flex justify-between items-center">
+            <span class="font-bold text-slate-700 text-xs">${l.txt}</span>
+            <span class="text-[9px] font-black text-slate-300">${l.h}</span>
+        </div>
+    `).join('');
+
+    // Salud
+    const meds = Object.values(c.meds || {}).sort((a,b)=>b.ts - a.ts);
+    document.getElementById('med-container').innerHTML = meds.map(m => `
+        <div class="bg-red-50 p-4 rounded-2xl border-l-4 border-red-500 flex justify-between items-center">
+            <div><p class="font-black text-red-700 text-xs uppercase">${m.txt}</p><p class="text-[9px] text-red-400">${m.h}</p></div>
+            <button onclick="deleteItem('meds', '${m.ts}')" class="text-red-200"><i class="fa-solid fa-circle-xmark"></i></button>
+        </div>
+    `).join('');
+
+    // Comida
+    const foods = Object.values(c.foods || {}).sort((a,b)=>b.ts - a.ts);
+    document.getElementById('food-container').innerHTML = foods.map(f => `
+        <div class="bg-green-50 p-4 rounded-2xl border-l-4 border-green-500 flex justify-between items-center">
+            <div><p class="font-black text-green-700 text-xs uppercase">${f.txt}</p><p class="text-[9px] text-green-400">Probado el ${f.h}</p></div>
+            <button onclick="deleteItem('foods', '${f.ts}')" class="text-green-200"><i class="fa-solid fa-circle-xmark"></i></button>
+        </div>
+    `).join('');
 }
 
-function addChild(){
-    const n = prompt("Nombre del bebé:");
-    if(!n) return;
-    const cid = Math.random().toString(36).substring(2,6);
-    db.ref(`familias/${familyId}/children/${cid}`).set({ name: n, logs: {} });
-}
-
-function addLog(childId, txt){
+/* ACTIONS */
+function quickLog(txt, esToma = false) {
+    const cid = Object.keys(familyData.children)[bIdx];
     const ts = Date.now();
     const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    db.ref(`familias/${familyId}/children/${childId}/logs/${ts}`).set({ txt, h, ts });
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({txt, ts, h});
+    if(esToma) db.ref(`familias/${familyId}/children/${cid}/lastToma`).set(ts);
 }
+
+function saveBibe() {
+    const ml = document.getElementById('in-ml').value;
+    if(!ml) return;
+    quickLog(`🍼 Biberón ${ml}ml`, true);
+    closeModal('modal-bibe');
+    document.getElementById('in-ml').value = "";
+}
+
+function addMed() {
+    const txt = prompt("Nombre medicina y dosis:");
+    if(!txt) return;
+    const cid = Object.keys(familyData.children)[bIdx];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/meds/${ts}`).set({txt, ts, h: new Date().toLocaleString()});
+}
+
+function addFood() {
+    const txt = prompt("¿Qué alimento nuevo ha probado?");
+    if(!txt) return;
+    const cid = Object.keys(familyData.children)[bIdx];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/foods/${ts}`).set({txt, ts, h: new Date().toLocaleDateString()});
+}
+
+function deleteItem(path, ts) {
+    const cid = Object.keys(familyData.children)[bIdx];
+    if(confirm("¿Eliminar registro?")) db.ref(`familias/${familyId}/children/${cid}/${path}/${ts}`).remove();
+}
+
+function addChild() {
+    const n = prompt("Nombre del nuevo bebé:");
+    if(!n) return;
+    db.ref(`familias/${familyId}/children/${Date.now()}`).set({name: n, logs: {}, meds: {}, foods: {}});
+}
+
+function switchBebe(i) { bIdx = i; render(); }
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 </script>
 </body>
