@@ -2,230 +2,205 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>EvaCare V31 - Gestión Completa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvaCare V30.0 - Final Full</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 <style>
-body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-.hidden { display: none !important; }
-.input { @apply w-full p-4 rounded-2xl border border-slate-300 mb-4 outline-none; }
-.btn { @apply w-full p-4 rounded-2xl font-black text-white text-center shadow-md mb-2; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background:#f1f5f9; }
+    .hidden { display:none!important; }
+    .rounded-card { border-radius: 1.5rem; }
+    .shadow-card { box-shadow:0 4px 10px rgba(0,0,0,0.1); }
 </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
 
-<!-- Pantalla de carga -->
-<div id="loading-screen" class="fixed inset-0 bg-white flex flex-col items-center justify-center">
-    <div class="text-blue-600 text-4xl font-black italic animate-bounce mb-4">EvaCare</div>
-    <div id="status-msg" class="text-slate-400 text-[10px] uppercase tracking-widest">Iniciando...</div>
+<!-- LOADING -->
+<div id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
+    <h1 class="text-4xl font-black text-blue-600 italic mb-4 animate-bounce">EvaCare</h1>
+    <p class="text-sm text-gray-400">Iniciando...</p>
 </div>
 
-<!-- Login/Registro -->
-<div id="auth-screen" class="hidden p-10 max-w-md mx-auto mt-20 space-y-4">
-    <h2 class="text-3xl font-black text-blue-600 text-center mb-6">EvaCare</h2>
-    <input id="email-input" type="email" placeholder="Email" class="input">
-    <input id="pass-input" type="password" placeholder="Contraseña" class="input">
-    <button id="btn-login" class="btn bg-blue-600" onclick="loginUser()">Iniciar sesión</button>
-    <button id="btn-register" class="btn bg-green-600" onclick="registerUser()">Crear cuenta</button>
-    <button id="btn-reset" class="btn bg-orange-500" onclick="resetPassword()">Olvidé mi contraseña</button>
-    <div id="auth-msg" class="text-red-500 text-sm text-center mt-2"></div>
+<!-- LOGIN -->
+<div id="auth-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50 hidden p-6">
+    <h1 class="text-3xl font-black text-blue-600 mb-4">EvaCare</h1>
+    <input id="email-input" type="email" placeholder="Email" class="w-full p-4 mb-3 rounded-card border">
+    <input id="pass-input" type="password" placeholder="Contraseña" class="w-full p-4 mb-3 rounded-card border">
+    <button onclick="login()" class="w-full bg-blue-600 text-white p-4 mb-2 rounded-card font-bold">Acceder</button>
+    <button onclick="signup()" class="w-full bg-gray-200 p-4 mb-2 rounded-card font-bold">Crear Cuenta</button>
+    <p id="auth-msg" class="text-red-500 text-sm mt-2"></p>
 </div>
 
-<!-- App principal -->
-<div id="app-content" class="hidden p-6 max-w-xl mx-auto space-y-6">
-
+<!-- APP -->
+<div id="app-screen" class="hidden p-6">
     <header class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-xl font-black text-blue-600 italic" id="display-email">---</h1>
-            <p class="text-slate-400 text-sm" id="family-id-display">---</p>
-        </div>
-        <button class="px-4 py-2 bg-red-500 text-white rounded-2xl font-bold" onclick="logoutUser()">Cerrar sesión</button>
+        <h1 class="text-xl font-black text-blue-600">EvaCare</h1>
+        <button onclick="logout()" class="text-sm bg-red-50 px-3 py-1 rounded-card font-bold text-red-500">Cerrar sesión</button>
     </header>
 
-    <!-- Panel miembros -->
-    <section class="bg-white p-6 rounded-2xl shadow-md space-y-4">
-        <h2 class="text-lg font-black text-blue-600 mb-2">Miembros de la familia</h2>
-        <div id="members-list" class="space-y-2"></div>
-        <button class="btn bg-green-600" onclick="openMemberModal()">Añadir miembro</button>
+    <!-- HIJOS -->
+    <section class="mb-6">
+        <h2 class="font-black text-gray-700 mb-2">Hijos / Usuarios</h2>
+        <div id="child-list" class="space-y-3 mb-3"></div>
+        <button onclick="showAddChildModal()" class="bg-green-500 text-white px-4 py-2 rounded-card font-bold">Añadir Hijo / Usuario</button>
     </section>
 
-    <!-- Logs -->
-    <section class="bg-white p-6 rounded-2xl shadow-md space-y-4">
-        <h2 class="text-lg font-black text-blue-600 mb-2">Logs de la familia</h2>
-        <button class="btn bg-blue-600" onclick="addTestLog()">Añadir log de prueba</button>
-        <div id="log-list" class="space-y-2 mt-4"></div>
+    <!-- LOGS -->
+    <section>
+        <h2 class="font-black text-gray-700 mb-2">Logs de Actividad</h2>
+        <div id="logs" class="space-y-2"></div>
+        <button onclick="addLogPrompt()" class="bg-blue-600 text-white px-4 py-2 rounded-card font-bold mt-2">Añadir Log</button>
     </section>
 </div>
 
-<!-- Modal añadir/editar miembro -->
-<div id="modal-member" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6">
-    <div class="bg-white w-full max-w-md p-6 rounded-3xl space-y-4 shadow-2xl">
-        <h2 class="text-xl font-black text-blue-600" id="member-modal-title">Añadir miembro</h2>
-        <input id="member-name" type="text" placeholder="Nombre" class="input">
-        <input id="member-birth" type="date" placeholder="Fecha de nacimiento" class="input">
-        <input id="member-weight" type="number" step="0.01" placeholder="Peso al nacer (kg)" class="input">
-        <input id="member-height" type="number" placeholder="Altura al nacer (cm)" class="input">
-        <div class="flex gap-2">
-            <button class="btn bg-green-600 flex-1" id="member-save-btn">Guardar</button>
-            <button class="btn bg-red-500 flex-1" onclick="closeMemberModal()">Cancelar</button>
+<!-- MODAL AÑADIR/EDITAR HIJO -->
+<div id="child-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6">
+    <div class="bg-white p-6 rounded-card w-full max-w-md shadow-card">
+        <h3 class="text-xl font-black mb-4">Añadir / Editar Hijo</h3>
+        <input id="child-name" type="text" placeholder="Nombre" class="w-full p-3 mb-2 rounded-card border">
+        <input id="child-dob" type="date" placeholder="Fecha de nacimiento" class="w-full p-3 mb-2 rounded-card border">
+        <input id="child-weight" type="number" placeholder="Peso nacimiento (kg)" class="w-full p-3 mb-2 rounded-card border">
+        <input id="child-height" type="number" placeholder="Altura nacimiento (cm)" class="w-full p-3 mb-2 rounded-card border">
+        <div class="flex justify-end gap-2 mt-4">
+            <button onclick="saveChild()" class="bg-blue-600 text-white px-4 py-2 rounded-card font-bold">Guardar</button>
+            <button onclick="closeChildModal()" class="bg-gray-200 px-4 py-2 rounded-card font-bold">Cancelar</button>
         </div>
     </div>
 </div>
 
 <script>
-const fbCfg = {
-  apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
-  databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com",
-  projectId: "evacare-24cae"
-};
-firebase.initializeApp(fbCfg);
-const auth = firebase.auth();
-const db = firebase.database();
+    // --- CONFIG ---
+    const fbCfg = {
+        apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
+        authDomain: "evacare-24cae.firebaseapp.com",
+        databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com",
+        projectId: "evacare-24cae"
+    };
+    firebase.initializeApp(fbCfg);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-let currentUser = null;
-let familyId = null;
-let editingMemberKey = null;
+    let currentUser = null;
+    let editingChildKey = null;
 
-// === INICIALIZAR APP ===
-function init(){
-  auth.onAuthStateChanged(user => {
-    if(user){
-      currentUser = user;
-      familyId = btoa(user.email).replace(/=/g,'');
-      showApp();
-      loadMembers();
-      loadLogs();
-    } else {
-      document.getElementById('loading-screen').classList.add('hidden');
-      document.getElementById('auth-screen').classList.remove('hidden');
+    // --- INIT ---
+    auth.onAuthStateChanged(user=>{
+        document.getElementById('loading-screen').classList.add('hidden');
+        if(user){
+            currentUser = user;
+            showApp();
+            loadChildren();
+            loadLogs();
+        } else {
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+    });
+
+    // --- LOGIN / SIGNUP ---
+    function login(){
+        const email = document.getElementById('email-input').value;
+        const pass = document.getElementById('pass-input').value;
+        auth.signInWithEmailAndPassword(email,pass)
+            .catch(err=>{document.getElementById('auth-msg').innerText = err.message;});
     }
-  });
-}
+    function signup(){
+        const email = document.getElementById('email-input').value;
+        const pass = document.getElementById('pass-input').value;
+        auth.createUserWithEmailAndPassword(email,pass)
+            .catch(err=>{document.getElementById('auth-msg').innerText = err.message;});
+    }
+    function logout(){ auth.signOut(); }
 
-// === AUTH ===
-function loginUser(){
-  const email = document.getElementById('email-input').value.trim();
-  const pass = document.getElementById('pass-input').value;
-  auth.signInWithEmailAndPassword(email, pass)
-    .catch(err => { document.getElementById('auth-msg').innerText = err.message; });
-}
+    // --- APP SCREEN ---
+    function showApp(){
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-screen').classList.remove('hidden');
+    }
 
-function registerUser(){
-  const email = document.getElementById('email-input').value.trim();
-  const pass = document.getElementById('pass-input').value;
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(()=> document.getElementById('auth-msg').innerText="Cuenta creada correctamente")
-    .catch(err=> document.getElementById('auth-msg').innerText=err.message);
-}
+    // --- CHILD MANAGEMENT ---
+    function loadChildren(){
+        const ref = db.ref(`users/${currentUser.uid}/children`);
+        ref.on('value', snap=>{
+            const data = snap.val() || {};
+            const list = document.getElementById('child-list');
+            list.innerHTML = '';
+            Object.entries(data).forEach(([key,child])=>{
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-white p-3 rounded-card shadow-card';
+                div.innerHTML = `<div>
+                    <p class="font-bold">${child.name}</p>
+                    <p class="text-sm text-gray-500">Nacimiento: ${child.dob || '-'} | Peso: ${child.weight || '-'}kg | Altura: ${child.height || '-'}cm</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="editChild('${key}')" class="text-blue-600 font-bold">Editar</button>
+                    <button onclick="deleteChild('${key}')" class="text-red-500 font-bold">Eliminar</button>
+                </div>`;
+                list.appendChild(div);
+            });
+        });
+    }
 
-function resetPassword(){
-  const email = document.getElementById('email-input').value.trim();
-  if(!email){ document.getElementById('auth-msg').innerText="Introduce tu email"; return; }
-  auth.sendPasswordResetEmail(email)
-    .then(()=> document.getElementById('auth-msg').innerText="Email de recuperación enviado")
-    .catch(err=> document.getElementById('auth-msg').innerText=err.message);
-}
+    function showAddChildModal(){ editingChildKey=null; document.getElementById('child-name').value=''; document.getElementById('child-dob').value=''; document.getElementById('child-weight').value=''; document.getElementById('child-height').value=''; document.getElementById('child-modal').classList.remove('hidden'); }
+    function closeChildModal(){ document.getElementById('child-modal').classList.add('hidden'); }
 
-function logoutUser(){ auth.signOut().then(()=>window.location.reload()); }
+    function saveChild(){
+        const name = document.getElementById('child-name').value;
+        const dob = document.getElementById('child-dob').value;
+        const weight = document.getElementById('child-weight').value;
+        const height = document.getElementById('child-height').value;
+        if(!name) return alert('Nombre requerido');
 
-// === APP PRINCIPAL ===
-function showApp(){
-  document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('app-content').classList.remove('hidden');
-  document.getElementById('display-email').innerText = currentUser.email;
-  document.getElementById('family-id-display').innerText = "ID familia: "+familyId;
-}
+        const ref = db.ref(`users/${currentUser.uid}/children`);
+        if(editingChildKey){
+            ref.child(editingChildKey).set({name,dob,weight,height});
+        } else {
+            const key = ref.push().key;
+            ref.child(key).set({name,dob,weight,height});
+        }
+        closeChildModal();
+    }
 
-// === GESTIÓN MIEMBROS ===
-function loadMembers(){
-  const membersRef = db.ref('familias/'+familyId+'/members');
-  membersRef.on('value', snap=>{
-    const data = snap.val() || {};
-    const list = Object.entries(data).map(([key, m])=>`
-      <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center border shadow-sm">
-        <div>
-          <p class="font-bold">${m.name}</p>
-          <p class="text-[10px] text-slate-400">Nac: ${m.birth} | Peso: ${m.weight||'-'}kg | Altura: ${m.height||'-'}cm</p>
-        </div>
-        <div class="flex gap-2">
-          <button class="bg-blue-500 text-white px-2 py-1 rounded" onclick="editMember('${key}')">Editar</button>
-          <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="deleteMember('${key}')">Eliminar</button>
-        </div>
-      </div>
-    `).join('');
-    document.getElementById('members-list').innerHTML = list || '<p class="text-slate-400 text-sm">No hay miembros</p>';
-  });
-}
+    function editChild(key){
+        editingChildKey = key;
+        db.ref(`users/${currentUser.uid}/children/${key}`).once('value').then(snap=>{
+            const child = snap.val();
+            document.getElementById('child-name').value = child.name;
+            document.getElementById('child-dob').value = child.dob || '';
+            document.getElementById('child-weight').value = child.weight || '';
+            document.getElementById('child-height').value = child.height || '';
+            document.getElementById('child-modal').classList.remove('hidden');
+        });
+    }
 
-function openMemberModal(){
-  editingMemberKey = null;
-  document.getElementById('member-modal-title').innerText = "Añadir miembro";
-  document.getElementById('member-name').value='';
-  document.getElementById('member-birth').value='';
-  document.getElementById('member-weight').value='';
-  document.getElementById('member-height').value='';
-  document.getElementById('modal-member').classList.remove('hidden');
-}
+    function deleteChild(key){
+        if(confirm('¿Eliminar este usuario?')) db.ref(`users/${currentUser.uid}/children/${key}`).remove();
+    }
 
-function closeMemberModal(){ document.getElementById('modal-member').classList.add('hidden'); }
+    // --- LOGS ---
+    function loadLogs(){
+        const ref = db.ref(`users/${currentUser.uid}/logs`);
+        ref.on('value', snap=>{
+            const data = snap.val() || {};
+            const list = document.getElementById('logs');
+            list.innerHTML = '';
+            Object.values(data).reverse().forEach(log=>{
+                const div = document.createElement('div');
+                div.className = 'bg-white p-3 rounded-card shadow-card text-sm';
+                div.textContent = `${log.txt} (${log.h || ''})`;
+                list.appendChild(div);
+            });
+        });
+    }
 
-document.getElementById('member-save-btn').onclick = function(){
-  const name = document.getElementById('member-name').value.trim();
-  const birth = document.getElementById('member-birth').value;
-  const weight = document.getElementById('member-weight').value;
-  const height = document.getElementById('member-height').value;
-  if(!name || !birth){ alert("Nombre y fecha obligatorios"); return; }
-  const membersRef = db.ref('familias/'+familyId+'/members');
-  if(editingMemberKey){
-    membersRef.child(editingMemberKey).set({name,birth,weight,height});
-  } else {
-    const newKey = membersRef.push().key;
-    membersRef.child(newKey).set({name,birth,weight,height});
-  }
-  closeMemberModal();
-}
-
-function editMember(key){
-  editingMemberKey = key;
-  db.ref('familias/'+familyId+'/members/'+key).get().then(snap=>{
-    const m = snap.val();
-    document.getElementById('member-modal-title').innerText = "Editar miembro";
-    document.getElementById('member-name').value = m.name;
-    document.getElementById('member-birth').value = m.birth;
-    document.getElementById('member-weight').value = m.weight || '';
-    document.getElementById('member-height').value = m.height || '';
-    document.getElementById('modal-member').classList.remove('hidden');
-  });
-}
-
-function deleteMember(key){
-  if(confirm("Eliminar miembro?")) db.ref('familias/'+familyId+'/members/'+key).remove();
-}
-
-// === LOGS ===
-function loadLogs(){
-  const logRef = db.ref('familias/'+familyId+'/logs');
-  logRef.on('value', snap=>{
-    const data = snap.val() || {};
-    const list = Object.values(data).reverse().map(l=>`
-      <div class="bg-white p-4 rounded-2xl shadow-sm border-b font-bold text-slate-600">
-        ${l.txt} <span class="text-[9px] text-slate-300 ml-2">${l.h||''}</span>
-      </div>
-    `).join('');
-    document.getElementById('log-list').innerHTML = list;
-  });
-}
-
-function addTestLog(){
-  const ts = Date.now();
-  db.ref('familias/'+familyId+'/logs/'+ts).set({ txt:"Log de prueba ✅", h:new Date().toLocaleTimeString() });
-}
-
-init();
+    function addLogPrompt(){
+        const txt = prompt("Descripción del log:");
+        if(!txt) return;
+        const ref = db.ref(`users/${currentUser.uid}/logs`);
+        const ts = Date.now();
+        ref.child(ts).set({txt,h:new Date().toLocaleTimeString()});
+    }
 </script>
-
 </body>
 </html>
