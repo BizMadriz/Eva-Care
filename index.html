@@ -2,75 +2,101 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvaCare Final</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EvaCare V31.0 - Professional Auth</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 
 <style>
-body { font-family: system-ui; }
-.hidden { display:none; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .hidden { display: none !important; }
+    .btn-action { transition: all 0.2s; }
+    .btn-action:active { transform: scale(0.95); opacity: 0.8; }
 </style>
 </head>
+<body class="bg-slate-50 text-slate-900">
 
-<body class="bg-slate-50">
-
-<!-- LOADING -->
-<div id="loading" class="fixed inset-0 flex items-center justify-center bg-white z-50">
-  <div class="text-blue-600 text-4xl font-black animate-pulse">EvaCare</div>
+<div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-[100]">
+  <div class="text-blue-600 text-5xl font-black italic animate-pulse">EvaCare</div>
+  <p class="text-[10px] font-bold text-slate-400 mt-4 uppercase tracking-widest">Sincronizando...</p>
 </div>
 
-<!-- LOGIN -->
-<div id="login" class="hidden p-8 max-w-md mx-auto">
-  <h1 class="text-3xl font-black text-blue-600 mb-6">EvaCare</h1>
-  <input id="email" class="w-full p-4 mb-3 bg-slate-100 rounded-xl" placeholder="Email">
-  <input id="pass" type="password" class="w-full p-4 mb-4 bg-slate-100 rounded-xl" placeholder="Contraseña">
-  <button onclick="login()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black mb-2">Entrar</button>
-  <button onclick="register()" class="w-full bg-green-600 text-white p-4 rounded-xl font-black">Crear cuenta</button>
-</div>
-
-<!-- FAMILY SETUP -->
-<div id="familySetup" class="hidden p-8 max-w-md mx-auto">
-  <h2 class="text-xl font-black mb-4">Configurar familia</h2>
-
-  <div class="mb-6">
-    <input id="familyName" class="w-full p-4 bg-slate-100 rounded-xl mb-2" placeholder="Nombre de la familia">
-    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">
-      Crear familia
-    </button>
+<div id="login" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
+  <div class="mb-10 text-center">
+    <h1 class="text-4xl font-black text-blue-600 italic">EvaCare</h1>
+    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Tu asistente familiar</p>
   </div>
-
-  <div class="border-t pt-4">
-    <input id="joinCode" class="w-full p-4 bg-slate-100 rounded-xl mb-2" placeholder="Código de familia">
-    <button onclick="joinFamily()" class="w-full bg-green-600 text-white p-4 rounded-xl font-black">
-      Unirse a familia
-    </button>
+  <div class="space-y-3">
+    <input id="email" type="email" class="w-full p-5 bg-white border border-slate-200 rounded-[1.5rem] outline-none focus:border-blue-500" placeholder="Email">
+    <input id="pass" type="password" class="w-full p-5 bg-white border border-slate-200 rounded-[1.5rem] outline-none focus:border-blue-500" placeholder="Contraseña">
+    <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-[1.5rem] font-black shadow-xl shadow-blue-200">Entrar</button>
+    <button onclick="register()" class="w-full bg-slate-100 text-slate-600 p-5 rounded-[1.5rem] font-bold">Crear cuenta nueva</button>
   </div>
 </div>
 
-<!-- APP -->
-<div id="app" class="hidden p-6 max-w-3xl mx-auto">
-  <header class="flex justify-between items-center mb-6">
+<div id="familySetup" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
+  <h2 class="text-2xl font-black mb-8">Configura tu Familia</h2>
+  <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
+    <p class="text-[10px] font-bold text-blue-500 uppercase mb-4">Nueva Familia</p>
+    <input id="familyName" class="w-full p-4 bg-slate-50 rounded-xl mb-4" placeholder="Nombre (Ej: García Lopez)">
+    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear Familia</button>
+  </div>
+  <div class="bg-slate-900 p-6 rounded-[2rem] text-white">
+    <p class="text-[10px] font-bold text-slate-400 uppercase mb-4">Unirse a una existente</p>
+    <input id="joinCode" class="w-full p-4 bg-white/10 rounded-xl mb-4 text-white uppercase" placeholder="Código de Invitación">
+    <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse</button>
+  </div>
+</div>
+
+<div id="app" class="hidden min-h-screen pb-32">
+  <header class="p-6 bg-white/80 backdrop-blur-md sticky top-0 z-40 flex justify-between items-center border-b border-slate-100">
     <div>
-      <h1 id="familyTitle" class="text-2xl font-black text-blue-600"></h1>
-      <p class="text-xs text-slate-400">Código: <span id="inviteCode"></span></p>
+      <h1 id="familyTitle" class="text-xl font-black text-blue-600 italic"></h1>
+      <div class="flex items-center gap-2">
+        <span class="text-[8px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded-full font-bold uppercase">ID: <span id="inviteCode"></span></span>
+      </div>
     </div>
-    <button onclick="logout()" class="text-red-500 font-black">Salir</button>
+    <div class="flex gap-2">
+        <select id="bebeSelector" onchange="switchBebe(this.value)" class="bg-slate-100 text-[10px] font-bold px-3 py-2 rounded-full outline-none"></select>
+        <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xs"><i class="fa-solid fa-power-off"></i></button>
+    </div>
   </header>
 
-  <h2 class="font-black mb-2">Hijos</h2>
-  <div id="children"></div>
+  <main class="p-4 space-y-4">
+    <div class="bg-slate-900 rounded-[2.5rem] p-7 text-white shadow-2xl">
+        <div id="panel-avisos" class="space-y-2"></div>
+    </div>
 
-  <button onclick="addChild()" class="mt-4 bg-blue-600 text-white p-4 rounded-xl font-black w-full">
-    Añadir hijo
-  </button>
+    <div class="grid grid-cols-4 gap-3">
+        <button onclick="addLog('💦 Pis')" class="btn-action bg-white py-6 rounded-[2rem] font-black text-cyan-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-droplet text-lg"></i>PIS</button>
+        <button onclick="addLog('💩 Caca')" class="btn-action bg-white py-6 rounded-[2rem] font-black text-orange-800 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-poop text-lg"></i>CACA</button>
+        <button onclick="addLog('✨ Aseo')" class="btn-action bg-white py-6 rounded-[2rem] font-black text-purple-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-sparkles text-lg"></i>ASEO</button>
+        <button onclick="addChild()" class="btn-action bg-yellow-400 text-yellow-900 rounded-[2rem] flex items-center justify-center shadow-lg"><i class="fa-solid fa-baby"></i></button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <button onclick="openModal('modal-pecho')" class="btn-action bg-white h-28 rounded-[2.5rem] border shadow-sm flex flex-col items-center justify-center"><i class="fa-solid fa-person-breastfeeding text-pink-500 mb-2 text-2xl"></i><span class="text-[10px] font-black uppercase">Pecho</span></button>
+        <div class="space-y-3">
+            <button onclick="openModal('modal-bibe')" class="btn-action w-full bg-white h-16 rounded-[1.8rem] border shadow-sm flex items-center justify-center gap-3"><i class="fa-solid fa-bottle-water text-blue-500 text-xl"></i><span class="text-[10px] font-black uppercase tracking-tighter">Biberón</span></button>
+            <button id="btn-repetir" onclick="repetirBibe()" class="w-full bg-blue-600 text-white h-9 rounded-full text-[9px] font-black uppercase hidden italic">Repetir última</button>
+        </div>
+    </div>
+
+    <div id="diario" class="space-y-2"></div>
+  </main>
 </div>
 
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-6"><div class="bg-white w-full max-w-xs rounded-[3rem] p-10 space-y-5 text-center"><input id="in-ml" type="number" placeholder="ml" class="w-full p-4 bg-slate-100 rounded-2xl text-center text-4xl font-black outline-none"><button onclick="saveBibe()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase">Guardar</button><button onclick="closeModal('modal-bibe')" class="text-slate-400 font-bold text-xs uppercase">Cancelar</button></div></div>
+
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-end"><div class="bg-white w-full p-10 rounded-t-[4rem] grid grid-cols-3 gap-4"><button onclick="addLog('🤱 Izquierdo', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">IZQ</button><button onclick="addLog('🤱 Ambos', true); closeModal('modal-pecho')" class="bg-pink-600 p-8 rounded-3xl font-black text-white text-[10px]">AMBOS</button><button onclick="addLog('🤱 Derecho', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">DER</button></div></div>
+
 <script>
-/* FIREBASE */
+/* FIREBASE CONFIG */
 firebase.initializeApp({
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
@@ -82,35 +108,36 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /* STATE */
-let uid = localStorage.getItem("uid");
+let uid = null;
 let familyId = localStorage.getItem("familyId");
 let familyData = null;
+let bIdx = 0;
 
 /* UTILS */
 const show = id => {
   ["loading","login","familySetup","app"].forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 };
-
 const genCode = () => Math.random().toString(36).substring(2,8).toUpperCase();
+const openModal = id => document.getElementById(id).classList.remove("hidden");
+const closeModal = id => document.getElementById(id).classList.add("hidden");
 
 /* AUTH */
-function login(){
-  auth.signInWithEmailAndPassword(email.value, pass.value)
-  .then(r=>{
-    uid=r.user.uid;
-    localStorage.setItem("uid",uid);
+auth.onAuthStateChanged(user => {
+  if (user) {
+    uid = user.uid;
     checkFamily();
-  }).catch(e=>alert(e.message));
+  } else {
+    show("login");
+  }
+});
+
+function login(){
+  auth.signInWithEmailAndPassword(email.value, pass.value).catch(e=>alert(e.message));
 }
 
 function register(){
-  auth.createUserWithEmailAndPassword(email.value, pass.value)
-  .then(r=>{
-    uid=r.user.uid;
-    localStorage.setItem("uid",uid);
-    show("familySetup");
-  }).catch(e=>alert(e.message));
+  auth.createUserWithEmailAndPassword(email.value, pass.value).then(()=>show("familySetup")).catch(e=>alert(e.message));
 }
 
 function logout(){
@@ -119,7 +146,7 @@ function logout(){
   location.reload();
 }
 
-/* FAMILY */
+/* FAMILY LOGIC */
 function checkFamily(){
   if(!familyId){ show("familySetup"); return; }
   loadFamily();
@@ -127,70 +154,116 @@ function checkFamily(){
 
 function createFamily(){
   const name = familyName.value.trim();
-  if(!name) return alert("Nombre requerido");
-
-  familyId = db.ref("familias").push().key;
+  if(!name) return;
+  const fid = db.ref("familias").push().key;
   const invite = genCode();
-
-  db.ref("familias/"+familyId).set({
+  db.ref("familias/"+fid).set({
     name,
     inviteCode: invite,
-    members:{ [uid]:"owner" },
-    children:{}
+    members: { [uid]: "owner" },
+    intervalo: 3,
+    bebes: [{ name: "Bebé 1", logs: {}, lastToma: Date.now() }]
   }).then(()=>{
-    localStorage.setItem("familyId",familyId);
+    localStorage.setItem("familyId", fid);
+    familyId = fid;
     loadFamily();
   });
 }
 
 function joinFamily(){
   const code = joinCode.value.trim().toUpperCase();
-  if(!code) return;
-
-  db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value",snap=>{
-    if(!snap.exists()) return alert("Código inválido");
+  db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap=>{
+    if(!snap.exists()) return alert("Código no encontrado");
     const fid = Object.keys(snap.val())[0];
-    familyId=fid;
-    localStorage.setItem("familyId",fid);
+    localStorage.setItem("familyId", fid);
+    familyId = fid;
     db.ref(`familias/${fid}/members/${uid}`).set("member");
     loadFamily();
   });
 }
 
 function loadFamily(){
-  show("loading");
-  db.ref("familias/"+familyId).on("value",snap=>{
-    familyData=snap.val();
+  db.ref("familias/"+familyId).on("value", snap=>{
+    familyData = snap.val();
+    if(!familyData) { localStorage.clear(); location.reload(); return; }
     render();
     show("app");
   });
 }
 
-/* CHILDREN */
+/* APP LOGIC */
 function render(){
   familyTitle.innerText = familyData.name;
   inviteCode.innerText = familyData.inviteCode;
-  children.innerHTML="";
-  Object.entries(familyData.children||{}).forEach(([id,c])=>{
-    children.innerHTML+=`
-    <div class="bg-white p-4 rounded-xl mb-3">
-      <input value="${c.name}" onblur="updateChild('${id}','name',this.value)" class="font-black w-full">
-      <input type="date" value="${c.birth||''}" onblur="updateChild('${id}','birth',this.value)" class="text-sm">
-    </div>`;
-  });
+  
+  // Selector Bebés
+  bebeSelector.innerHTML = (familyData.bebes || []).map((b,i)=>`<option value="${i}" ${i==bIdx?'selected':''}>${b.name.toUpperCase()}</option>`).join('');
+
+  const b = familyData.bebes[bIdx];
+  
+  // Avisos
+  const prox = (b.lastToma || 0) + (familyData.intervalo * 3600000);
+  const falta = Math.round((prox - Date.now()) / 60000);
+  
+  panel-avisos.innerHTML = `
+    <h3 class="text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-1">${b.name}</h3>
+    <p class="text-2xl font-black italic">${falta > 0 ? 'Toca en '+falta+' min' : '¡Toca toma ya!'}</p>
+  `;
+
+  // Historial (Objetos a Array)
+  const logsArr = Object.values(b.logs || {}).sort((a,b)=>b.ts - a.ts);
+  diario.innerHTML = logsArr.slice(0,10).map(l => `
+    <div class="bg-white p-5 rounded-[1.5rem] flex justify-between items-center shadow-sm">
+      <span class="font-bold text-slate-700">${l.txt}</span>
+      <span class="text-[10px] font-black text-slate-300">${l.h}</span>
+    </div>
+  `).join('');
+
+  // Botón Repetir
+  if(b.lastMl) {
+      btn-repetir.innerText = `Repetir ${b.lastMl}ml`;
+      btn-repetir.classList.remove('hidden');
+  } else {
+      btn-repetir.classList.add('hidden');
+  }
+}
+
+function addLog(txt, esToma = false){
+    const ts = Date.now();
+    const entry = {
+        txt,
+        ts,
+        h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+    };
+    db.ref(`familias/${familyId}/bebes/${bIdx}/logs/${ts}`).set(entry);
+    if(esToma) db.ref(`familias/${familyId}/bebes/${bIdx}/lastToma`).set(ts);
+}
+
+function saveBibe(){
+    const ml = document.getElementById('in-ml').value;
+    if(!ml) return;
+    addLog(`🍼 Biberón ${ml}ml`, true);
+    db.ref(`familias/${familyId}/bebes/${bIdx}/lastMl`).set(ml);
+    closeModal('modal-bibe');
+    document.getElementById('in-ml').value = "";
+}
+
+function repetirBibe(){
+    const ml = familyData.bebes[bIdx].lastMl;
+    if(ml) addLog(`🍼 Biberón ${ml}ml`, true);
 }
 
 function addChild(){
-  const id=genCode();
-  db.ref(`familias/${familyId}/children/${id}`).set({name:"Nuevo hijo"});
+    const nombre = prompt("Nombre del bebé:");
+    if(!nombre) return;
+    const nuevoBebé = { name: nombre, logs: {}, lastToma: Date.now() };
+    const arr = familyData.bebes || [];
+    arr.push(nuevoBebé);
+    db.ref(`familias/${familyId}/bebes`).set(arr);
 }
 
-function updateChild(id,f,v){
-  db.ref(`familias/${familyId}/children/${id}/${f}`).set(v);
-}
+function switchBebe(val){ bIdx = val; render(); }
 
-/* INIT */
-uid ? checkFamily() : show("login");
 </script>
 </body>
 </html>
