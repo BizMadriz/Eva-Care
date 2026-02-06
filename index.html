@@ -1,140 +1,65 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EvaCare V38.2 - Recuperación de Acceso</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .hidden { display: none !important; }
-        input { outline: none !important; }
-    </style>
-</head>
-<body class="bg-slate-50">
-
-<div id="loading" class="fixed inset-0 flex items-center justify-center bg-white z-[999]">
-    <div class="text-blue-600 text-4xl font-black italic animate-pulse">EvaCare</div>
-</div>
-
-<div id="sec-login" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
-    <h1 class="text-4xl font-black text-blue-600 italic mb-8">EvaCare</h1>
-    <div class="space-y-3">
-        <input id="log-email" type="email" class="w-full p-5 bg-white border rounded-2xl" placeholder="Email">
-        <input id="log-pass" type="password" class="w-full p-5 bg-white border rounded-2xl" placeholder="Contraseña">
-        <button onclick="handleLogin()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">ENTRAR</button>
-        <button onclick="handleRegister()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">CREAR CUENTA</button>
+<main class="p-4 space-y-6">
+    <div id="section-citas" class="hidden">
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-2">Próximas Citas (15 días)</h3>
+        <div id="visor-citas" class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+            </div>
     </div>
-</div>
 
-<div id="sec-family" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border text-center space-y-4">
-        <h2 class="text-xl font-black italic">Configuración Familiar</h2>
-        <input id="fam-name" class="w-full p-4 bg-slate-50 rounded-xl" placeholder="Apellidos Familia">
-        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">CREAR NUEVA</button>
-        <div class="text-slate-300 font-bold text-[10px] uppercase">O únete con código</div>
-        <input id="fam-code" class="w-full p-4 bg-slate-50 rounded-xl text-center uppercase" placeholder="CÓDIGO">
-        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">UNIRSE</button>
+    <div id="visor" class="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-xl">
+        <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Último registro</p>
+        <div id="last-log" class="text-2xl font-black italic tracking-tighter">Esperando datos...</div>
     </div>
-</div>
 
-<div id="sec-app" class="hidden">
-    <header class="p-6 bg-white flex justify-between items-center border-b sticky top-0 z-50">
-        <div>
-            <select id="bebeSelector" onchange="switchBebe(this.value)" class="text-2xl font-black text-blue-600 bg-transparent"></select>
-            <p id="sub-info" class="text-[9px] font-bold text-slate-400 mt-1"></p>
-        </div>
-        <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-power-off"></i></button>
-    </header>
+    <div class="grid grid-cols-4 gap-2">
+        <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-droplet text-cyan-500 mb-1"></i><span class="text-[8px] font-bold">PIS</span></button>
+        <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-poop text-orange-800 mb-1"></i><span class="text-[8px] font-bold">CACA</span></button>
+        <button onclick="addCita()" class="bg-orange-500 text-white p-4 rounded-2xl shadow-lg flex flex-col items-center"><i class="fa-solid fa-calendar-plus mb-1"></i><span class="text-[8px] font-bold">CITA</span></button>
+        <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg flex flex-col items-center"><i class="fa-solid fa-bottle-water mb-1"></i><span class="text-[8px] font-bold">TOMA</span></button>
+    </div>
 
-    <main class="p-4 space-y-6">
-        <div id="visor" class="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-xl">
-            <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Último evento</p>
-            <div id="last-log" class="text-2xl font-black italic italic tracking-tighter">Esperando datos...</div>
-        </div>
-
-        <div class="grid grid-cols-4 gap-2">
-            <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-droplet text-cyan-500 mb-1"></i><span class="text-[8px] font-bold">PIS</span></button>
-            <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-poop text-orange-800 mb-1"></i><span class="text-[8px] font-bold">CACA</span></button>
-            <button onclick="quickLog('✨ Baño')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-bath text-blue-300 mb-1"></i><span class="text-[8px] font-bold">BAÑO</span></button>
-            <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg flex flex-col items-center"><i class="fa-solid fa-bottle-water mb-1"></i><span class="text-[8px] font-bold">TOMA</span></button>
-        </div>
-
-        <div id="diario" class="space-y-2"></div>
-    </main>
-</div>
+    <div id="diario" class="space-y-2"></div>
+</main>
 
 <script>
-// CONFIG FIREBASE (Tus datos)
-const firebaseConfig = {
-  apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
-  authDomain: "evacare-24cae.firebaseapp.com",
-  databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "evacare-24cae"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-let uid, familyId, familyData, bIdx = 0;
-
-// FUNCIONES DE ACCESO (REVISADAS)
-function handleLogin() {
-    const email = document.getElementById('log-email').value;
-    const pass = document.getElementById('log-pass').value;
-    if(!email || !pass) return alert("Completa los campos");
-    auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
-}
-
-function handleRegister() {
-    const email = document.getElementById('log-email').value;
-    const pass = document.getElementById('log-pass').value;
-    if(!email || !pass) return alert("Completa los campos");
-    auth.createUserWithEmailAndPassword(email, pass).catch(e => alert(e.message));
-}
-
-// LOGICA DE NAVEGACIÓN
-auth.onAuthStateChanged(user => {
-    if (user) {
-        uid = user.uid;
-        db.ref(`usuarios/${uid}/familyId`).on('value', snap => {
-            familyId = snap.val();
-            if (familyId) loadFamily();
-            else show("sec-family");
-        });
-    } else {
-        show("sec-login");
-    }
-});
-
-function loadFamily() {
-    db.ref("familias/" + familyId).on("value", snap => {
-        familyData = snap.val();
-        if(!familyData) { show("sec-family"); return; }
-        if(!familyData.children) {
-            const n = prompt("Nombre del bebé:");
-            if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name: n});
-        } else {
-            render();
-            show("sec-app");
-        }
-    });
-}
+// ... (Mantener auth, login y loadFamily de la V38.2) ...
 
 function render() {
     const keys = Object.keys(familyData.children);
     const b = familyData.children[keys[bIdx]];
     
+    // 1. Selector de Bebé
     document.getElementById('bebeSelector').innerHTML = keys.map((k, i) => 
         `<option value="${i}" ${i==bIdx?'selected':''}>${familyData.children[k].name.toUpperCase()}</option>`
     ).join('');
     document.getElementById('sub-info').innerText = `${familyData.name} • Código: ${familyData.inviteCode}`;
 
+    // 2. Lógica de Citas (Visor 15 días)
+    const containerCitas = document.getElementById('visor-citas');
+    const sectionCitas = document.getElementById('section-citas');
+    const hoy = new Date();
+    const limite = new Date();
+    limite.setDate(hoy.getDate() + 15);
+
+    const citasArr = Object.values(b.citas || {}).filter(c => {
+        const fechaCita = new Date(c.fecha);
+        return fechaCita >= hoy && fechaCita <= limite;
+    }).sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+
+    if(citasArr.length > 0) {
+        sectionCitas.classList.remove('hidden');
+        containerCitas.innerHTML = citasArr.map(c => `
+            <div class="min-w-[160px] bg-white p-4 rounded-3xl border-l-4 border-orange-500 shadow-sm relative">
+                <p class="text-[8px] font-black text-orange-500 uppercase">Médico</p>
+                <p class="font-bold text-slate-800 text-xs truncate">${c.titulo}</p>
+                <p class="text-[9px] text-slate-400 mt-1">${new Date(c.fecha).toLocaleDateString()}</p>
+                <button onclick="deleteCita('${c.id}')" class="absolute top-2 right-2 text-slate-200 text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        `).join('');
+    } else {
+        sectionCitas.classList.add('hidden');
+    }
+
+    // 3. Diario
     const logs = Object.values(b.logs || {}).sort((a,b)=>b.ts - a.ts);
     if(logs[0]) document.getElementById('last-log').innerText = `${logs[0].txt} (${logs[0].h})`;
     
@@ -146,41 +71,24 @@ function render() {
     `).join('');
 }
 
-function createFamily() {
-    const name = document.getElementById('fam-name').value.trim();
-    if(!name) return;
-    const fid = db.ref("familias").push().key;
-    const code = Math.random().toString(36).substring(2,8).toUpperCase();
-    db.ref("familias/"+fid).set({ name, inviteCode: code, members: {[uid]:'owner'} })
-      .then(() => db.ref(`usuarios/${uid}/familyId`).set(fid));
-}
+// NUEVA FUNCIÓN: AÑADIR CITA
+function addCita() {
+    const titulo = prompt("¿Qué cita es? (Ej: Pediatra, Vacunas)");
+    if(!titulo) return;
+    const fecha = prompt("Fecha (AAAA-MM-DD):", new Date().toISOString().split('T')[0]);
+    if(!fecha) return;
 
-function joinFamily() {
-    const code = document.getElementById('fam-code').value.trim().toUpperCase();
-    db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap => {
-        if(!snap.exists()) return alert("Código erróneo");
-        const fid = Object.keys(snap.val())[0];
-        db.ref(`usuarios/${uid}/familyId`).set(fid);
+    const cid = Object.keys(familyData.children)[bIdx];
+    const id = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/citas/${id}`).set({
+        id, titulo, fecha, ts: id
     });
 }
 
-function quickLog(txt) {
+function deleteCita(id) {
     const cid = Object.keys(familyData.children)[bIdx];
-    const ts = Date.now();
-    const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({txt, ts, h});
+    if(confirm("¿Borrar cita?")) db.ref(`familias/${familyId}/children/${cid}/citas/${id}`).remove();
 }
 
-function show(id) {
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('sec-login').classList.add('hidden');
-    document.getElementById('sec-family').classList.add('hidden');
-    document.getElementById('sec-app').classList.add('hidden');
-    document.getElementById(id).classList.remove('hidden');
-}
-
-function logout() { auth.signOut().then(() => location.reload()); }
-function switchBebe(i) { bIdx = i; render(); }
+// ... (Mantener resto de funciones: quickLog, createFamily, etc.) ...
 </script>
-</body>
-</html>
