@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>EvaCare V20.1 - Secure</title>
+<title>EvaCare V27.0 - Object & Secure</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -16,37 +16,75 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
 body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
 .hidden { display:none!important; }
-.reac-active { background:#dbeafe!important;border:2px solid #2563eb!important;transform:scale(1.1); }
-.aviso-item { border-left:4px solid #3b82f6;padding:6px 12px;margin-bottom:8px;border-radius:8px;background:rgba(255,255,255,0.08); }
+.aviso-item { border-left:4px solid #3b82f6; padding:8px 12px; margin-bottom:8px; border-radius:12px; background:rgba(255,255,255,0.05); }
 .no-scrollbar::-webkit-scrollbar { display:none; }
 </style>
 </head>
 
 <body class="bg-slate-50 text-slate-900 pb-32">
 
-<!-- ========== PANTALLAS ========== -->
 <div id="setup-screen" class="fixed inset-0 bg-white z-[10000] flex flex-col items-center justify-center p-10 hidden">
   <div class="text-blue-600 text-5xl font-black italic mb-2">EvaCare</div>
-  <p class="text-[10px] font-black text-slate-400 mb-8 uppercase tracking-[0.3em]">Gestión Familiar</p>
+  <p class="text-[10px] font-black text-slate-400 mb-8 uppercase tracking-[0.3em]">Acceso Seguro V27</p>
   <input id="family-id-input" type="text" placeholder="ID FAMILIAR"
-    class="w-full p-5 bg-slate-100 rounded-[2rem] mb-4 font-bold text-center outline-none border-2 border-transparent focus:border-blue-500 uppercase">
-  <button onclick="saveFamilyId()" class="w-full bg-slate-900 text-white p-5 rounded-[2rem] font-black shadow-xl">
+    class="w-full p-6 bg-slate-100 rounded-[2.5rem] mb-4 font-bold text-center outline-none border-2 border-transparent focus:border-blue-500 uppercase shadow-inner">
+  <button onclick="saveFamilyId()" class="w-full bg-slate-900 text-white p-6 rounded-[2.5rem] font-black shadow-xl active:scale-95 transition-transform">
     ENTRAR
   </button>
 </div>
 
-<div id="loading-screen" class="fixed inset-0 bg-white z-[9999] flex items-center justify-center">
+<div id="loading-screen" class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
   <div class="text-blue-600 text-4xl font-black italic animate-bounce">EvaCare</div>
 </div>
 
 <div id="app-content" class="hidden">
-  <!-- TODO TU HTML ORIGINAL DE LA APP -->
-  <!-- NO CAMBIADO -->
-  <!-- (exactamente el mismo que pegaste, solo que ahora funciona con auth) -->
+  <header class="p-6 flex justify-between items-center bg-white/80 sticky top-0 z-40 border-b border-slate-100 backdrop-blur-md">
+    <div class="flex flex-col">
+        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Cuidando a:</span>
+        <select id="bebe-selector" onchange="switchBebe(this.value)" class="bg-transparent font-black italic text-2xl outline-none text-blue-600 cursor-pointer"></select>
+    </div>
+    <button onclick="openModal('modal-menu')" class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shadow-sm"><i class="fa-solid fa-bars-staggered"></i></button>
+  </header>
+
+  <main class="p-4 space-y-4">
+    <div class="bg-slate-900 rounded-[2.5rem] p-7 text-white shadow-2xl overflow-hidden">
+        <h3 class="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] mb-4">Estado de la Familia</h3>
+        <div id="panel-avisos-global" class="space-y-3"></div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-3">
+        <button onclick="addLog('💦 Pis')" class="bg-white py-6 rounded-[2rem] font-black text-cyan-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-droplet text-lg"></i>PIS</button>
+        <button onclick="addLog('💩 Caca')" class="bg-white py-6 rounded-[2rem] font-black text-orange-800 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-poop text-lg"></i>CACA</button>
+        <button onclick="addLog('✨ Aseo')" class="bg-white py-6 rounded-[2rem] font-black text-purple-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-sparkles text-lg"></i>ASEO</button>
+        <button onclick="addCompra()" class="bg-yellow-400 text-slate-900 rounded-[2rem] flex items-center justify-center shadow-lg text-xl"><i class="fa-solid fa-cart-shopping"></i></button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <button onclick="openModal('modal-pecho')" class="bg-white h-28 rounded-[2.5rem] border shadow-sm flex flex-col items-center justify-center"><i class="fa-solid fa-person-breastfeeding text-pink-500 mb-2 text-2xl"></i><span class="text-[10px] font-black uppercase">Pecho</span></button>
+        <div class="space-y-3">
+            <button onclick="openModal('modal-bibe')" class="w-full bg-white h-16 rounded-[1.8rem] border shadow-sm flex items-center justify-center gap-3"><i class="fa-solid fa-bottle-water text-blue-500 text-xl"></i><span class="text-[10px] font-black uppercase">Biberón</span></button>
+            <button id="btn-repetir" onclick="repetirBibe()" class="w-full bg-blue-600 text-white h-9 rounded-full text-[9px] font-black uppercase hidden italic animate-pulse">Repetir última</button>
+        </div>
+    </div>
+
+    <div id="lista-compra-global" class="grid gap-2"></div>
+
+    <div id="diario-hoy" class="space-y-2 pb-10"></div>
+  </main>
+
+  <nav class="fixed bottom-6 left-6 right-6 h-18 bg-white/90 backdrop-blur-xl rounded-full border shadow-2xl flex justify-around items-center z-50">  
+    <button class="text-blue-600 p-4"><i class="fa-solid fa-house-chimney text-2xl"></i></button>  
+    <button onclick="alert('Funciones adicionales en V28')" class="text-slate-300 p-4"><i class="fa-solid fa-carrot text-2xl"></i></button>  
+    <button onclick="alert('Funciones adicionales en V28')" class="text-slate-300 p-4"><i class="fa-solid fa-suitcase-medical text-2xl"></i></button>  
+  </nav>
 </div>
 
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-center justify-center p-6"><div class="bg-white w-full rounded-[3rem] p-10 space-y-5"><input id="in-ml" type="number" placeholder="ml" class="w-full p-8 bg-slate-100 rounded-3xl text-center text-6xl font-black outline-none"><button onclick="addBibe()" class="w-full bg-blue-600 text-white p-6 rounded-3xl font-black uppercase">Guardar</button><button onclick="closeModal('modal-bibe')" class="w-full text-slate-400 font-bold text-xs uppercase">Cancelar</button></div></div>
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[11000] flex items-end"><div class="bg-white w-full p-10 rounded-t-[4rem] grid grid-cols-3 gap-4 shadow-2xl"><button onclick="addLog('🤱 Izquierdo', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">IZQ</button><button onclick="addLog('🤱 Ambos', true); closeModal('modal-pecho')" class="bg-pink-600 p-8 rounded-3xl font-black text-white text-[10px]">AMBOS</button><button onclick="addLog('🤱 Derecho', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">DER</button></div></div>
+<div id="modal-menu" class="hidden fixed inset-0 bg-black/80 z-[11000] flex justify-end"><div class="bg-white w-4/5 h-full p-10 flex flex-col"><h2 class="text-3xl font-black mb-10 italic">Ajustes</h2><button onclick="localStorage.clear();location.reload()" class="w-full text-red-500 font-black text-[10px] uppercase p-6 rounded-3xl bg-red-50">Cerrar Sesión</button><button onclick="closeModal('modal-menu')" class="mt-auto p-4 text-slate-300 font-black">VOLVER</button></div></div>
+
 <script>
-/* ================= FIREBASE CONFIG ================= */
+/* ================= CONFIG FIREBASE ================= */
 const fbCfg = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com",
@@ -72,7 +110,7 @@ function saveFamilyId() {
   }
 }
 
-/* ================= INIT ================= */
+/* ================= INICIO ================= */
 function init() {
   if (!familyId) {
     document.getElementById('loading-screen').classList.add('hidden');
@@ -90,36 +128,28 @@ function init() {
   });
 }
 
-/* ================= DATABASE ================= */
 function startDatabase() {
   const famRef = db.ref('familias/' + familyId);
 
   famRef.once('value').then(snap => {
     DATA = snap.val();
-
     if (!DATA) {
       DATA = {
         owners: { [USER_UID]: true },
         miembros: { [USER_UID]: true },
         intervalo: 3,
-        compraFamiliar: [],
+        compraFamiliar: {}, // Objeto
         bebes: [{
           n: "Mi Bebé",
-          f: new Date().toISOString().split('T')[0],
-          logs: [],
-          meds: [],
-          foods: [],
-          citas: {},
-          hPeso: []
+          logs: {}, // Objeto
+          lastToma: Date.now()
         }]
       };
       famRef.set(DATA);
     }
     else if (!DATA.miembros || !DATA.miembros[USER_UID]) {
-      alert("❌ No tienes acceso a esta familia");
-      localStorage.clear();
-      location.reload();
-      return;
+        // Autoregistro simple para miembros (opcional según tu seguridad)
+        db.ref(`familias/${familyId}/miembros/${USER_UID}`).set(true);
     }
 
     famRef.on('value', s => {
@@ -131,12 +161,94 @@ function startDatabase() {
   });
 }
 
-/* ================= SYNC ================= */
-function sync() {
-  db.ref('familias/' + familyId).set(DATA);
+/* ================= MOTOR DE RENDERIZADO ================= */
+function render() {
+    if (!DATA) return;
+    const b = DATA.bebes[bIdx];
+    
+    // Selector
+    document.getElementById('bebe-selector').innerHTML = DATA.bebes.map((x, i) => 
+        `<option value="${i}" ${i === bIdx ? 'selected' : ''}>${x.n.toUpperCase()}</option>`
+    ).join('');
+
+    // Avisos
+    let htmlAvisos = "";
+    DATA.bebes.forEach(bebe => {
+        const prox = (bebe.lastToma || 0) + (DATA.intervalo * 3600000);
+        if (prox < Date.now()) htmlAvisos += `<div class="aviso-item border-red-500 text-red-100 font-bold text-[11px]"><i class="fa-solid fa-clock mr-2"></i>${bebe.n}: Toca toma</div>`;
+    });
+    document.getElementById('panel-avisos-global').innerHTML = htmlAvisos || '<p class="text-[9px] text-blue-400 font-black text-center uppercase">Todo al día</p>';
+
+    // Compra (Como objeto)
+    const compraObj = DATA.compraFamiliar || {};
+    document.getElementById('lista-compra-global').innerHTML = Object.keys(compraObj).map(id => `
+        <div class="bg-yellow-100 p-4 rounded-3xl flex justify-between items-center text-[10px] font-black uppercase text-yellow-800">
+            <span>🛒 ${compraObj[id].txt}</span>
+            <button onclick="db.ref('familias/${familyId}/compraFamiliar/${id}').remove()" class="bg-yellow-500 text-white w-7 h-7 rounded-full"><i class="fa-solid fa-check"></i></button>
+        </div>`).join('');
+
+    // Logs (Como objeto)
+    const logsObj = b.logs || {};
+    const sortedLogs = Object.values(logsObj).sort((a, b) => b.ts - a.ts);
+    document.getElementById('diario-hoy').innerHTML = sortedLogs.slice(0, 15).map(l => `
+        <div class="bg-white p-5 rounded-[1.8rem] flex justify-between items-center shadow-sm mb-2 border-b border-slate-50">
+            <span class="font-bold text-slate-700 text-sm">${l.txt}</span>
+            <span class="text-[9px] text-slate-300 font-black uppercase tracking-tighter">${l.h}</span>
+        </div>`).join('');
+
+    // Botón Repetir
+    const btnRep = document.getElementById('btn-repetir');
+    if (b.lastMl) {
+        btnRep.innerText = `Repetir ${b.lastMl}ml`;
+        btnRep.classList.remove('hidden');
+    } else {
+        btnRep.classList.add('hidden');
+    }
 }
 
-/* ================= ARRANQUE ================= */
+/* ================= ACCIONES (ESCRITURA DIRECTA) ================= */
+function addLog(txt, esToma = false) {
+    const ts = Date.now();
+    const entry = {
+        txt: txt,
+        h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+        ts: ts
+    };
+    db.ref(`familias/${familyId}/bebes/${bIdx}/logs/${ts}`).set(entry);
+    if (esToma) db.ref(`familias/${familyId}/bebes/${bIdx}/lastToma`).set(ts);
+}
+
+function addBibe() {
+    const val = document.getElementById('in-ml').value;
+    if (val) {
+        addLog(`🍼 Biberón ${val}ml`, true);
+        db.ref(`familias/${familyId}/bebes/${bIdx}/lastMl`).set(val);
+        closeModal('modal-bibe');
+        document.getElementById('in-ml').value = "";
+    }
+}
+
+function repetirBibe() {
+    if (DATA.bebes[bIdx].lastMl) addLog(`🍼 Biberón ${DATA.bebes[bIdx].lastMl}ml`, true);
+}
+
+function addCompra() {
+    const item = prompt("¿Qué falta?");
+    if (item) {
+        const id = Date.now();
+        db.ref(`familias/${familyId}/compraFamiliar/${id}`).set({txt: item});
+    }
+}
+
+function switchBebe(v) {
+    bIdx = parseInt(v);
+    localStorage.setItem('EVA_CARE_BEBE_IDX', v);
+    render();
+}
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
 init();
 </script>
 
