@@ -1,94 +1,220 @@
-<main class="p-4 space-y-6">
-    <div id="section-citas" class="hidden">
-        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-2">Próximas Citas (15 días)</h3>
-        <div id="visor-citas" class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-            </div>
-    </div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EvaCare V32.0 - Auth Fix</title>
 
-    <div id="visor" class="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-xl">
-        <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Último registro</p>
-        <div id="last-log" class="text-2xl font-black italic tracking-tighter">Esperando datos...</div>
-    </div>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 
-    <div class="grid grid-cols-4 gap-2">
-        <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-droplet text-cyan-500 mb-1"></i><span class="text-[8px] font-bold">PIS</span></button>
-        <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-poop text-orange-800 mb-1"></i><span class="text-[8px] font-bold">CACA</span></button>
-        <button onclick="addCita()" class="bg-orange-500 text-white p-4 rounded-2xl shadow-lg flex flex-col items-center"><i class="fa-solid fa-calendar-plus mb-1"></i><span class="text-[8px] font-bold">CITA</span></button>
-        <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg flex flex-col items-center"><i class="fa-solid fa-bottle-water mb-1"></i><span class="text-[8px] font-bold">TOMA</span></button>
-    </div>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .hidden { display: none !important; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
 
-    <div id="diario" class="space-y-2"></div>
-</main>
+<div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-[500]">
+  <div class="text-blue-600 text-5xl font-black italic animate-pulse">EvaCare</div>
+  <p id="loading-msg" class="text-[10px] font-bold text-slate-400 mt-4 uppercase tracking-widest">Iniciando sesión...</p>
+  <button id="btn-emergency" onclick="location.reload()" class="hidden mt-8 text-red-500 font-bold text-xs underline">REINTENTAR CONEXIÓN</button>
+</div>
+
+<div id="login" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
+  <h1 class="text-4xl font-black text-blue-600 mb-8 italic">EvaCare</h1>
+  <div class="space-y-3">
+    <input id="email" type="email" class="w-full p-5 bg-white border rounded-2xl outline-none" placeholder="Email">
+    <input id="pass" type="password" class="w-full p-5 bg-white border rounded-2xl outline-none" placeholder="Contraseña">
+    <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">Entrar</button>
+    <button onclick="register()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">Crear cuenta</button>
+  </div>
+</div>
+
+<div id="familySetup" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
+  <h2 class="text-2xl font-black mb-6">Configura tu Familia</h2>
+  <div class="space-y-6">
+    <div class="bg-white p-6 rounded-3xl border">
+        <input id="familyName" class="w-full p-4 bg-slate-50 rounded-xl mb-3" placeholder="Nombre de tu familia">
+        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear Nueva</button>
+    </div>
+    <div class="bg-slate-900 p-6 rounded-3xl">
+        <input id="joinCode" class="w-full p-4 bg-white/10 text-white rounded-xl mb-3 uppercase" placeholder="Código de Invitación">
+        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse a Familia</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="hidden min-h-screen pb-20">
+  <header class="p-6 bg-white border-b flex justify-between items-center sticky top-0 z-50">
+    <div>
+        <h1 id="familyTitle" class="text-lg font-black text-blue-600 italic leading-none"></h1>
+        <span class="text-[9px] font-bold text-slate-400">ID: <span id="inviteCode" class="select-all"></span></span>
+    </div>
+    <button onclick="logout()" class="text-red-500 text-xl p-2"><i class="fa-solid fa-power-off"></i></button>
+  </header>
+
+  <main class="p-4 space-y-4">
+    <div id="children-container" class="space-y-4"></div>
+    <button onclick="addChild()" class="w-full p-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-xs uppercase">+ Añadir Bebé</button>
+  </main>
+</div>
 
 <script>
-// ... (Mantener auth, login y loadFamily de la V38.2) ...
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
+  authDomain: "evacare-24cae.firebaseapp.com",
+  databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "evacare-24cae"
+};
 
-function render() {
-    const keys = Object.keys(familyData.children);
-    const b = familyData.children[keys[bIdx]];
-    
-    // 1. Selector de Bebé
-    document.getElementById('bebeSelector').innerHTML = keys.map((k, i) => 
-        `<option value="${i}" ${i==bIdx?'selected':''}>${familyData.children[k].name.toUpperCase()}</option>`
-    ).join('');
-    document.getElementById('sub-info').innerText = `${familyData.name} • Código: ${familyData.inviteCode}`;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-    // 2. Lógica de Citas (Visor 15 días)
-    const containerCitas = document.getElementById('visor-citas');
-    const sectionCitas = document.getElementById('section-citas');
-    const hoy = new Date();
-    const limite = new Date();
-    limite.setDate(hoy.getDate() + 15);
+let uid = null;
+let familyId = localStorage.getItem("familyId");
+let familyData = null;
 
-    const citasArr = Object.values(b.citas || {}).filter(c => {
-        const fechaCita = new Date(c.fecha);
-        return fechaCita >= hoy && fechaCita <= limite;
-    }).sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+/* CONTROL DE VISTAS */
+const show = id => {
+  ["loading","login","familySetup","app"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+};
 
-    if(citasArr.length > 0) {
-        sectionCitas.classList.remove('hidden');
-        containerCitas.innerHTML = citasArr.map(c => `
-            <div class="min-w-[160px] bg-white p-4 rounded-3xl border-l-4 border-orange-500 shadow-sm relative">
-                <p class="text-[8px] font-black text-orange-500 uppercase">Médico</p>
-                <p class="font-bold text-slate-800 text-xs truncate">${c.titulo}</p>
-                <p class="text-[9px] text-slate-400 mt-1">${new Date(c.fecha).toLocaleDateString()}</p>
-                <button onclick="deleteCita('${c.id}')" class="absolute top-2 right-2 text-slate-200 text-[10px]"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-        `).join('');
-    } else {
-        sectionCitas.classList.add('hidden');
-    }
+/* AUTH LISTENER */
+auth.onAuthStateChanged(user => {
+  if (user) {
+    uid = user.uid;
+    checkFamily();
+  } else {
+    document.getElementById('loading').classList.add('hidden');
+    show("login");
+  }
+});
 
-    // 3. Diario
-    const logs = Object.values(b.logs || {}).sort((a,b)=>b.ts - a.ts);
-    if(logs[0]) document.getElementById('last-log').innerText = `${logs[0].txt} (${logs[0].h})`;
-    
-    document.getElementById('diario').innerHTML = logs.map(l => `
-        <div class="bg-white p-4 rounded-2xl border flex justify-between items-center">
-            <span class="font-bold text-slate-700 text-xs">${l.txt}</span>
-            <span class="text-[9px] font-black text-slate-300 uppercase">${l.h}</span>
-        </div>
-    `).join('');
+function login(){
+  auth.signInWithEmailAndPassword(email.value, pass.value).catch(e=>alert("Error: " + e.message));
 }
 
-// NUEVA FUNCIÓN: AÑADIR CITA
-function addCita() {
-    const titulo = prompt("¿Qué cita es? (Ej: Pediatra, Vacunas)");
-    if(!titulo) return;
-    const fecha = prompt("Fecha (AAAA-MM-DD):", new Date().toISOString().split('T')[0]);
-    if(!fecha) return;
+function register(){
+  auth.createUserWithEmailAndPassword(email.value, pass.value).catch(e=>alert("Error: " + e.message));
+}
 
-    const cid = Object.keys(familyData.children)[bIdx];
-    const id = Date.now();
-    db.ref(`familias/${familyId}/children/${cid}/citas/${id}`).set({
-        id, titulo, fecha, ts: id
+function logout(){
+  auth.signOut();
+  localStorage.clear();
+  location.reload();
+}
+
+/* LOGICA FAMILIA */
+function checkFamily(){
+  if(!familyId){ 
+    show("familySetup"); 
+  } else {
+    loadFamily();
+  }
+}
+
+function loadFamily(){
+  document.getElementById('loading-msg').innerText = "Conectando a la nube...";
+  
+  // Timeout por si Firebase no responde
+  const timeout = setTimeout(() => {
+    document.getElementById('btn-emergency').classList.remove('hidden');
+    document.getElementById('loading-msg').innerText = "La conexión está tardando demasiado...";
+  }, 7000);
+
+  db.ref("familias/" + familyId).on("value", snap => {
+    clearTimeout(timeout);
+    familyData = snap.val();
+    
+    if(!familyData) {
+      localStorage.removeItem("familyId");
+      show("familySetup");
+      return;
+    }
+    
+    render();
+    show("app");
+  }, error => {
+    alert("Error de Firebase: " + error.message);
+  });
+}
+
+function createFamily(){
+  const name = familyName.value.trim();
+  if(!name) return alert("Pon un nombre");
+  
+  const newId = db.ref("familias").push().key;
+  const invite = Math.random().toString(36).substring(2,8).toUpperCase();
+  
+  db.ref("familias/"+newId).set({
+    name: name,
+    inviteCode: invite,
+    members: { [uid]: "owner" },
+    children: {}
+  }).then(() => {
+    localStorage.setItem("familyId", newId);
+    familyId = newId;
+    loadFamily();
+  });
+}
+
+function joinFamily(){
+    const code = joinCode.value.trim().toUpperCase();
+    db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap => {
+        if(!snap.exists()) return alert("Código no válido");
+        const fid = Object.keys(snap.val())[0];
+        localStorage.setItem("familyId", fid);
+        familyId = fid;
+        db.ref(`familias/${fid}/members/${uid}`).set("member");
+        loadFamily();
     });
 }
 
-function deleteCita(id) {
-    const cid = Object.keys(familyData.children)[bIdx];
-    if(confirm("¿Borrar cita?")) db.ref(`familias/${familyId}/children/${cid}/citas/${id}`).remove();
+function render(){
+  familyTitle.innerText = familyData.name;
+  inviteCode.innerText = familyData.inviteCode;
+  
+  const container = document.getElementById('children-container');
+  container.innerHTML = "";
+  
+  Object.entries(familyData.children || {}).forEach(([id, c]) => {
+    container.innerHTML += `
+        <div class="bg-white p-6 rounded-[2rem] border shadow-sm">
+            <h3 class="font-black text-xl text-slate-700">${c.name}</h3>
+            <p class="text-xs text-slate-400 mb-4">Registro de actividades</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="addLog('${id}', '💦 Pis')" class="bg-slate-50 p-4 rounded-2xl font-bold text-xs">💦 PIS</button>
+                <button onclick="addLog('${id}', '💩 Caca')" class="bg-slate-50 p-4 rounded-2xl font-bold text-xs">💩 CACA</button>
+            </div>
+            <div id="logs-${id}" class="mt-4 space-y-1 text-[10px] text-slate-500 italic">
+                ${Object.values(c.logs || {}).reverse().slice(0,3).map(l => `<div>• ${l.txt} (${l.h})</div>`).join('')}
+            </div>
+        </div>
+    `;
+  });
 }
 
-// ... (Mantener resto de funciones: quickLog, createFamily, etc.) ...
+function addChild(){
+    const n = prompt("Nombre del bebé:");
+    if(!n) return;
+    const cid = Math.random().toString(36).substring(2,6);
+    db.ref(`familias/${familyId}/children/${cid}`).set({ name: n, logs: {} });
+}
+
+function addLog(childId, txt){
+    const ts = Date.now();
+    const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    db.ref(`familias/${familyId}/children/${childId}/logs/${ts}`).set({ txt, h, ts });
+}
+
 </script>
+</body>
+</html>
