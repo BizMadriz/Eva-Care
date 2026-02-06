@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>EvaCare V32.0 - Auth Fix</title>
+<title>EvaCare V34.0 - Premium Edition</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -15,205 +15,307 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     .hidden { display: none !important; }
+    .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+    .neon-card { background: #0f172a; color: white; border-radius: 2.5rem; }
+    .btn-action { transition: all 0.2s; border-radius: 2rem; }
+    .btn-action:active { transform: scale(0.92); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
 </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-slate-50 text-slate-900 pb-24">
 
-<div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-[500]">
-  <div class="text-blue-600 text-5xl font-black italic animate-pulse">EvaCare</div>
-  <p id="loading-msg" class="text-[10px] font-bold text-slate-400 mt-4 uppercase tracking-widest">Iniciando sesión...</p>
-  <button id="btn-emergency" onclick="location.reload()" class="hidden mt-8 text-red-500 font-bold text-xs underline">REINTENTAR CONEXIÓN</button>
+<div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-[999]">
+    <div class="text-blue-600 text-5xl font-black italic animate-bounce">EvaCare</div>
 </div>
 
 <div id="login" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
-  <h1 class="text-4xl font-black text-blue-600 mb-8 italic">EvaCare</h1>
-  <div class="space-y-3">
-    <input id="email" type="email" class="w-full p-5 bg-white border rounded-2xl outline-none" placeholder="Email">
-    <input id="pass" type="password" class="w-full p-5 bg-white border rounded-2xl outline-none" placeholder="Contraseña">
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">Entrar</button>
-    <button onclick="register()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">Crear cuenta</button>
-  </div>
+    <div class="text-center mb-10"><h1 class="text-4xl font-black text-blue-600 italic">EvaCare</h1></div>
+    <div class="space-y-3">
+        <input id="email" type="email" class="w-full p-5 bg-white border-2 border-slate-100 rounded-2xl outline-none" placeholder="Email">
+        <input id="pass" type="password" class="w-full p-5 bg-white border-2 border-slate-100 rounded-2xl outline-none" placeholder="Contraseña">
+        <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-xl">ENTRAR</button>
+        <button onclick="register()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">CREAR CUENTA</button>
+    </div>
 </div>
 
 <div id="familySetup" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
-  <h2 class="text-2xl font-black mb-6">Configura tu Familia</h2>
-  <div class="space-y-6">
-    <div class="bg-white p-6 rounded-3xl border">
-        <input id="familyName" class="w-full p-4 bg-slate-50 rounded-xl mb-3" placeholder="Nombre de tu familia">
-        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear Nueva</button>
+    <h2 class="text-2xl font-black mb-8">Gestión Familiar</h2>
+    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border mb-6">
+        <input id="familyName" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none" placeholder="Apellidos Familia">
+        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black">Crear Familia</button>
     </div>
-    <div class="bg-slate-900 p-6 rounded-3xl">
-        <input id="joinCode" class="w-full p-4 bg-white/10 text-white rounded-xl mb-3 uppercase" placeholder="Código de Invitación">
-        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse a Familia</button>
+    <div class="bg-slate-900 p-6 rounded-[2.5rem] text-white">
+        <input id="joinCode" class="w-full p-4 bg-white/10 rounded-2xl mb-4 outline-none uppercase" placeholder="Código de invitación">
+        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-2xl font-black">Unirse</button>
     </div>
-  </div>
 </div>
 
-<div id="app" class="hidden min-h-screen pb-20">
-  <header class="p-6 bg-white border-b flex justify-between items-center sticky top-0 z-50">
-    <div>
-        <h1 id="familyTitle" class="text-lg font-black text-blue-600 italic leading-none"></h1>
-        <span class="text-[9px] font-bold text-slate-400">ID: <span id="inviteCode" class="select-all"></span></span>
-    </div>
-    <button onclick="logout()" class="text-red-500 text-xl p-2"><i class="fa-solid fa-power-off"></i></button>
-  </header>
+<div id="app" class="hidden">
+    <header class="p-6 flex justify-between items-center bg-white/80 sticky top-0 z-50 backdrop-blur-md border-b border-slate-100">
+        <div>
+            <select id="bebeSelector" onchange="switchBebe(this.value)" class="bg-transparent text-2xl font-black italic text-blue-600 outline-none border-none cursor-pointer"></select>
+            <div class="flex items-center gap-2 mt-1">
+                <span id="familyTitle" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest"></span>
+                <span class="text-[9px] bg-slate-100 px-2 py-0.5 rounded-full font-black text-slate-500" id="inviteCode"></span>
+            </div>
+        </div>
+        <button onclick="logout()" class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-power-off"></i></button>
+    </header>
 
-  <main class="p-4 space-y-4">
-    <div id="children-container" class="space-y-4"></div>
-    <button onclick="addChild()" class="w-full p-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-xs uppercase">+ Añadir Bebé</button>
-  </main>
+    <main class="p-4 space-y-6">
+        <div class="neon-card p-8 shadow-2xl relative overflow-hidden">
+            <div id="timer-bg" class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+            <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-4">Estado Actual</h3>
+            <div class="flex justify-between items-end">
+                <div>
+                    <div id="mFaltan" class="text-5xl font-black italic tracking-tighter">--:--</div>
+                    <p class="text-[10px] text-slate-400 font-bold mt-2 uppercase">Para la próxima toma</p>
+                </div>
+                <div class="text-right">
+                    <div id="lastAction" class="text-[10px] font-black bg-white/10 px-3 py-1 rounded-full mb-2 italic">Cargando...</div>
+                    <button onclick="openModal('modal-ajustes')" class="text-[10px] text-blue-400 font-black"><i class="fa-solid fa-gear mr-1"></i> INTERVALO</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-3">
+            <button onclick="quickLog('💦 Pis')" class="btn-action bg-white h-24 border shadow-sm flex flex-col items-center justify-center gap-2">
+                <i class="fa-solid fa-droplet text-cyan-500 text-xl"></i><span class="text-[9px] font-black uppercase">Pis</span>
+            </button>
+            <button onclick="quickLog('💩 Caca')" class="btn-action bg-white h-24 border shadow-sm flex flex-col items-center justify-center gap-2">
+                <i class="fa-solid fa-poop text-orange-800 text-xl"></i><span class="text-[9px] font-black uppercase">Caca</span>
+            </button>
+            <button onclick="openModal('modal-bibe')" class="btn-action bg-white h-24 border shadow-sm flex flex-col items-center justify-center gap-2">
+                <i class="fa-solid fa-bottle-water text-blue-500 text-xl"></i><span class="text-[9px] font-black uppercase">Bibe</span>
+            </button>
+            <button onclick="openModal('modal-pecho')" class="btn-action bg-pink-500 h-24 text-white shadow-lg flex flex-col items-center justify-center gap-2">
+                <i class="fa-solid fa-person-breastfeeding text-xl"></i><span class="text-[9px] font-black uppercase">Pecho</span>
+            </button>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
+            <div class="flex border-b text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <button onclick="showSection('logs')" id="btn-logs" class="flex-1 p-5 border-b-2 border-blue-600 text-blue-600">Diario</button>
+                <button onclick="showSection('salud')" id="btn-salud" class="flex-1 p-5">Salud</button>
+                <button onclick="showSection('peso')" id="btn-peso" class="flex-1 p-5">Peso</button>
+            </div>
+            
+            <div id="sec-logs" class="p-4 space-y-2 max-h-[400px] overflow-y-auto no-scrollbar"></div>
+            
+            <div id="sec-salud" class="hidden p-4 space-y-4">
+                <button onclick="addMed()" class="w-full p-4 bg-red-50 text-red-600 rounded-2xl font-black text-[10px] uppercase">+ Medicina / Alerta</button>
+                <div id="med-list" class="space-y-2"></div>
+            </div>
+
+            <div id="sec-peso" class="hidden p-4 space-y-4">
+                <button onclick="addPeso()" class="w-full p-4 bg-green-50 text-green-600 rounded-2xl font-black text-[10px] uppercase">+ Registrar Peso (kg)</button>
+                <div id="peso-list" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <button onclick="addChild()" class="w-full p-5 bg-slate-100 text-slate-500 rounded-[2rem] font-black text-[10px] uppercase">+ Añadir Miembro Familiar</button>
+    </main>
+
+    <nav class="fixed bottom-6 left-6 right-6 h-20 glass border border-white rounded-[2.5rem] shadow-2xl flex justify-around items-center px-4 z-[40]">
+        <button onclick="showSection('logs')" class="text-blue-600 text-xl"><i class="fa-solid fa-house-chimney"></i></button>
+        <button onclick="addCompra()" class="bg-blue-600 w-12 h-12 rounded-2xl text-white shadow-lg shadow-blue-200"><i class="fa-solid fa-cart-shopping"></i></button>
+        <button onclick="openModal('modal-food')" class="text-slate-300 text-xl"><i class="fa-solid fa-carrot"></i></button>
+    </nav>
 </div>
+
+<div id="modal-compra" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-sm rounded-[3rem] p-8">
+        <h3 class="font-black text-xl mb-4 italic">Lista de la Compra</h3>
+        <div id="compra-list" class="space-y-2 mb-6 max-h-60 overflow-y-auto"></div>
+        <button onclick="quickCompra()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black">+ Añadir Artículo</button>
+        <button onclick="closeModal('modal-compra')" class="w-full mt-4 text-slate-400 font-bold text-xs">CERRAR</button>
+    </div>
+</div>
+
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-6"><div class="bg-white w-full max-w-xs rounded-[2.5rem] p-10 space-y-5"><input id="in-ml" type="number" placeholder="ml" class="w-full p-6 bg-slate-100 rounded-2xl text-center text-5xl font-black outline-none"><button onclick="saveBibe()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase">Guardar</button><button onclick="closeModal('modal-bibe')" class="w-full text-slate-400 font-bold text-[10px]">CANCELAR</button></div></div>
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/80 z-[200] flex items-end"><div class="bg-white w-full p-10 rounded-t-[4rem] grid grid-cols-3 gap-4 shadow-2xl"><button onclick="quickLog('🤱 Izquierdo', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">IZQ</button><button onclick="quickLog('🤱 Ambos', true); closeModal('modal-pecho')" class="bg-pink-600 p-8 rounded-3xl font-black text-white text-[10px]">AMBOS</button><button onclick="quickLog('🤱 Derecho', true); closeModal('modal-pecho')" class="bg-pink-50 p-8 rounded-3xl font-black text-pink-600 text-[10px]">DER</button></div></div>
 
 <script>
-/* FIREBASE CONFIG */
+/* CONFIG FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
   databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "evacare-24cae"
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let uid = null;
-let familyId = localStorage.getItem("familyId");
-let familyData = null;
+let uid = null, familyId = localStorage.getItem("familyId"), familyData = null, bIdx = 0;
 
-/* CONTROL DE VISTAS */
-const show = id => {
-  ["loading","login","familySetup","app"].forEach(x=>document.getElementById(x).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-};
-
-/* AUTH LISTENER */
+/* AUTH & NAVEGACIÓN */
 auth.onAuthStateChanged(user => {
-  if (user) {
-    uid = user.uid;
-    checkFamily();
-  } else {
-    document.getElementById('loading').classList.add('hidden');
-    show("login");
-  }
+    if (user) { uid = user.uid; checkFamily(); }
+    else { document.getElementById('loading').classList.add('hidden'); show('login'); }
 });
 
-function login(){
-  auth.signInWithEmailAndPassword(email.value, pass.value).catch(e=>alert("Error: " + e.message));
+const show = id => { ["loading","login","familySetup","app"].forEach(x=>document.getElementById(x).classList.add("hidden")); document.getElementById(id).classList.remove("hidden"); };
+function login() { auth.signInWithEmailAndPassword(email.value, pass.value).catch(e=>alert(e.message)); }
+function register() { auth.createUserWithEmailAndPassword(email.value, pass.value).catch(e=>alert(e.message)); }
+function logout() { auth.signOut(); localStorage.clear(); location.reload(); }
+
+function showSection(sec) {
+    ["logs", "salud", "peso"].forEach(s => { document.getElementById('sec-'+s).classList.add('hidden'); document.getElementById('btn-'+s).classList.remove('border-b-2', 'border-blue-600', 'text-blue-600'); });
+    document.getElementById('sec-'+sec).classList.remove('hidden');
+    document.getElementById('btn-'+sec).classList.add('border-b-2', 'border-blue-600', 'text-blue-600');
 }
 
-function register(){
-  auth.createUserWithEmailAndPassword(email.value, pass.value).catch(e=>alert("Error: " + e.message));
-}
+/* DATABASE LOGIC */
+function checkFamily() { if(!familyId) show("familySetup"); else loadData(); }
 
-function logout(){
-  auth.signOut();
-  localStorage.clear();
-  location.reload();
-}
-
-/* LOGICA FAMILIA */
-function checkFamily(){
-  if(!familyId){ 
-    show("familySetup"); 
-  } else {
-    loadFamily();
-  }
-}
-
-function loadFamily(){
-  document.getElementById('loading-msg').innerText = "Conectando a la nube...";
-  
-  // Timeout por si Firebase no responde
-  const timeout = setTimeout(() => {
-    document.getElementById('btn-emergency').classList.remove('hidden');
-    document.getElementById('loading-msg').innerText = "La conexión está tardando demasiado...";
-  }, 7000);
-
-  db.ref("familias/" + familyId).on("value", snap => {
-    clearTimeout(timeout);
-    familyData = snap.val();
-    
-    if(!familyData) {
-      localStorage.removeItem("familyId");
-      show("familySetup");
-      return;
-    }
-    
-    render();
-    show("app");
-  }, error => {
-    alert("Error de Firebase: " + error.message);
-  });
-}
-
-function createFamily(){
-  const name = familyName.value.trim();
-  if(!name) return alert("Pon un nombre");
-  
-  const newId = db.ref("familias").push().key;
-  const invite = Math.random().toString(36).substring(2,8).toUpperCase();
-  
-  db.ref("familias/"+newId).set({
-    name: name,
-    inviteCode: invite,
-    members: { [uid]: "owner" },
-    children: {}
-  }).then(() => {
-    localStorage.setItem("familyId", newId);
-    familyId = newId;
-    loadFamily();
-  });
-}
-
-function joinFamily(){
-    const code = joinCode.value.trim().toUpperCase();
-    db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap => {
-        if(!snap.exists()) return alert("Código no válido");
-        const fid = Object.keys(snap.val())[0];
-        localStorage.setItem("familyId", fid);
-        familyId = fid;
-        db.ref(`familias/${fid}/members/${uid}`).set("member");
-        loadFamily();
+function loadData() {
+    db.ref("familias/" + familyId).on("value", snap => {
+        familyData = snap.val();
+        if(!familyData) { show("familySetup"); return; }
+        render();
+        show("app");
+        document.getElementById('loading').classList.add('hidden');
     });
 }
 
-function render(){
-  familyTitle.innerText = familyData.name;
-  inviteCode.innerText = familyData.inviteCode;
-  
-  const container = document.getElementById('children-container');
-  container.innerHTML = "";
-  
-  Object.entries(familyData.children || {}).forEach(([id, c]) => {
-    container.innerHTML += `
-        <div class="bg-white p-6 rounded-[2rem] border shadow-sm">
-            <h3 class="font-black text-xl text-slate-700">${c.name}</h3>
-            <p class="text-xs text-slate-400 mb-4">Registro de actividades</p>
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="addLog('${id}', '💦 Pis')" class="bg-slate-50 p-4 rounded-2xl font-bold text-xs">💦 PIS</button>
-                <button onclick="addLog('${id}', '💩 Caca')" class="bg-slate-50 p-4 rounded-2xl font-bold text-xs">💩 CACA</button>
-            </div>
-            <div id="logs-${id}" class="mt-4 space-y-1 text-[10px] text-slate-500 italic">
-                ${Object.values(c.logs || {}).reverse().slice(0,3).map(l => `<div>• ${l.txt} (${l.h})</div>`).join('')}
-            </div>
+function createFamily() {
+    const name = familyName.value.trim();
+    if(!name) return;
+    const fid = db.ref("familias").push().key;
+    const invite = Math.random().toString(36).substring(2,8).toUpperCase();
+    db.ref("familias/"+fid).set({
+        name, inviteCode: invite, members: {[uid]:"owner"}, intervalo: 3,
+        children: { [Date.now()]: { name: "Mi Bebé", logs: {}, meds: {}, peso: {} } },
+        compra: {}
+    }).then(() => { localStorage.setItem("familyId", fid); familyId = fid; loadData(); });
+}
+
+function joinFamily() {
+    const code = joinCode.value.trim().toUpperCase();
+    db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap => {
+        if(!snap.exists()) return alert("Código erróneo");
+        const fid = Object.keys(snap.val())[0];
+        localStorage.setItem("familyId", fid); familyId = fid;
+        db.ref(`familias/${fid}/members/${uid}`).set("member");
+        loadData();
+    });
+}
+
+/* RENDER MAESTRO */
+function render() {
+    familyTitle.innerText = familyData.name;
+    inviteCode.innerText = familyData.inviteCode;
+    const keys = Object.keys(familyData.children || {});
+    const b = familyData.children[keys[bIdx]];
+
+    // Selector
+    bebeSelector.innerHTML = keys.map((k, i) => `<option value="${i}" ${i==bIdx?'selected':''}>${familyData.children[k].name.toUpperCase()}</option>`).join('');
+
+    // Timer & Last Action
+    const logsArr = Object.values(b.logs || {}).sort((a,b)=>b.ts - a.ts);
+    if(logsArr[0]) lastAction.innerText = logsArr[0].txt + " (" + logsArr[0].h + ")";
+    
+    const ultima = b.lastToma || 0;
+    const proxima = ultima + (familyData.intervalo * 3600000);
+    const diff = proxima - Date.now();
+    const mins = Math.round(diff / 60000);
+    
+    if(mins > 0) {
+        const h = Math.floor(mins/60); const m = mins%60;
+        mFaltan.innerText = `${h}:${m < 10 ? '0'+m : m}`;
+        mFaltan.className = "text-5xl font-black italic tracking-tighter text-white";
+    } else {
+        mFaltan.innerText = "¡TOMA!";
+        mFaltan.className = "text-5xl font-black italic tracking-tighter text-red-500 animate-pulse";
+    }
+
+    // Diario
+    document.getElementById('sec-logs').innerHTML = logsArr.map(l => `
+        <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-slate-50">
+            <span class="font-bold text-slate-700 text-xs">${l.txt}</span>
+            <span class="text-[9px] font-black text-slate-300 uppercase">${l.h}</span>
         </div>
-    `;
-  });
+    `).join('') || '<p class="text-center text-slate-300 py-10 text-xs">Sin registros hoy</p>';
+
+    // Salud
+    const meds = Object.values(b.meds || {}).sort((a,b)=>b.ts - a.ts);
+    document.getElementById('med-list').innerHTML = meds.map(m => `
+        <div class="bg-red-50 p-4 rounded-2xl flex justify-between items-center">
+            <div class="text-[10px] font-black text-red-600 uppercase">${m.txt} <br> <span class="font-normal text-red-300 text-[8px]">${m.h}</span></div>
+            <button onclick="deleteItem('meds','${m.ts}')" class="text-red-200"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    `).join('');
+
+    // Peso
+    const pesos = Object.values(b.peso || {}).sort((a,b)=>b.ts - a.ts);
+    document.getElementById('peso-list').innerHTML = pesos.map(p => `
+        <div class="bg-green-50 p-4 rounded-2xl flex justify-between items-center">
+            <div class="text-lg font-black text-green-600 italic">${p.txt} kg <span class="text-[8px] font-normal block text-green-300">${p.h}</span></div>
+            <button onclick="deleteItem('peso','${p.ts}')" class="text-green-200"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    `).join('');
 }
 
-function addChild(){
-    const n = prompt("Nombre del bebé:");
-    if(!n) return;
-    const cid = Math.random().toString(36).substring(2,6);
-    db.ref(`familias/${familyId}/children/${cid}`).set({ name: n, logs: {} });
-}
-
-function addLog(childId, txt){
+/* ACCIONES */
+function quickLog(txt, esToma = false) {
+    const cid = Object.keys(familyData.children)[bIdx];
     const ts = Date.now();
     const h = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    db.ref(`familias/${familyId}/children/${childId}/logs/${ts}`).set({ txt, h, ts });
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({txt, ts, h});
+    if(esToma) db.ref(`familias/${familyId}/children/${cid}/lastToma`).set(ts);
 }
+
+function saveBibe() {
+    const ml = document.getElementById('in-ml').value;
+    if(!ml) return;
+    quickLog(`🍼 Bibe ${ml}ml`, true);
+    closeModal('modal-bibe');
+    document.getElementById('in-ml').value = "";
+}
+
+function addMed() {
+    const txt = prompt("Medicina y dosis:");
+    if(!txt) return;
+    const cid = Object.keys(familyData.children)[bIdx];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/meds/${ts}`).set({txt, ts, h: new Date().toLocaleString()});
+}
+
+function addPeso() {
+    const txt = prompt("Peso actual (ej: 4.550):");
+    if(!txt) return;
+    const cid = Object.keys(familyData.children)[bIdx];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/peso/${ts}`).set({txt, ts, h: new Date().toLocaleDateString()});
+}
+
+function addCompra() {
+    const compras = Object.values(familyData.compra || {});
+    document.getElementById('compra-list').innerHTML = compras.map(c => `
+        <div class="bg-slate-50 p-3 rounded-xl flex justify-between items-center text-xs font-bold">
+            <span>🛒 ${c.txt}</span>
+            <button onclick="db.ref('familias/${familyId}/compra/${c.ts}').remove()" class="text-green-500"><i class="fa-solid fa-circle-check"></i></button>
+        </div>
+    `).join('') || '<p class="text-slate-300 text-xs text-center py-4">Lista vacía</p>';
+    openModal('modal-compra');
+}
+
+function quickCompra() {
+    const txt = prompt("¿Qué falta?");
+    if(!txt) return;
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/compra/${ts}`).set({txt, ts}).then(() => addCompra());
+}
+
+function deleteItem(path, ts) {
+    const cid = Object.keys(familyData.children)[bIdx];
+    if(confirm("¿Eliminar registro?")) db.ref(`familias/${familyId}/children/${cid}/${path}/${ts}`).remove();
+}
+
+function switchBebe(i) { bIdx = i; render(); }
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 </script>
 </body>
