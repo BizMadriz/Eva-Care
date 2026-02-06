@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EvaCare V38.1 - Fix Acceso</title>
+    <title>EvaCare V38.2 - Recuperación de Acceso</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
@@ -11,58 +11,66 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; background: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .hidden { display: none !important; }
         input { outline: none !important; }
-        .btn-active:active { transform: scale(0.95); }
     </style>
 </head>
-<body>
+<body class="bg-slate-50">
 
-<div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-[999]">
-    <div class="text-blue-600 text-5xl font-black italic animate-bounce">EvaCare</div>
+<div id="loading" class="fixed inset-0 flex items-center justify-center bg-white z-[999]">
+    <div class="text-blue-600 text-4xl font-black italic animate-pulse">EvaCare</div>
 </div>
 
-<div id="login" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
+<div id="sec-login" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
     <h1 class="text-4xl font-black text-blue-600 italic mb-8">EvaCare</h1>
-    <div class="space-y-4">
-        <input id="login-email" type="email" class="w-full p-5 bg-white border rounded-2xl" placeholder="Email">
-        <input id="login-pass" type="password" class="w-full p-5 bg-white border rounded-2xl" placeholder="Contraseña">
-        <button onclick="ejecutarLogin()" class="btn-active w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">ENTRAR</button>
-        <button onclick="ejecutarRegistro()" class="btn-active w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">CREAR CUENTA</button>
+    <div class="space-y-3">
+        <input id="log-email" type="email" class="w-full p-5 bg-white border rounded-2xl" placeholder="Email">
+        <input id="log-pass" type="password" class="w-full p-5 bg-white border rounded-2xl" placeholder="Contraseña">
+        <button onclick="handleLogin()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">ENTRAR</button>
+        <button onclick="handleRegister()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">CREAR CUENTA</button>
     </div>
 </div>
 
-<div id="familySetup" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto text-center">
-    <h2 class="text-2xl font-black mb-8 italic">Configura tu Familia</h2>
-    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border space-y-4">
-        <input id="familyName" class="w-full p-4 bg-slate-50 rounded-xl" placeholder="Apellidos Familia">
+<div id="sec-family" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
+    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border text-center space-y-4">
+        <h2 class="text-xl font-black italic">Configuración Familiar</h2>
+        <input id="fam-name" class="w-full p-4 bg-slate-50 rounded-xl" placeholder="Apellidos Familia">
         <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">CREAR NUEVA</button>
-        <div class="py-4 text-slate-300 font-bold text-xs uppercase">o usa un código</div>
-        <input id="joinCode" class="w-full p-4 bg-slate-50 rounded-xl text-center uppercase" placeholder="CÓDIGO">
+        <div class="text-slate-300 font-bold text-[10px] uppercase">O únete con código</div>
+        <input id="fam-code" class="w-full p-4 bg-slate-50 rounded-xl text-center uppercase" placeholder="CÓDIGO">
         <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">UNIRSE</button>
     </div>
 </div>
 
-<div id="app" class="hidden">
-    <header class="p-6 bg-white flex justify-between items-center border-b">
-        <select id="bebeSelector" onchange="switchBebe(this.value)" class="text-2xl font-black text-blue-600"></select>
-        <button onclick="logout()" class="text-red-400 font-bold text-xs">SALIR</button>
-    </header>
-    <main class="p-6">
-        <div id="visor-eventos" class="flex gap-4 overflow-x-auto pb-6"></div>
-        <div class="grid grid-cols-4 gap-2 mb-8">
-            <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl border text-center"><i class="fa-solid fa-droplet text-cyan-400"></i></button>
-            <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl border text-center"><i class="fa-solid fa-poop text-orange-700"></i></button>
-            <button onclick="quickLog('✨ Baño')" class="bg-white p-4 rounded-2xl border text-center"><i class="fa-solid fa-bath text-blue-300"></i></button>
-            <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 p-4 rounded-2xl text-white text-center"><i class="fa-solid fa-bottle-water"></i></button>
+<div id="sec-app" class="hidden">
+    <header class="p-6 bg-white flex justify-between items-center border-b sticky top-0 z-50">
+        <div>
+            <select id="bebeSelector" onchange="switchBebe(this.value)" class="text-2xl font-black text-blue-600 bg-transparent"></select>
+            <p id="sub-info" class="text-[9px] font-bold text-slate-400 mt-1"></p>
         </div>
-        <div id="logs-lista" class="space-y-2"></div>
+        <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-power-off"></i></button>
+    </header>
+
+    <main class="p-4 space-y-6">
+        <div id="visor" class="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-xl">
+            <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Último evento</p>
+            <div id="last-log" class="text-2xl font-black italic italic tracking-tighter">Esperando datos...</div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+            <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-droplet text-cyan-500 mb-1"></i><span class="text-[8px] font-bold">PIS</span></button>
+            <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-poop text-orange-800 mb-1"></i><span class="text-[8px] font-bold">CACA</span></button>
+            <button onclick="quickLog('✨ Baño')" class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col items-center"><i class="fa-solid fa-bath text-blue-300 mb-1"></i><span class="text-[8px] font-bold">BAÑO</span></button>
+            <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg flex flex-col items-center"><i class="fa-solid fa-bottle-water mb-1"></i><span class="text-[8px] font-bold">TOMA</span></button>
+        </div>
+
+        <div id="diario" class="space-y-2"></div>
     </main>
 </div>
 
 <script>
-// CONFIGURACIÓN (Tu Firebase)
+// CONFIG FIREBASE (Tus datos)
 const firebaseConfig = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
@@ -73,55 +81,47 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let uid = null, familyId = null, familyData = null, bIdx = 0;
+let uid, familyId, familyData, bIdx = 0;
 
-// FUNCIONES DE ACCESO CORREGIDAS
-function ejecutarLogin() {
-    const e = document.getElementById('login-email').value;
-    const p = document.getElementById('login-pass').value;
-    if(!e || !p) return alert("Rellena todos los campos");
-    
-    auth.signInWithEmailAndPassword(e, p)
-        .catch(err => alert("Error: " + err.message));
+// FUNCIONES DE ACCESO (REVISADAS)
+function handleLogin() {
+    const email = document.getElementById('log-email').value;
+    const pass = document.getElementById('log-pass').value;
+    if(!email || !pass) return alert("Completa los campos");
+    auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
 }
 
-function ejecutarRegistro() {
-    const e = document.getElementById('login-email').value;
-    const p = document.getElementById('login-pass').value;
-    if(!e || !p) return alert("Rellena todos los campos");
-
-    auth.createUserWithEmailAndPassword(e, p)
-        .catch(err => alert("Error: " + err.message));
+function handleRegister() {
+    const email = document.getElementById('log-email').value;
+    const pass = document.getElementById('log-pass').value;
+    if(!email || !pass) return alert("Completa los campos");
+    auth.createUserWithEmailAndPassword(email, pass).catch(e => alert(e.message));
 }
 
-// MONITOR DE ESTADO
+// LOGICA DE NAVEGACIÓN
 auth.onAuthStateChanged(user => {
     if (user) {
         uid = user.uid;
-        // Buscar familia vinculada al usuario
         db.ref(`usuarios/${uid}/familyId`).on('value', snap => {
             familyId = snap.val();
-            if (familyId) loadData();
-            else showSection("familySetup");
+            if (familyId) loadFamily();
+            else show("sec-family");
         });
     } else {
-        showSection("login");
+        show("sec-login");
     }
 });
 
-function loadData() {
+function loadFamily() {
     db.ref("familias/" + familyId).on("value", snap => {
         familyData = snap.val();
-        if(!familyData) { showSection("familySetup"); return; }
+        if(!familyData) { show("sec-family"); return; }
         if(!familyData.children) {
-            const n = prompt("Nombre de tu primer bebé/niño:");
-            if(n) {
-                const cid = Date.now();
-                db.ref(`familias/${familyId}/children/${cid}`).set({ name: n });
-            }
+            const n = prompt("Nombre del bebé:");
+            if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name: n});
         } else {
             render();
-            showSection("app");
+            show("sec-app");
         }
     });
 }
@@ -131,33 +131,34 @@ function render() {
     const b = familyData.children[keys[bIdx]];
     
     document.getElementById('bebeSelector').innerHTML = keys.map((k, i) => 
-        `<option value="${i}" ${i==bIdx?'selected':''}>${familyData.children[k].name}</option>`
+        `<option value="${i}" ${i==bIdx?'selected':''}>${familyData.children[k].name.toUpperCase()}</option>`
     ).join('');
+    document.getElementById('sub-info').innerText = `${familyData.name} • Código: ${familyData.inviteCode}`;
 
     const logs = Object.values(b.logs || {}).sort((a,b)=>b.ts - a.ts);
-    document.getElementById('logs-lista').innerHTML = logs.map(l => `
-        <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+    if(logs[0]) document.getElementById('last-log').innerText = `${logs[0].txt} (${logs[0].h})`;
+    
+    document.getElementById('diario').innerHTML = logs.map(l => `
+        <div class="bg-white p-4 rounded-2xl border flex justify-between items-center">
             <span class="font-bold text-slate-700 text-xs">${l.txt}</span>
             <span class="text-[9px] font-black text-slate-300 uppercase">${l.h}</span>
         </div>
     `).join('');
 }
 
-// FAMILIA
 function createFamily() {
-    const name = document.getElementById('familyName').value.trim();
-    if(!name) return alert("Pon un nombre");
+    const name = document.getElementById('fam-name').value.trim();
+    if(!name) return;
     const fid = db.ref("familias").push().key;
     const code = Math.random().toString(36).substring(2,8).toUpperCase();
-    
-    db.ref("familias/"+fid).set({ name, inviteCode: code, members: {[uid]: 'owner'} })
+    db.ref("familias/"+fid).set({ name, inviteCode: code, members: {[uid]:'owner'} })
       .then(() => db.ref(`usuarios/${uid}/familyId`).set(fid));
 }
 
 function joinFamily() {
-    const code = document.getElementById('joinCode').value.trim().toUpperCase();
+    const code = document.getElementById('fam-code').value.trim().toUpperCase();
     db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", snap => {
-        if(!snap.exists()) return alert("Código no válido");
+        if(!snap.exists()) return alert("Código erróneo");
         const fid = Object.keys(snap.val())[0];
         db.ref(`usuarios/${uid}/familyId`).set(fid);
     });
@@ -170,17 +171,16 @@ function quickLog(txt) {
     db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({txt, ts, h});
 }
 
-function showSection(id) {
-    document.getElementById("loading").classList.add("hidden");
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("familySetup").classList.add("hidden");
-    document.getElementById("app").classList.add("hidden");
-    document.getElementById(id).classList.remove("hidden");
+function show(id) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('sec-login').classList.add('hidden');
+    document.getElementById('sec-family').classList.add('hidden');
+    document.getElementById('sec-app').classList.add('hidden');
+    document.getElementById(id).classList.remove('hidden');
 }
 
 function logout() { auth.signOut().then(() => location.reload()); }
 function switchBebe(i) { bIdx = i; render(); }
-
 </script>
 </body>
 </html>
