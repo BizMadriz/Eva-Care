@@ -2,73 +2,84 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvaCare V30 Full</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EvaCare V31 - Gestión Completa</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
 body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
 .hidden { display: none !important; }
-.reac-active { background: #dbeafe !important; border: 2px solid #2563eb !important; transform: scale(1.1); }
-.aviso-item { border-left: 4px solid #3b82f6; padding: 6px 12px; margin-bottom: 8px; border-radius: 8px; background: rgba(255,255,255,0.08); }
-.no-scrollbar::-webkit-scrollbar { display: none; }
+.input { @apply w-full p-4 rounded-2xl border border-slate-300 mb-4 outline-none; }
+.btn { @apply w-full p-4 rounded-2xl font-black text-white text-center shadow-md mb-2; }
 </style>
 </head>
-<body class="bg-slate-50 text-slate-900 pb-32">
+<body class="bg-slate-50 text-slate-900">
 
-<!-- LOGIN / REGISTER -->
-<div id="login-screen" class="fixed inset-0 bg-white z-[10000] flex flex-col items-center justify-center p-10">
-    <div class="text-blue-600 text-5xl font-black italic mb-4">EvaCare</div>
-    <input id="email" type="email" placeholder="Email" class="w-full p-5 mb-4 rounded-xl border border-slate-200 outline-none">
-    <input id="password" type="password" placeholder="Contraseña" class="w-full p-5 mb-4 rounded-xl border border-slate-200 outline-none">
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-xl font-black mb-3">Iniciar sesión</button>
-    <button onclick="register()" class="w-full bg-green-600 text-white p-5 rounded-xl font-black">Crear cuenta</button>
+<!-- Pantalla de carga -->
+<div id="loading-screen" class="fixed inset-0 bg-white flex flex-col items-center justify-center">
+    <div class="text-blue-600 text-4xl font-black italic animate-bounce mb-4">EvaCare</div>
+    <div id="status-msg" class="text-slate-400 text-[10px] uppercase tracking-widest">Iniciando...</div>
 </div>
 
-<!-- APP -->
-<div id="app-content" class="hidden">
+<!-- Login/Registro -->
+<div id="auth-screen" class="hidden p-10 max-w-md mx-auto mt-20 space-y-4">
+    <h2 class="text-3xl font-black text-blue-600 text-center mb-6">EvaCare</h2>
+    <input id="email-input" type="email" placeholder="Email" class="input">
+    <input id="pass-input" type="password" placeholder="Contraseña" class="input">
+    <button id="btn-login" class="btn bg-blue-600" onclick="loginUser()">Iniciar sesión</button>
+    <button id="btn-register" class="btn bg-green-600" onclick="registerUser()">Crear cuenta</button>
+    <button id="btn-reset" class="btn bg-orange-500" onclick="resetPassword()">Olvidé mi contraseña</button>
+    <div id="auth-msg" class="text-red-500 text-sm text-center mt-2"></div>
+</div>
 
-<header class="p-6 flex justify-between items-center bg-white/80 sticky top-0 z-50 border-b backdrop-blur-md">
-    <div class="flex flex-col">
-        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Viendo a:</span>
-        <select id="bebe-selector" onchange="switchBebe(this.value)" class="bg-transparent font-black italic text-2xl outline-none text-blue-600 cursor-pointer"></select>
+<!-- App principal -->
+<div id="app-content" class="hidden p-6 max-w-xl mx-auto space-y-6">
+
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-xl font-black text-blue-600 italic" id="display-email">---</h1>
+            <p class="text-slate-400 text-sm" id="family-id-display">---</p>
+        </div>
+        <button class="px-4 py-2 bg-red-500 text-white rounded-2xl font-bold" onclick="logoutUser()">Cerrar sesión</button>
+    </header>
+
+    <!-- Panel miembros -->
+    <section class="bg-white p-6 rounded-2xl shadow-md space-y-4">
+        <h2 class="text-lg font-black text-blue-600 mb-2">Miembros de la familia</h2>
+        <div id="members-list" class="space-y-2"></div>
+        <button class="btn bg-green-600" onclick="openMemberModal()">Añadir miembro</button>
+    </section>
+
+    <!-- Logs -->
+    <section class="bg-white p-6 rounded-2xl shadow-md space-y-4">
+        <h2 class="text-lg font-black text-blue-600 mb-2">Logs de la familia</h2>
+        <button class="btn bg-blue-600" onclick="addTestLog()">Añadir log de prueba</button>
+        <div id="log-list" class="space-y-2 mt-4"></div>
+    </section>
+</div>
+
+<!-- Modal añadir/editar miembro -->
+<div id="modal-member" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-md p-6 rounded-3xl space-y-4 shadow-2xl">
+        <h2 class="text-xl font-black text-blue-600" id="member-modal-title">Añadir miembro</h2>
+        <input id="member-name" type="text" placeholder="Nombre" class="input">
+        <input id="member-birth" type="date" placeholder="Fecha de nacimiento" class="input">
+        <input id="member-weight" type="number" step="0.01" placeholder="Peso al nacer (kg)" class="input">
+        <input id="member-height" type="number" placeholder="Altura al nacer (cm)" class="input">
+        <div class="flex gap-2">
+            <button class="btn bg-green-600 flex-1" id="member-save-btn">Guardar</button>
+            <button class="btn bg-red-500 flex-1" onclick="closeMemberModal()">Cancelar</button>
+        </div>
     </div>
-    <button onclick="forceReset()" class="text-[10px] font-black text-red-400 bg-red-50 px-4 py-2 rounded-full">SALIR</button>
-</header>
-
-<main class="p-4 space-y-4">
-    <!-- Avisos -->
-    <div class="bg-slate-900 rounded-[2.5rem] p-7 text-white shadow-2xl">
-        <h3 class="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] mb-4">Avisos de la Familia</h3>
-        <div id="panel-avisos-global" class="space-y-3"></div>
-    </div>
-
-    <!-- Lista compra -->
-    <div id="lista-compra-global" class="space-y-2"></div>
-
-    <!-- Botones logs -->
-    <div class="grid grid-cols-4 gap-3">
-        <button onclick="addLog('💦 Pis')" class="bg-white py-6 rounded-[2rem] font-black text-cyan-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-droplet text-lg"></i>PIS</button>
-        <button onclick="addLog('💩 Caca')" class="bg-white py-6 rounded-[2rem] font-black text-orange-800 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-poop text-lg"></i>CACA</button>
-        <button onclick="addLog('✨ Aseo')" class="bg-white py-6 rounded-[2rem] font-black text-purple-600 text-[10px] border shadow-sm flex flex-col items-center gap-2"><i class="fa-solid fa-sparkles text-lg"></i>ASEO</button>
-        <button onclick="addCompra()" class="bg-yellow-400 text-slate-900 rounded-[2rem] flex items-center justify-center shadow-lg text-xl"><i class="fa-solid fa-cart-shopping"></i></button>
-    </div>
-
-    <!-- Diario hoy -->
-    <div id="diario-hoy" class="space-y-2 pb-10"></div>
-</main>
-
 </div>
 
 <script>
 const fbCfg = {
-    apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
-    authDomain: "evacare-24cae.firebaseapp.com",
-    databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com",
-    projectId: "evacare-24cae"
+  apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
+  databaseURL: "https://evacare-24cae-default-rtdb.firebaseio.com",
+  projectId: "evacare-24cae"
 };
 firebase.initializeApp(fbCfg);
 const auth = firebase.auth();
@@ -76,96 +87,145 @@ const db = firebase.database();
 
 let currentUser = null;
 let familyId = null;
-let DATA = null;
-let bIdx = 0;
+let editingMemberKey = null;
 
-// --- LOGIN / REGISTER ---
-function register(){
-    const e = document.getElementById('email').value.trim();
-    const p = document.getElementById('password').value.trim();
-    if(!e||!p) return alert("Completa email y contraseña");
-    auth.createUserWithEmailAndPassword(e,p).then(cred=>{
-        currentUser=cred.user;
-        familyId='FAM_'+Math.random().toString(36).substr(2,6).toUpperCase();
-        db.ref('users/'+currentUser.uid).set({email:currentUser.email,familyId});
-        db.ref('familias/'+familyId).set({owner:currentUser.uid,members:{[currentUser.uid]:true},data:{intervalo:3,compraFamiliar:[],bebes:[{n:"Mi Bebé",f:new Date().toISOString().split('T')[0],logs:[],meds:[],foods:[],citas:{},hPeso:[]}]}});
-        document.getElementById('login-screen').classList.add('hidden');
-        startApp();
-    }).catch(err=>alert("Error crear cuenta: "+err.message));
-}
-
-function login(){
-    const e=document.getElementById('email').value.trim();
-    const p=document.getElementById('password').value.trim();
-    if(!e||!p) return alert("Completa email y contraseña");
-    auth.signInWithEmailAndPassword(e,p).then(cred=>{
-        currentUser=cred.user;
-        db.ref('users/'+currentUser.uid+'/familyId').once('value').then(snap=>{
-            familyId=snap.val();
-            document.getElementById('login-screen').classList.add('hidden');
-            startApp();
-        });
-    }).catch(err=>alert("Error login: "+err.message));
-}
-
-function forceReset(){
-    auth.signOut();
-    localStorage.clear();
-    window.location.reload();
-}
-
-// --- APP ---
-function startApp(){
-    if(!familyId) return;
-    const famRef=db.ref('familias/'+familyId+'/data');
-    famRef.on('value',snap=>{
-        DATA=snap.val();
-        document.getElementById('app-content').classList.remove('hidden');
-        render();
-    });
-}
-
-// --- RENDER ---
-function render(){
-    if(!DATA) return;
-    const b=DATA.bebes[bIdx];
-    document.getElementById('bebe-selector').innerHTML=DATA.bebes.map((x,i)=>`<option value="${i}" ${i===bIdx?'selected':''}>${x.n.toUpperCase()}</option>`).join('');
-
-    // Avisos
-    let htmlAvisos="";
-    DATA.bebes.forEach(bebe=>{
-        const rest=bebe.lastToma ? (bebe.lastToma+(DATA.intervalo*3600000))-Date.now() : -1;
-        if(rest<=0) htmlAvisos+=`<div class="aviso-item"><span class="text-red-500 font-black">${bebe.n}:</span> <span class="text-[11px]">Toca toma</span></div>`;
-    });
-    document.getElementById('panel-avisos-global').innerHTML=htmlAvisos||'<p class="text-[10px] text-slate-500 italic">Todo en orden</p>';
-
-    // Diario
-    document.getElementById('diario-hoy').innerHTML=(b.logs||[]).slice(0,10).map(l=>`<div class="bg-white p-4 rounded-2xl flex justify-between items-center border-b shadow-sm"><span class="font-bold text-xs">${l.txt}</span><span class="text-[9px] font-black text-slate-300">${l.h}</span></div>`).join('');
-}
-
-// --- LOGS ---
-function addLog(txt){
-    const b=DATA.bebes[bIdx];
-    if(!b.logs) b.logs=[];
-    const entry={txt,h:new Date().toLocaleTimeString(),ts:Date.now()};
-    b.logs.unshift(entry);
-    DATA.bebes[bIdx]=b;
-    db.ref('familias/'+familyId+'/data').set(DATA);
-}
-
-// --- LISTA COMPRA ---
-function addCompra(){
-    const item=prompt("Añadir a la compra...");
-    if(item){
-        if(!DATA.compraFamiliar) DATA.compraFamiliar=[];
-        DATA.compraFamiliar.push({txt:item,para:DATA.bebes[bIdx].n});
-        db.ref('familias/'+familyId+'/data').set(DATA);
+// === INICIALIZAR APP ===
+function init(){
+  auth.onAuthStateChanged(user => {
+    if(user){
+      currentUser = user;
+      familyId = btoa(user.email).replace(/=/g,'');
+      showApp();
+      loadMembers();
+      loadLogs();
+    } else {
+      document.getElementById('loading-screen').classList.add('hidden');
+      document.getElementById('auth-screen').classList.remove('hidden');
     }
+  });
 }
 
-// --- CAMBIO DE BEBE ---
-function switchBebe(idx){ bIdx=parseInt(idx); render(); }
+// === AUTH ===
+function loginUser(){
+  const email = document.getElementById('email-input').value.trim();
+  const pass = document.getElementById('pass-input').value;
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch(err => { document.getElementById('auth-msg').innerText = err.message; });
+}
+
+function registerUser(){
+  const email = document.getElementById('email-input').value.trim();
+  const pass = document.getElementById('pass-input').value;
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(()=> document.getElementById('auth-msg').innerText="Cuenta creada correctamente")
+    .catch(err=> document.getElementById('auth-msg').innerText=err.message);
+}
+
+function resetPassword(){
+  const email = document.getElementById('email-input').value.trim();
+  if(!email){ document.getElementById('auth-msg').innerText="Introduce tu email"; return; }
+  auth.sendPasswordResetEmail(email)
+    .then(()=> document.getElementById('auth-msg').innerText="Email de recuperación enviado")
+    .catch(err=> document.getElementById('auth-msg').innerText=err.message);
+}
+
+function logoutUser(){ auth.signOut().then(()=>window.location.reload()); }
+
+// === APP PRINCIPAL ===
+function showApp(){
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app-content').classList.remove('hidden');
+  document.getElementById('display-email').innerText = currentUser.email;
+  document.getElementById('family-id-display').innerText = "ID familia: "+familyId;
+}
+
+// === GESTIÓN MIEMBROS ===
+function loadMembers(){
+  const membersRef = db.ref('familias/'+familyId+'/members');
+  membersRef.on('value', snap=>{
+    const data = snap.val() || {};
+    const list = Object.entries(data).map(([key, m])=>`
+      <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center border shadow-sm">
+        <div>
+          <p class="font-bold">${m.name}</p>
+          <p class="text-[10px] text-slate-400">Nac: ${m.birth} | Peso: ${m.weight||'-'}kg | Altura: ${m.height||'-'}cm</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="bg-blue-500 text-white px-2 py-1 rounded" onclick="editMember('${key}')">Editar</button>
+          <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="deleteMember('${key}')">Eliminar</button>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('members-list').innerHTML = list || '<p class="text-slate-400 text-sm">No hay miembros</p>';
+  });
+}
+
+function openMemberModal(){
+  editingMemberKey = null;
+  document.getElementById('member-modal-title').innerText = "Añadir miembro";
+  document.getElementById('member-name').value='';
+  document.getElementById('member-birth').value='';
+  document.getElementById('member-weight').value='';
+  document.getElementById('member-height').value='';
+  document.getElementById('modal-member').classList.remove('hidden');
+}
+
+function closeMemberModal(){ document.getElementById('modal-member').classList.add('hidden'); }
+
+document.getElementById('member-save-btn').onclick = function(){
+  const name = document.getElementById('member-name').value.trim();
+  const birth = document.getElementById('member-birth').value;
+  const weight = document.getElementById('member-weight').value;
+  const height = document.getElementById('member-height').value;
+  if(!name || !birth){ alert("Nombre y fecha obligatorios"); return; }
+  const membersRef = db.ref('familias/'+familyId+'/members');
+  if(editingMemberKey){
+    membersRef.child(editingMemberKey).set({name,birth,weight,height});
+  } else {
+    const newKey = membersRef.push().key;
+    membersRef.child(newKey).set({name,birth,weight,height});
+  }
+  closeMemberModal();
+}
+
+function editMember(key){
+  editingMemberKey = key;
+  db.ref('familias/'+familyId+'/members/'+key).get().then(snap=>{
+    const m = snap.val();
+    document.getElementById('member-modal-title').innerText = "Editar miembro";
+    document.getElementById('member-name').value = m.name;
+    document.getElementById('member-birth').value = m.birth;
+    document.getElementById('member-weight').value = m.weight || '';
+    document.getElementById('member-height').value = m.height || '';
+    document.getElementById('modal-member').classList.remove('hidden');
+  });
+}
+
+function deleteMember(key){
+  if(confirm("Eliminar miembro?")) db.ref('familias/'+familyId+'/members/'+key).remove();
+}
+
+// === LOGS ===
+function loadLogs(){
+  const logRef = db.ref('familias/'+familyId+'/logs');
+  logRef.on('value', snap=>{
+    const data = snap.val() || {};
+    const list = Object.values(data).reverse().map(l=>`
+      <div class="bg-white p-4 rounded-2xl shadow-sm border-b font-bold text-slate-600">
+        ${l.txt} <span class="text-[9px] text-slate-300 ml-2">${l.h||''}</span>
+      </div>
+    `).join('');
+    document.getElementById('log-list').innerHTML = list;
+  });
+}
+
+function addTestLog(){
+  const ts = Date.now();
+  db.ref('familias/'+familyId+'/logs/'+ts).set({ txt:"Log de prueba ✅", h:new Date().toLocaleTimeString() });
+}
+
+init();
 </script>
-<script src="https://kit.fontawesome.com/a2e7e6da20.js" crossorigin="anonymous"></script>
+
 </body>
 </html>
