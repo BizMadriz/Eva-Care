@@ -22,154 +22,178 @@
 
 <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
   <h1 class="text-4xl font-black italic text-blue-600 animate-pulse">EvaCare</h1>
-  <p class="mt-3 text-xs tracking-widest uppercase text-slate-400">Sincronizando</p>
+  <p class="mt-3 text-xs tracking-widest uppercase text-slate-400">Iniciando sesión...</p>
 </div>
 
 <section id="sec-login" class="hidden min-h-screen flex items-center justify-center p-6">
   <div class="w-full max-w-md space-y-4">
-    <h2 class="text-3xl font-black italic text-blue-600">EvaCare</h2>
-    <input id="log-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl border">
-    <input id="log-pass" type="password" placeholder="Contraseña" class="w-full p-4 rounded-xl border">
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Entrar</button>
-    <button onclick="register()" class="w-full bg-slate-200 p-4 rounded-xl font-bold">Crear cuenta</button>
+    <h2 class="text-4xl font-black italic text-blue-600 text-center mb-8">EvaCare</h2>
+    <div class="space-y-2">
+      <input id="log-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl border border-slate-200 outline-blue-500">
+      <input id="log-pass" type="password" placeholder="Contraseña" class="w-full p-4 rounded-xl border border-slate-200 outline-blue-500">
+    </div>
+    <button onclick="login()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black shadow-lg active:scale-95 transition-transform">Entrar</button>
+    <button onclick="register()" class="w-full bg-white text-slate-600 p-4 rounded-xl font-bold border border-slate-200">Crear cuenta</button>
   </div>
 </section>
 
 <section id="sec-family" class="hidden min-h-screen flex items-center justify-center p-6">
-  <div class="bg-white p-6 rounded-2xl w-full max-w-md space-y-4 shadow-lg">
-    <h3 class="font-bold text-lg">Configuración de Familia</h3>
-    <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-100" placeholder="Nombre de familia (Ej: Familia Pérez)">
-    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear familia</button>
-    <div class="relative py-4">
-        <div class="absolute inset-0 flex items-center"><span class="w-full border-t"></span></div>
-        <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-slate-500">O únete a una</span></div>
+  <div class="bg-white p-8 rounded-3xl w-full max-w-md space-y-6 shadow-xl border border-slate-100">
+    <div class="text-center">
+        <h3 class="text-2xl font-black text-slate-800">¡Bienvenido!</h3>
+        <p class="text-slate-500 text-sm">Configura tu entorno familiar</p>
     </div>
-    <input id="fam-code" class="w-full p-4 rounded-xl bg-slate-100 uppercase" placeholder="Código invitación">
-    <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse</button>
+    
+    <div class="space-y-3">
+        <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100" placeholder="Nombre de familia">
+        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear nueva familia</button>
+    </div>
+
+    <div class="flex items-center gap-4 text-slate-300">
+        <hr class="flex-1"><span>o</span><hr class="flex-1">
+    </div>
+
+    <div class="space-y-3">
+        <input id="fam-code" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 uppercase text-center font-bold tracking-widest" placeholder="Código">
+        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirme con código</button>
+    </div>
   </div>
 </section>
 
 <section id="sec-app" class="hidden">
+    <header class="bg-white p-4 flex justify-between items-center border-b sticky top-0 z-20 shadow-sm">
+      <div class="flex items-center gap-2">
+          <span class="text-xl">👶</span>
+          <select id="bebeSelector" onchange="switchBebe(this.value)" class="font-black text-blue-600 bg-transparent outline-none text-lg"></select>
+      </div>
+      <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50"><i class="fa-solid fa-bars text-slate-600"></i></button>
+    </header>
 
-<header class="bg-white p-4 flex justify-between items-center border-b sticky top-0 z-10">
-  <select id="bebeSelector" onchange="switchBebe(this.value)" class="font-black text-blue-600 bg-transparent outline-none"></select>
-  <button onclick="toggleMenu()" class="text-xl p-2"><i class="fa-solid fa-bars"></i></button>
-</header>
+    <main class="p-4 space-y-6 max-w-lg mx-auto">
+        <div class="grid grid-cols-4 gap-3">
+          <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 active:bg-blue-50">
+            <span class="text-xl">💦</span><span class="text-[10px] font-bold uppercase">Pis</span>
+          </button>
+          <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 active:bg-blue-50">
+            <span class="text-xl">💩</span><span class="text-[10px] font-bold uppercase">Caca</span>
+          </button>
+          <button onclick="quickLog('🛁 Baño')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 active:bg-blue-50">
+            <span class="text-xl">🛁</span><span class="text-[10px] font-bold uppercase">Baño</span>
+          </button>
+          <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-1 active:opacity-90">
+            <span class="text-xl">🍼</span><span class="text-[10px] font-bold uppercase">Toma</span>
+          </button>
+        </div>
 
-<main class="p-4 space-y-6">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <div class="flex text-[11px] font-black uppercase bg-slate-50/50 border-b">
+            <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 py-4 tab-active">Diario</button>
+            <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 py-4">Salud</button>
+            <button id="btn-tab-food" onclick="showTab('tab-food')" class="flex-1 py-4">Comida</button>
+          </div>
 
-<div class="grid grid-cols-4 gap-2">
-  <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-xl shadow-sm border text-sm font-bold">Pis</button>
-  <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-xl shadow-sm border text-sm font-bold">Caca</button>
-  <button onclick="quickLog('🛁 Baño')" class="bg-white p-4 rounded-xl shadow-sm border text-sm font-bold">Baño</button>
-  <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-xl shadow-md text-sm font-black">Toma</button>
-</div>
+          <div id="tab-diario" class="p-4 space-y-3 min-h-[300px]"></div>
 
-<div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
-  <div class="flex text-xs font-black uppercase bg-slate-50 border-b">
-    <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 p-4 tab-active">Diario</button>
-    <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 p-4 border-l">Salud</button>
-    <button id="btn-tab-food" onclick="showTab('tab-food')" class="flex-1 p-4 border-l">Comida</button>
-  </div>
+          <div id="tab-salud" class="hidden p-4 space-y-4">
+            <button onclick="addMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100 font-black text-sm">+ MEDICACIÓN</button>
+            <div id="med-list" class="space-y-2"></div>
+          </div>
 
-  <div id="tab-diario" class="p-4 space-y-3 min-h-[300px]"></div>
-
-  <div id="tab-salud" class="hidden p-4 space-y-4">
-    <button onclick="addMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-bold">+ Registrar Medicación</button>
-    <div id="med-list" class="space-y-2"></div>
-  </div>
-
-  <div id="tab-food" class="hidden p-4 space-y-4">
-    <button onclick="addFood()" class="w-full bg-orange-50 text-orange-600 p-4 rounded-xl border border-orange-100 font-bold">+ Registrar Alimento</button>
-    <div id="food-list" class="space-y-2"></div>
-  </div>
-</div>
-
-</main>
+          <div id="tab-food" class="hidden p-4 space-y-4">
+            <button onclick="addFood()" class="w-full bg-orange-50 text-orange-600 p-4 rounded-2xl border border-orange-100 font-black text-sm">+ ALIMENTO</button>
+            <div id="food-list" class="space-y-2"></div>
+          </div>
+        </div>
+    </main>
 </section>
 
 <div id="side-menu" class="hidden fixed inset-0 z-40">
-  <div class="absolute inset-0 bg-black/50" onclick="toggleMenu()"></div>
-  <div class="absolute inset-y-0 left-0 bg-white w-3/4 max-w-xs p-6 flex flex-col shadow-2xl">
-    <h3 class="text-xl font-black italic text-blue-600 mb-6">EvaCare</h3>
-    
-    <div class="flex-1 space-y-4">
-        <button onclick="addChild()" class="w-full text-left p-3 rounded-lg hover:bg-slate-100 font-bold"><i class="fa-solid fa-plus mr-2 text-blue-500"></i>Añadir bebé</button>
-        <div class="p-3 bg-blue-50 rounded-xl">
-            <p class="text-[10px] uppercase font-black text-blue-400">Código de Familia</p>
-            <p id="display-code" class="text-lg font-mono font-black tracking-widest text-blue-700">-</p>
+  <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="toggleMenu()"></div>
+  <div class="absolute inset-y-0 left-0 bg-white w-4/5 max-w-xs p-8 flex flex-col shadow-2xl">
+    <div class="flex-1 space-y-6">
+        <h3 class="text-3xl font-black italic text-blue-600">EvaCare</h3>
+        <button onclick="addChild()" class="w-full text-left py-3 px-4 rounded-xl bg-slate-50 font-bold text-slate-700"><i class="fa-solid fa-baby mr-3 text-blue-500"></i>Añadir Bebé</button>
+        
+        <div class="p-5 bg-blue-600 rounded-3xl text-white shadow-lg shadow-blue-200">
+            <p class="text-[10px] uppercase font-black opacity-70 mb-1">Código de Invitación</p>
+            <p id="display-code" class="text-2xl font-mono font-black tracking-widest">------</p>
+            <p class="text-[9px] mt-2 leading-tight opacity-80">Comparte este código para que otros familiares se unan.</p>
         </div>
     </div>
     
-    <hr class="my-4">
-    <button onclick="logout()" class="w-full text-left p-3 text-red-500 font-bold"><i class="fa-solid fa-right-from-bracket mr-2"></i>Cerrar sesión</button>
+    <button onclick="logout()" class="w-full text-left p-4 text-red-500 font-black border-t border-slate-100"><i class="fa-solid fa-power-off mr-3"></i>Cerrar Sesión</button>
   </div>
 </div>
 
 <script>
-/* ---------- Firebase ---------- */
-firebase.initializeApp({
+/* ---------- CONFIG ---------- */
+const firebaseConfig = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
   databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "evacare-24cae"
-});
+};
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.database();
 
-/* ---------- State ---------- */
 let uid, familyId, familyData, bebeIndex = 0;
-let authResolved = false;
 
-/* ---------- FAILSAFE ---------- */
-setTimeout(() => {
-  if (!authResolved) {
-    hide("loading");
-    show("sec-login");
-  }
-}, 3000);
-
-/* ---------- AUTH ---------- */
+/* ---------- AUTH OBSERVER ---------- */
 auth.onAuthStateChanged(user => {
-  authResolved = true;
-  hide("loading");
-
   if (user) {
     uid = user.uid;
-    db.ref(`usuarios/${uid}/familyId`).once("value").then(s => {
-      familyId = s.val();
-      familyId ? loadApp() : show("sec-family");
-    });
+    checkUserFamily();
   } else {
+    document.getElementById("loading").classList.add("hidden");
     show("sec-login");
   }
 });
 
-function login(){
-  const email = document.getElementById("log-email").value;
-  const pass  = document.getElementById("log-pass").value;
-  if(!email || !pass) return alert("Introduce email y contraseña");
-  auth.signInWithEmailAndPassword(email, pass).catch(e=>alert("Error: " + e.message));
+function checkUserFamily() {
+  db.ref(`usuarios/${uid}/familyId`).once("value").then(s => {
+    familyId = s.val();
+    document.getElementById("loading").classList.add("hidden");
+    if (familyId) {
+      loadApp();
+    } else {
+      show("sec-family");
+    }
+  });
 }
 
-function register(){
-  const email = document.getElementById("log-email").value;
-  const pass  = document.getElementById("log-pass").value;
-  if(pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres");
-  auth.createUserWithEmailAndPassword(email, pass).catch(e=>alert(e.message));
+/* ---------- LOGIN / REG ---------- */
+function login() {
+  const email = document.getElementById("log-email").value.trim();
+  const pass = document.getElementById("log-pass").value;
+  if(!email || !pass) return alert("Rellena todos los campos");
+
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(() => { /* El observador hará el resto */ })
+    .catch(e => alert("Error al entrar: " + e.message));
 }
 
-/* ---------- APP CORE ---------- */
-function loadApp(){
+function register() {
+  const email = document.getElementById("log-email").value.trim();
+  const pass = document.getElementById("log-pass").value;
+  if(pass.length < 6) return alert("La contraseña debe tener 6+ caracteres");
+
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(() => { /* El observador hará el resto */ })
+    .catch(e => alert("Error al registrar: " + e.message));
+}
+
+/* ---------- APP LOGIC ---------- */
+function loadApp() {
   db.ref("familias/" + familyId).on("value", snap => {
     familyData = snap.val();
     if (!familyData) return show("sec-family");
-    
+
     document.getElementById("display-code").innerText = familyData.inviteCode || "---";
 
     if (!familyData.children) {
       show("sec-app");
-      addChild();
+      if(confirm("No hay bebés. ¿Añadir uno?")) addChild();
       return;
     }
     render();
@@ -177,41 +201,39 @@ function loadApp(){
   });
 }
 
-function render(){
+function render() {
   const keys = Object.keys(familyData.children);
   const childKey = keys[bebeIndex];
   const child = familyData.children[childKey];
 
-  // Selector de bebés
   const selector = document.getElementById("bebeSelector");
-  selector.innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>👶 ${familyData.children[k].name}</option>`).join("");
+  selector.innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>${familyData.children[k].name}</option>`).join("");
 
-  // Render Diario
   const diarioDiv = document.getElementById("tab-diario");
-  if(child.logs){
+  if(child.logs) {
     diarioDiv.innerHTML = Object.values(child.logs)
-        .sort((a,b)=>b.ts-a.ts)
-        .map(l=>`<div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm">
-                    <span class="font-bold text-slate-700">${l.txt}</span>
-                    <span class="text-xs text-slate-400 font-mono">${l.h}</span>
-                 </div>`).join("");
+      .sort((a,b) => b.ts - a.ts)
+      .map(l => `
+        <div class="p-4 bg-white rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">
+          <span class="font-bold text-slate-700">${l.txt}</span>
+          <span class="text-[10px] text-slate-400 font-black bg-slate-50 px-2 py-1 rounded-lg">${l.h}</span>
+        </div>
+      `).join("");
   } else {
-    diarioDiv.innerHTML = `<p class="text-center text-slate-400 py-10 italic">No hay actividad hoy</p>`;
+    diarioDiv.innerHTML = `<div class="text-center py-12 text-slate-300"><i class="fa-solid fa-moon text-4xl mb-3"></i><p class="text-sm font-bold">Todo tranquilo por ahora</p></div>`;
   }
 
-  // Render Salud
   document.getElementById("med-list").innerHTML = child.meds 
-    ? Object.values(child.meds).map(m=>`<div class="p-3 bg-white rounded-xl border"><b>${m.nombre}</b> · ${m.dosis}</div>`).join("")
+    ? Object.values(child.meds).map(m=>`<div class="p-4 bg-white rounded-2xl border border-slate-100"><b class="text-red-500">${m.nombre}</b><p class="text-xs text-slate-500">${m.dosis}</p></div>`).join("")
     : "";
 
-  // Render Comida
   document.getElementById("food-list").innerHTML = child.foods 
-    ? Object.values(child.foods).map(f=>`<div class="p-3 bg-white rounded-xl border"><b>${f.nombre}</b> ${f.reaccion ? `<span class="text-xs ml-2 bg-orange-100 p-1 rounded">Reacción: ${f.reaccion}</span>` : ""}</div>`).join("")
+    ? Object.values(child.foods).map(f=>`<div class="p-4 bg-white rounded-2xl border border-slate-100"><b>${f.nombre}</b> <span class="text-xs text-orange-500 font-bold">${f.reaccion||""}</span></div>`).join("")
     : "";
 }
 
 /* ---------- ACTIONS ---------- */
-function quickLog(txt){
+function quickLog(txt) {
   const keys = Object.keys(familyData.children);
   const cid = keys[bebeIndex];
   const ts = Date.now();
@@ -221,60 +243,58 @@ function quickLog(txt){
   });
 }
 
-function addChild(){
-  const n = prompt("Nombre del bebé");
-  if (n) db.ref(`familias/${familyId}/children`).push({name:n});
+function addChild() {
+  const n = prompt("Nombre del bebé:");
+  if (n) db.ref(`familias/${familyId}/children`).push({name: n});
 }
 
-function addMed(){
-  const n = prompt("Nombre del medicamento:");
-  const d = prompt("Dosis (ej: 1.5 ml):");
-  if(!n || !d) return;
-  const cid = Object.keys(familyData.children)[bebeIndex];
-  db.ref(`familias/${familyId}/children/${cid}/meds`).push({nombre:n, dosis:d});
+function addMed() {
+  const n = prompt("Medicamento:");
+  const d = prompt("Dosis:");
+  if(n && d) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    db.ref(`familias/${familyId}/children/${cid}/meds`).push({nombre: n, dosis: d});
+  }
 }
 
-function addFood(){
+function addFood() {
   const n = prompt("Alimento:");
-  const r = prompt("Reacción o notas (opcional):");
-  if(!n) return;
-  const cid = Object.keys(familyData.children)[bebeIndex];
-  db.ref(`familias/${familyId}/children/${cid}/foods`).push({nombre:n, reaccion:r});
+  const r = prompt("Reacción (opcional):");
+  if(n) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    db.ref(`familias/${familyId}/children/${cid}/foods`).push({nombre: n, reaccion: r});
+  }
 }
 
-/* ---------- FAMILY MANAGEMENT ---------- */
-function createFamily(){
+/* ---------- FAMILY ---------- */
+function createFamily() {
   const name = document.getElementById("fam-name").value.trim();
-  if(!name) return alert("Escribe un nombre para la familia");
+  if(!name) return alert("Ponle un nombre a tu familia");
   const fid = db.ref("familias").push().key;
   const code = Math.random().toString(36).substring(2,8).toUpperCase();
-  db.ref("familias/"+fid).set({name, inviteCode:code})
-    .then(()=>db.ref(`usuarios/${uid}/familyId`).set(fid));
+  db.ref("familias/"+fid).set({name, inviteCode: code})
+    .then(() => db.ref(`usuarios/${uid}/familyId`).set(fid));
 }
 
-function joinFamily(){
+function joinFamily() {
   const code = document.getElementById("fam-code").value.toUpperCase().trim();
-  if(!code) return alert("Introduce un código");
-  db.ref("familias").orderByChild("inviteCode").equalTo(code)
-    .once("value", s=>{
-      if(!s.exists()) return alert("Código inválido o familia no encontrada");
-      const fid = Object.keys(s.val())[0];
-      db.ref(`usuarios/${uid}/familyId`).set(fid);
-    });
+  db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", s => {
+    if(!s.exists()) return alert("Código no válido");
+    const fid = Object.keys(s.val())[0];
+    db.ref(`usuarios/${uid}/familyId`).set(fid);
+  });
 }
 
-/* ---------- UI HELPERS ---------- */
-function show(id){
+/* ---------- UI ---------- */
+function show(id) {
   document.getElementById("sec-login").classList.add("hidden");
   document.getElementById("sec-family").classList.add("hidden");
   document.getElementById("sec-app").classList.add("hidden");
   document.getElementById(id).classList.remove("hidden");
 }
 
-function hide(id){ document.getElementById(id).classList.add("hidden"); }
-
-function showTab(id){
-  ["tab-diario","tab-salud","tab-food"].forEach(t=>{
+function showTab(id) {
+  ["tab-diario","tab-salud","tab-food"].forEach(t => {
     document.getElementById(t).classList.add("hidden");
     document.getElementById("btn-"+t).classList.remove("tab-active");
   });
@@ -282,12 +302,9 @@ function showTab(id){
   document.getElementById("btn-"+id).classList.add("tab-active");
 }
 
-function switchBebe(i){ bebeIndex = i; render(); }
-
-function toggleMenu(){ document.getElementById("side-menu").classList.toggle("hidden"); }
-
-function logout(){ auth.signOut().then(()=>location.reload()); }
+function switchBebe(i) { bebeIndex = i; render(); }
+function toggleMenu() { document.getElementById("side-menu").classList.toggle("hidden"); }
+function logout() { auth.signOut().then(() => location.reload()); }
 </script>
-
 </body>
 </html>
