@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvaCare Ultra Plus</title>
+<title>EvaCare Fix</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -16,9 +16,9 @@
 .hidden{display:none!important}
 .tab-active{border-bottom:3px solid #2563eb;color:#2563eb;font-weight:900}
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.calendar-day { min-height: 45px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; font-size: 0.75rem; cursor: pointer; border: 1px solid #f1f5f9; transition: all 0.2s; }
+.calendar-day { min-height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 0.75rem; cursor: pointer; border: 1px solid #f1f5f9; }
 .has-event { background-color: #dbeafe; border-color: #3b82f6; font-weight: 800; color: #1e40af; }
-.today { border: 2px solid #2563eb !important; background-color: #eff6ff; }
+.is-today { border: 2px solid #2563eb !important; background-color: #eff6ff; font-weight: 900; }
 </style>
 </head>
 
@@ -42,47 +42,47 @@
         </div>
 
         <div class="grid grid-cols-3 gap-3">
-          <button onclick="quickLog('💦 Pis')" class="bg-white p-3 rounded-2xl border flex flex-col items-center"><span>💦</span><span class="text-[9px] font-black uppercase">Pis</span></button>
-          <button onclick="quickLog('💩 Caca')" class="bg-white p-3 rounded-2xl border flex flex-col items-center"><span>💩</span><span class="text-[9px] font-black uppercase">Caca</span></button>
-          <button id="btn-siesta" onclick="toggleSiesta()" class="bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center">
+          <button onclick="quickLog('💦 Pis')" class="bg-white p-3 rounded-2xl border flex flex-col items-center shadow-sm"><span>💦</span><span class="text-[9px] font-black uppercase">Pis</span></button>
+          <button onclick="quickLog('💩 Caca')" class="bg-white p-3 rounded-2xl border flex flex-col items-center shadow-sm"><span>💩</span><span class="text-[9px] font-black uppercase">Caca</span></button>
+          <button id="btn-siesta" onclick="toggleSiesta()" class="bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center shadow-sm">
             <span id="icon-siesta">😴</span><span id="txt-siesta" class="text-[9px] font-black uppercase">Siesta</span>
           </button>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-            <button onclick="modalBibe()" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center">
+            <button onclick="openModalBibe()" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-lg">
                 <span>🍼 BIBERÓN</span><i class="fa-solid fa-plus-circle opacity-50"></i>
             </button>
-            <button onclick="openModalPecho()" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center">
+            <button onclick="openModalPecho()" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-lg">
                 <span>🤱 PECHO</span><i class="fa-solid fa-chevron-right opacity-50"></i>
             </button>
         </div>
 
         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div class="flex text-[10px] font-black uppercase bg-slate-50 border-b overflow-x-auto">
-            <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 min-w-[80px] py-4 tab-active">Diario</button>
-            <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 min-w-[80px] py-4">Salud</button>
-            <button id="btn-tab-cal" onclick="showTab('tab-cal')" class="flex-1 min-w-[80px] py-4 text-blue-600">📅 Agenda</button>
+          <div class="flex text-[10px] font-black uppercase bg-slate-50 border-b">
+            <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 py-4 tab-active">Diario</button>
+            <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 py-4">Salud</button>
+            <button id="btn-tab-cal" onclick="showTab('tab-cal')" class="flex-1 py-4 text-blue-600">📅 Agenda</button>
           </div>
 
           <div id="tab-diario" class="p-4 space-y-3 min-h-[300px]"></div>
 
           <div id="tab-salud" class="hidden p-4 space-y-4">
-            <button onclick="modalMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-xl font-black border border-red-100 text-xs">+ NUEVO TRATAMIENTO</button>
+            <button onclick="modalMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-xl font-black border border-red-100 text-xs uppercase">+ Nuevo Tratamiento</button>
             <div id="med-list" class="space-y-3"></div>
           </div>
 
           <div id="tab-cal" class="hidden p-4 space-y-4">
-             <div id="calendar-container" class="space-y-4">
+             <div class="space-y-4">
                 <div class="flex justify-between items-center font-black text-sm px-2">
-                    <span id="cal-month-name">Mes</span>
+                    <span id="cal-month-name">---</span>
                     <div class="flex gap-4">
                         <button onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
                         <button onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
                 <div class="calendar-grid text-[9px] font-bold text-slate-400 text-center uppercase">
-                    <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
+                    <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sa</span><span>Do</span>
                 </div>
                 <div id="calendar-days" class="calendar-grid"></div>
              </div>
@@ -93,50 +93,51 @@
     </main>
 </section>
 
-<div id="modal-pecho" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-3">
-        <h4 class="font-black text-center">Lado del Pecho</h4>
-        <button onclick="logTomaPecho('Izquierdo')" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm hover:bg-pink-50">Izquierdo (L)</button>
-        <button onclick="logTomaPecho('Derecho')" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm hover:bg-pink-50">Derecho (R)</button>
-        <button onclick="logTomaPecho('Ambos')" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm hover:bg-pink-50">Ambos</button>
-        <button onclick="closeModal('modal-pecho')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button>
-    </div>
-</div>
-
 <div id="modal-bibe" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
     <div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-4">
         <h4 class="font-black text-center">Cantidad Biberón</h4>
         <button id="btn-repeat-ml" onclick="logBibe(this.dataset.ml)" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm italic">Repetir última</button>
         <div class="flex gap-2">
             <input id="input-ml" type="number" placeholder="ml" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-center">
-            <button onclick="logBibe(document.getElementById('input-ml').value)" class="bg-blue-600 text-white px-6 rounded-xl font-black text-xs">OK</button>
+            <button onclick="logBibe(document.getElementById('input-ml').value)" class="bg-blue-600 text-white px-6 rounded-xl font-black">OK</button>
         </div>
         <button onclick="closeModal('modal-bibe')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button>
     </div>
 </div>
 
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-3 text-center">
+        <h4 class="font-black">¿Qué lado ha tomado?</h4>
+        <button onclick="logPecho('Izquierdo')" class="w-full p-4 bg-slate-50 rounded-xl font-bold hover:bg-pink-50">Izquierdo (L)</button>
+        <button onclick="logPecho('Derecho')" class="w-full p-4 bg-slate-50 rounded-xl font-bold hover:bg-pink-50">Derecho (R)</button>
+        <button onclick="logPecho('Ambos')" class="w-full p-4 bg-slate-50 rounded-xl font-bold hover:bg-pink-50">Ambos</button>
+        <button onclick="closeModal('modal-pecho')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button>
+    </div>
+</div>
+
 <div id="side-menu" class="hidden fixed inset-0 z-40">
   <div class="absolute inset-0 bg-black/40" onclick="toggleMenu()"></div>
-  <div class="absolute inset-y-0 left-0 bg-white w-4/5 max-w-xs p-6 flex flex-col overflow-y-auto">
+  <div class="absolute inset-y-0 left-0 bg-white w-4/5 max-w-xs p-6 flex flex-col overflow-y-auto shadow-2xl">
     <div class="flex-1 space-y-6">
         <h3 class="text-2xl font-black italic text-blue-600">EvaCare</h3>
-        <div class="bg-slate-50 p-4 rounded-2xl space-y-3 text-xs">
-            <p class="font-black text-slate-400 uppercase">Perfil del Bebé</p>
-            <input id="edit-name" type="text" placeholder="Nombre" class="w-full p-3 rounded-lg border">
-            <input id="edit-birth" type="date" class="w-full p-3 rounded-lg border">
+        <div class="bg-slate-50 p-4 rounded-2xl space-y-3">
+            <p class="text-[10px] font-black text-slate-400 uppercase">Perfil del Bebé</p>
+            <input id="edit-name" type="text" placeholder="Nombre" class="w-full p-3 rounded-lg border text-sm">
+            <input id="edit-birth" type="date" class="w-full p-3 rounded-lg border text-sm">
             <div class="flex gap-2">
-                <input id="edit-peso" type="number" step="0.01" placeholder="Peso (kg)" class="w-1/2 p-3 rounded-lg border">
-                <input id="edit-talla" type="number" placeholder="cm" class="w-1/2 p-3 rounded-lg border">
+                <input id="edit-peso" type="number" step="0.01" placeholder="kg" class="w-1/2 p-3 rounded-lg border text-sm">
+                <input id="edit-talla" type="number" placeholder="cm" class="w-1/2 p-3 rounded-lg border text-sm">
             </div>
-            <button onclick="saveBebeData()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-black">GUARDAR CAMBIOS</button>
+            <button onclick="saveBebeData()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-black text-xs">GUARDAR CAMBIOS</button>
         </div>
+        <button onclick="setPlazoTomas()" class="w-full text-left text-xs font-bold p-3 bg-blue-50 rounded-xl">⚙️ Intervalo Tomas: <span id="display-plazo">3</span>h</button>
     </div>
     <button onclick="logout()" class="text-red-500 font-black p-4 border-t text-left">Cerrar Sesión</button>
   </div>
 </div>
 
 <script>
-// CONFIG
+// CONFIGURACIÓN FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
@@ -152,16 +153,17 @@ let siestaStart = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
+// AUTH
 auth.onAuthStateChanged(user => {
     if (user) { uid = user.uid; checkFamily(); } 
-    else { document.getElementById("loading").classList.add("hidden"); showElement("sec-login"); }
+    else { window.location.reload; } // Si falla, forzar login (aquí deberías tener el modal de login si no estás logueado)
 });
 
 function checkFamily() {
     db.ref(`usuarios/${uid}/familyId`).once("value", s => {
         familyId = s.val();
         document.getElementById("loading").classList.add("hidden");
-        if(familyId) loadAppData(); else showElement("sec-family");
+        if(familyId) loadAppData(); else document.getElementById("sec-app").classList.remove("hidden"); // Mostrar algo al menos
     });
 }
 
@@ -171,7 +173,7 @@ function loadAppData() {
         if(!familyData) return;
         renderUI();
         renderCalendar();
-        showElement("sec-app");
+        document.getElementById("sec-app").classList.remove("hidden");
     });
 }
 
@@ -184,68 +186,73 @@ function renderUI() {
     document.getElementById("info-peso").innerText = (child.peso || "-") + "kg";
     document.getElementById("info-talla").innerText = (child.talla || "-") + "cm";
     document.getElementById("info-edad").innerText = child.nacimiento ? calcularEdad(child.nacimiento) : "-";
+    document.getElementById("display-plazo").innerText = familyData.config?.plazoTomas || 3;
 
     const lastBibe = child.lastBibeMl || 0;
-    document.getElementById("btn-repeat-ml").innerText = `Repetir última (${lastBibe} ml)`;
+    document.getElementById("btn-repeat-ml").innerText = `Repetir última (${lastBibe}ml)`;
     document.getElementById("btn-repeat-ml").dataset.ml = lastBibe;
 
-    document.getElementById("tab-diario").innerHTML = child.logs ? Object.values(child.logs).sort((a,b)=>b.ts-a.ts).slice(0,20).map(l=>`
+    // Diario
+    document.getElementById("tab-diario").innerHTML = child.logs ? Object.values(child.logs).sort((a,b)=>b.ts-a.ts).slice(0,30).map(l=>`
         <div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm">
             <div class="flex flex-col"><span class="font-bold text-slate-700 text-sm">${l.txt}</span>
-            ${l.proxima ? `<span class="text-[9px] text-blue-500 font-bold">PRÓXIMA: ${l.proxima}</span>` : ''}</div>
+            ${l.proxima ? `<span class="text-[9px] text-blue-500 font-bold uppercase">Próxima: ${l.proxima}</span>` : ''}</div>
             <span class="text-[10px] font-mono text-slate-400">${l.h}</span>
-        </div>`).join("") : "";
+        </div>`).join("") : `<p class="text-center text-slate-300 py-10 italic">No hay actividad hoy</p>`;
 
+    // Salud
     document.getElementById("med-list").innerHTML = child.meds ? Object.keys(child.meds).map(k => {
         const m = child.meds[k];
         const hoy = Date.now();
-        const diasRestantes = m.inicio ? Math.max(0, m.dias - (hoy - m.inicio)/(1000*60*60*24)).toFixed(1) : m.dias;
+        const diasPasados = (hoy - m.inicio)/(1000*60*60*24);
+        const restantes = Math.max(0, m.dias - diasPasados).toFixed(1);
+        const pct = Math.min(100, (diasPasados / m.dias) * 100);
         return `
-        <div class="p-4 bg-white rounded-2xl border shadow-sm space-y-2">
+        <div class="p-4 bg-white rounded-2xl border shadow-sm space-y-3">
             <div class="flex justify-between items-start">
-                <div><b class="text-red-600 text-sm">${m.nombre}</b><p class="text-[10px] text-slate-400">${m.dosis} · Cada ${m.horas}h</p></div>
-                <button onclick="removeMed('${k}')" class="text-slate-300 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                <div><b class="text-red-600 text-sm">${m.nombre}</b><p class="text-[10px] text-slate-400">${m.dosis} cada ${m.horas}h</p></div>
+                <button onclick="removeMed('${k}')" class="text-slate-300"><i class="fa-solid fa-trash-can"></i></button>
             </div>
-            <div class="bg-slate-100 h-1 rounded-full"><div class="bg-red-400 h-1 rounded-full" style="width:${(1-(diasRestantes/m.dias))*100}%"></div></div>
-            <p class="text-[9px] font-bold text-slate-500 uppercase">Quedan ${diasRestantes} días de tratamiento</p>
-            <button onclick="darDosis('${k}')" class="w-full py-2 bg-red-600 text-white rounded-xl font-black text-xs">DAR DOSIS</button>
+            <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"><div class="bg-red-500 h-full" style="width:${pct}%"></div></div>
+            <p class="text-[9px] font-bold text-slate-500 uppercase">Faltan ${restantes} días de tratamiento</p>
+            <button onclick="darDosis('${k}')" class="w-full py-2 bg-red-600 text-white rounded-xl font-black text-xs active:scale-95 transition-transform">DAR DOSIS</button>
         </div>`;
     }).join("") : "";
 }
 
-// --- PECHO ---
-function openModalPecho() { showElement("modal-pecho"); }
-function logTomaPecho(lado) {
-    const cid = Object.keys(familyData.children)[bebeIndex];
-    const ts = Date.now();
-    const plazo = familyData.config?.plazoTomas || 3;
-    const hProxima = new Date(ts + (plazo * 3600000)).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+// LOGICA TOMAS
+function openModalBibe() { document.getElementById("modal-bibe").classList.remove("hidden"); }
+function openModalPecho() { document.getElementById("modal-pecho").classList.remove("hidden"); }
 
-    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
-        txt: "🤱 Pecho " + lado, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), proxima: hProxima
-    });
-    closeModal('modal-pecho');
-}
-
-// --- BIBE ---
-function modalBibe() { showElement("modal-bibe"); }
 function logBibe(ml) {
-    if(!ml || ml <= 0) return alert("ml?");
+    if(!ml || ml <= 0) return alert("Escribe los ml");
     const cid = Object.keys(familyData.children)[bebeIndex];
     const ts = Date.now();
     const plazo = familyData.config?.plazoTomas || 3;
-    const hProxima = new Date(ts + (plazo * 3600000)).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const hProx = new Date(ts + (plazo * 3600000)).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
     db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
-        txt: `🍼 Biberón: ${ml}ml`, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), proxima: hProxima
+        txt: `🍼 Biberón: ${ml}ml`, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), proxima: hProx
     });
     db.ref(`familias/${familyId}/children/${cid}/lastBibeMl`).set(ml);
     closeModal('modal-bibe');
 }
 
-// --- MEDS ---
+function logPecho(lado) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    const ts = Date.now();
+    const plazo = familyData.config?.plazoTomas || 3;
+    const hProx = new Date(ts + (plazo * 3600000)).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
+        txt: `🤱 Pecho ${lado}`, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), proxima: hProx
+    });
+    closeModal('modal-pecho');
+}
+
+// SALUD Y MEDS
 function modalMed() {
-    const n = prompt("Medicina:"), d = prompt("Dosis:"), h = prompt("Cada cuántas horas:"), t = prompt("¿Cuántos días de tratamiento?");
+    const n = prompt("Nombre medicación:"), d = prompt("Dosis (ej: 2ml):"), h = prompt("Cada cuántas horas:"), t = prompt("Días totales de tratamiento:");
     if(n && d && h && t) {
         const cid = Object.keys(familyData.children)[bebeIndex];
         db.ref(`familias/${familyId}/children/${cid}/meds`).push({nombre:n, dosis:d, horas:parseFloat(h), dias:parseInt(t), inicio: Date.now()});
@@ -257,20 +264,20 @@ function darDosis(k) {
     const med = familyData.children[cid].meds[k];
     const ahora = Date.now();
     if(med.lastTs && (ahora - med.lastTs)/3600000 < med.horas) {
-        if(!confirm("¡Aún no toca! ¿Continuar?")) return;
+        if(!confirm("⚠️ Aún no ha pasado el plazo. ¿Dar dosis igualmente?")) return;
     }
     const hProx = new Date(ahora + (med.horas * 3600000)).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     db.ref(`familias/${familyId}/children/${cid}/logs/${ahora}`).set({txt:"💊 Dosis: "+med.nombre, ts:ahora, h:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}), proxima: hProx});
     db.ref(`familias/${familyId}/children/${cid}/meds/${k}/lastTs`).set(ahora);
 }
 
-function removeMed(k) { if(confirm("¿Borrar medicina?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds/${k}`).remove(); }
+function removeMed(k) { if(confirm("¿Eliminar tratamiento?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds/${k}`).remove(); }
 
-// --- CALENDARIO ---
+// CALENDARIO
 function renderCalendar() {
     const daysContainer = document.getElementById("calendar-days");
     const monthLabel = document.getElementById("cal-month-name");
-    const now = new Date();
+    const hoy = new Date();
     const date = new Date(currentYear, currentMonth, 1);
     
     monthLabel.innerText = date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }).toUpperCase();
@@ -285,30 +292,28 @@ function renderCalendar() {
     const eventos = familyData.children[cid]?.eventos || {};
 
     for(let i=1; i<=lastDay; i++) {
-        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-        const tieneEvento = Object.values(eventos).some(e => e.fecha === dateStr);
-        const esHoy = now.getDate() === i && now.getMonth() === currentMonth && now.getFullYear() === currentYear;
-        daysContainer.innerHTML += `<div onclick="addEvento('${dateStr}')" class="calendar-day ${tieneEvento ? 'has-event' : 'bg-white'} ${esHoy ? 'today' : ''}">${i}</div>`;
+        const dStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        const tieneEv = Object.values(eventos).some(e => e.fecha === dStr);
+        const esHoy = i === hoy.getDate() && currentMonth === hoy.getMonth() && currentYear === hoy.getFullYear();
+        daysContainer.innerHTML += `<div onclick="addEvento('${dStr}')" class="calendar-day ${tieneEv ? 'has-event' : 'bg-white'} ${esHoy ? 'is-today' : ''}">${i}</div>`;
     }
 
     document.getElementById("cal-events-list").innerHTML = Object.keys(eventos).sort((a,b)=>eventos[a].fecha.localeCompare(eventos[b].fecha)).map(k => {
         const e = eventos[k];
-        return `
-        <div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm">
-            <div class="text-xs"><p class="font-black text-blue-700">${e.titulo}</p><p class="text-slate-400 text-[10px]">${e.fecha} · ${e.hora}</p></div>
-            <button onclick="removeEvento('${k}')" class="text-slate-300 p-2"><i class="fa-solid fa-trash-can"></i></button>
+        return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm text-xs">
+            <div><b class="text-blue-700">${e.titulo}</b><p class="text-slate-400 text-[10px]">${e.fecha} · ${e.hora}</p></div>
+            <button onclick="removeEvento('${k}')" class="text-slate-300 px-2"><i class="fa-solid fa-trash-can"></i></button>
         </div>`;
     }).join("");
 }
 
 function addEvento(d) {
-    const t = prompt("Evento:"), h = prompt("Hora (HH:MM):", "10:00");
+    const t = prompt("¿Qué cita hay?"), h = prompt("Hora (HH:MM):", "10:00");
     if(t && d) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos`).push({titulo:t, fecha:d, hora:h});
 }
-
 function removeEvento(k) { if(confirm("¿Borrar cita?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos/${k}`).remove(); }
 
-// HELPERS
+// HELPERS UI
 function quickLog(txt) {
     const cid = Object.keys(familyData.children)[bebeIndex];
     const ts = Date.now();
@@ -318,33 +323,41 @@ function toggleSiesta() {
     const cid = Object.keys(familyData.children)[bebeIndex];
     if(!siestaStart) {
         siestaStart = Date.now();
-        document.getElementById("btn-siesta").className = "bg-indigo-600 text-white p-3 rounded-2xl flex flex-col items-center";
+        document.getElementById("btn-siesta").className = "bg-indigo-600 text-white p-3 rounded-2xl flex flex-col items-center shadow-md";
         document.getElementById("txt-siesta").innerText = "DESPERTAR";
         quickLog("💤 Inicia siesta");
     } else {
         const diff = Math.floor((Date.now() - siestaStart) / 60000);
         quickLog(`⏰ Fin siesta: ${diff} min`);
         siestaStart = null;
-        document.getElementById("btn-siesta").className = "bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center";
+        document.getElementById("btn-siesta").className = "bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center shadow-sm";
         document.getElementById("txt-siesta").innerText = "SIESTA";
     }
 }
 function calcularEdad(f) {
     const n = new Date(f), h = new Date();
     let m = (h.getFullYear()-n.getFullYear())*12+h.getMonth()-n.getMonth();
-    return m < 1 ? Math.floor((h-n)/86400000)+"d" : m < 12 ? m+"m" : Math.floor(m/12)+"a";
+    if(m < 1) return Math.floor((h-n)/86400000)+"d";
+    if(m < 12) return m+"m";
+    return Math.floor(m/12)+"a";
 }
 function saveBebeData() {
     const cid = Object.keys(familyData.children)[bebeIndex];
-    db.ref(`familias/${familyId}/children/${cid}`).update({name:document.getElementById("edit-name").value, nacimiento:document.getElementById("edit-birth").value, peso:document.getElementById("edit-peso").value, talla:document.getElementById("edit-talla").value});
-    alert("Guardado"); toggleMenu();
+    db.ref(`familias/${familyId}/children/${cid}`).update({
+        name: document.getElementById("edit-name").value,
+        nacimiento: document.getElementById("edit-birth").value,
+        peso: document.getElementById("edit-peso").value,
+        talla: document.getElementById("edit-talla").value
+    });
+    alert("Datos guardados");
+    toggleMenu();
 }
 function changeMonth(dir) { currentMonth += dir; if(currentMonth < 0){ currentMonth=11; currentYear--; } if(currentMonth > 11){ currentMonth=0; currentYear++; } renderCalendar(); }
 function showTab(id) { ["tab-diario","tab-salud","tab-cal"].forEach(t => { document.getElementById(t).classList.add("hidden"); document.getElementById("btn-"+t).classList.remove("tab-active"); }); document.getElementById(id).classList.remove("hidden"); document.getElementById("btn-"+id).classList.add("tab-active"); }
-function showElement(id) { if(id.startsWith('sec')) { document.getElementById("sec-app").classList.add("hidden"); } document.getElementById(id).classList.remove("hidden"); }
 function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 function switchBebe(i) { bebeIndex=i; renderUI(); renderCalendar(); }
 function toggleMenu() { document.getElementById("side-menu").classList.toggle("hidden"); }
+function setPlazoTomas() { const h = prompt("Horas entre tomas:", 3); if(h) db.ref(`familias/${familyId}/config/plazoTomas`).set(parseInt(h)); }
 function logout() { auth.signOut().then(()=>location.reload()); }
 </script>
 </body>
