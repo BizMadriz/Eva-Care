@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>EvaCare V39.0 - Gestión Integral</title>
+<title>EvaCare V40.0</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -14,10 +14,10 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-body { font-family: 'Plus Jakarta Sans', sans-serif; background:#f8fafc; color:#1e293b; }
-.hidden { display:none !important; }
-.tab-active { color:#2563eb; border-bottom:3px solid #2563eb; }
-.card-shadow { box-shadow:0 10px 25px -5px rgba(0,0,0,.05); }
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b}
+.hidden{display:none!important}
+.tab-active{color:#2563eb;border-bottom:3px solid #2563eb}
+.card-shadow{box-shadow:0 10px 25px -5px rgba(0,0,0,.05)}
 </style>
 </head>
 
@@ -34,126 +34,193 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background:#f8fafc; color:#
   <h1 class="text-4xl font-black text-blue-600 italic mb-2">EvaCare</h1>
   <p class="text-slate-400 font-bold text-xs mb-8 uppercase tracking-widest">Gestión Familiar</p>
   <div class="space-y-3">
-    <input id="log-email" type="email" class="w-full p-5 bg-white border rounded-2xl" placeholder="Email">
-    <input id="log-pass" type="password" class="w-full p-5 bg-white border rounded-2xl" placeholder="Contraseña">
-    <button onclick="handleLogin()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black">ENTRAR</button>
-    <button onclick="handleRegister()" class="w-full bg-slate-100 text-slate-500 p-5 rounded-2xl font-bold">CREAR CUENTA</button>
+    <input id="log-email" type="email" class="w-full p-5 border rounded-2xl" placeholder="Email">
+    <input id="log-pass" type="password" class="w-full p-5 border rounded-2xl" placeholder="Contraseña">
+    <button onclick="login()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black">ENTRAR</button>
+    <button onclick="register()" class="w-full bg-slate-100 p-5 rounded-2xl font-bold">CREAR CUENTA</button>
   </div>
 </div>
 
-<!-- FAMILIA -->
-<div id="sec-family" class="hidden min-h-screen p-8 flex flex-col justify-center max-w-md mx-auto">
-  <div class="bg-white p-8 rounded-[3rem] border card-shadow text-center space-y-6">
-    <h2 class="text-2xl font-black italic">Tu Familia</h2>
-    <input id="fam-name" class="w-full p-4 bg-slate-50 rounded-xl text-center" placeholder="Apellidos Familia">
-    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">CREAR</button>
+<!-- FAMILY -->
+<div id="sec-family" class="hidden min-h-screen p-8 flex justify-center items-center">
+  <div class="bg-white p-8 rounded-3xl w-full max-w-md space-y-4">
+    <input id="fam-name" class="w-full p-4 bg-slate-100 rounded-xl" placeholder="Nombre de familia">
+    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">CREAR FAMILIA</button>
     <hr>
-    <input id="fam-code" class="w-full p-4 bg-slate-50 rounded-xl text-center uppercase font-bold" placeholder="Código invitación">
+    <input id="fam-code" class="w-full p-4 bg-slate-100 rounded-xl uppercase" placeholder="Código invitación">
     <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">UNIRSE</button>
   </div>
 </div>
 
 <!-- APP -->
-<div id="sec-app" class="hidden p-4">
-  <header class="flex justify-between items-center mb-4">
-    <select id="bebeSelector" onchange="switchBebe(this.value)" class="text-2xl font-black text-blue-600 bg-transparent"></select>
-    <button onclick="logout()" class="text-red-500 font-black">SALIR</button>
-  </header>
-  <div id="tab-diario" class="space-y-2"></div>
+<div id="sec-app" class="hidden">
+
+<header class="p-4 bg-white flex justify-between items-center border-b">
+  <select id="bebeSelector" onchange="switchBebe(this.value)" class="text-xl font-black text-blue-600"></select>
+  <button onclick="toggleMenu()" class="text-slate-500"><i class="fa-solid fa-bars"></i></button>
+</header>
+
+<main class="p-4 space-y-6">
+
+<!-- CITAS -->
+<section>
+<h3 class="text-xs font-black text-slate-400 uppercase mb-2">Próximos 15 días</h3>
+<div id="visor-citas" class="flex gap-4 overflow-x-auto"></div>
+</section>
+
+<!-- QUICK -->
+<div class="grid grid-cols-4 gap-2">
+<button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl">Pis</button>
+<button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl">Caca</button>
+<button onclick="quickLog('✨ Baño')" class="bg-white p-4 rounded-2xl">Baño</button>
+<button onclick="openModal('modal-toma')" class="bg-blue-600 text-white p-4 rounded-2xl">Toma</button>
+</div>
+
+<!-- TABS -->
+<div class="bg-white rounded-3xl border overflow-hidden">
+<div class="flex text-xs font-black uppercase">
+<button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 p-4 tab-active">Diario</button>
+<button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 p-4">Salud</button>
+<button id="btn-tab-food" onclick="showTab('tab-food')" class="flex-1 p-4">Alimentos</button>
+</div>
+
+<div id="tab-diario" class="p-4 space-y-2"></div>
+
+<div id="tab-salud" class="hidden p-4 space-y-2">
+<button onclick="openModal('modal-med')" class="w-full bg-red-100 p-3 rounded-xl">+ Medicina</button>
+<button onclick="openModal('modal-cita')" class="w-full bg-orange-100 p-3 rounded-xl">+ Cita</button>
+<div id="med-list"></div>
+</div>
+
+<div id="tab-food" class="hidden p-4 space-y-2">
+<button onclick="openModal('modal-food')" class="w-full bg-orange-500 text-white p-3 rounded-xl">+ Alimento</button>
+<div id="food-list"></div>
+</div>
+
+</div>
+</main>
+</div>
+
+<!-- SIDE MENU -->
+<div id="side-menu" class="hidden fixed inset-0 bg-black/50 z-50">
+<div class="bg-white w-3/4 h-full p-6">
+<button onclick="addChild()">+ Añadir Bebé</button>
+<hr>
+<button onclick="logout()" class="text-red-500">Cerrar sesión</button>
+</div>
 </div>
 
 <!-- ================= SCRIPT ================= -->
 <script>
-// FIREBASE
+/* ========= FIREBASE ========= */
 firebase.initializeApp({
-  apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
-  authDomain: "evacare-24cae.firebaseapp.com",
-  databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "evacare-24cae"
+ apiKey:"AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
+ authDomain:"evacare-24cae.firebaseapp.com",
+ databaseURL:"https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
+ projectId:"evacare-24cae"
 });
-
-const auth = firebase.auth();
-const db = firebase.database();
+const auth=firebase.auth(), db=firebase.database();
 firebase.database().ref().keepSynced(true);
 
-// STATE
-let uid=null, familyId=null, familyData=null, bIdx=0;
+/* ========= STATE ========= */
+let uid,familyId,familyData,bIdx=0,authResolved=false;
 
-// AUTH FIX
+/* ========= FAILSAFE ========= */
+setTimeout(()=>{
+ if(!authResolved){ show("sec-login"); hide("loading"); }
+},3000);
+
+/* ========= AUTH ========= */
 auth.onAuthStateChanged(user=>{
-  document.getElementById("loading").classList.add("hidden");
-  if(user){
-    uid=user.uid;
-    db.ref(`usuarios/${uid}/familyId`).once("value").then(s=>{
-      familyId=s.val();
-      familyId ? loadApp() : show("sec-family");
-    });
-  } else show("sec-login");
+ authResolved=true; hide("loading");
+ if(user){
+  uid=user.uid;
+  db.ref(`usuarios/${uid}/familyId`).once("value").then(s=>{
+   familyId=s.val();
+   familyId?loadApp():show("sec-family");
+  });
+ } else show("sec-login");
 });
 
-// LOGIN
-function handleLogin(){
-  const e=log-email.value.trim(), p=log-pass.value.trim();
-  if(!e||!p) return alert("Datos requeridos");
-  auth.signInWithEmailAndPassword(e,p).catch(err=>alert(err.message));
+/* ========= LOGIN ========= */
+function login(){
+ auth.signInWithEmailAndPassword(log-email.value,log-pass.value).catch(e=>alert(e.message));
 }
-function handleRegister(){
-  const e=log-email.value.trim(), p=log-pass.value.trim();
-  if(!e||!p) return alert("Datos requeridos");
-  auth.createUserWithEmailAndPassword(e,p).catch(err=>alert(err.message));
+function register(){
+ auth.createUserWithEmailAndPassword(log-email.value,log-pass.value).catch(e=>alert(e.message));
 }
 
-// LOAD APP
+/* ========= APP ========= */
 function loadApp(){
-  db.ref("familias/"+familyId).on("value",s=>{
-    familyData=s.val();
-    if(!familyData.children){
-      const n=prompt("Nombre del bebé");
-      if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n});
-      return;
-    }
-    render();
-    show("sec-app");
-  });
+ db.ref("familias/"+familyId).on("value",s=>{
+  familyData=s.val();
+  if(!familyData.children){
+   const n=prompt("Nombre del bebé");
+   if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n});
+   return;
+  }
+  render(); show("sec-app");
+ });
 }
 
-// RENDER
 function render(){
-  const keys=Object.keys(familyData.children);
-  const b=familyData.children[keys[bIdx]];
-  bebeSelector.innerHTML=keys.map((k,i)=>`<option value="${i}">${familyData.children[k].name}</option>`).join("");
-  tab-diario.innerHTML=Object.values(b.logs||{}).sort((a,b)=>b.ts-a.ts).map(l=>`
-    <div class="bg-white p-4 rounded-xl border">
-      <b>${l.txt}</b>
-      <div class="text-xs text-slate-400">${l.h}</div>
-    </div>`).join("");
+ const keys=Object.keys(familyData.children);
+ const b=familyData.children[keys[bIdx]];
+ bebeSelector.innerHTML=keys.map((k,i)=>`<option value="${i}">${familyData.children[k].name}</option>`).join("");
+
+ tab-diario.innerHTML=Object.values(b.logs||{}).sort((a,b)=>b.ts-a.ts)
+ .map(l=>`<div class="p-3 bg-white rounded-xl border">${l.txt}<div class="text-xs">${l.h}</div></div>`).join("");
+
+ med-list.innerHTML=Object.values(b.meds||{}).map(m=>`
+ <div class="p-3 bg-white rounded-xl border">${m.nombre} • ${m.dosis}</div>`).join("");
+
+ food-list.innerHTML=Object.values(b.foods||{}).map(f=>`
+ <div class="p-3 bg-white rounded-xl border">${f.reaccion} ${f.nombre}</div>`).join("");
 }
 
-// FAMILY
+/* ========= ACTIONS ========= */
+function quickLog(txt){
+ const cid=Object.keys(familyData.children)[bIdx];
+ const ts=Date.now();
+ db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
+  txt,ts,h:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+ });
+}
+function addChild(){
+ const n=prompt("Nombre del bebé");
+ if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n});
+}
+
+/* ========= FAMILY ========= */
 function createFamily(){
-  const n=fam-name.value.trim();
-  if(!n) return;
-  const fid=db.ref("familias").push().key;
-  const code=Math.random().toString(36).substring(2,8).toUpperCase();
-  db.ref("familias/"+fid).set({name:n,inviteCode:code}).then(()=>{
-    db.ref(`usuarios/${uid}/familyId`).set(fid);
-  });
+ const n=fam-name.value.trim();
+ const fid=db.ref("familias").push().key;
+ const code=Math.random().toString(36).substring(2,8).toUpperCase();
+ db.ref("familias/"+fid).set({name:n,inviteCode:code})
+ .then(()=>db.ref(`usuarios/${uid}/familyId`).set(fid));
 }
 function joinFamily(){
-  const c=fam-code.value.trim().toUpperCase();
-  db.ref("familias").orderByChild("inviteCode").equalTo(c).once("value",s=>{
-    if(!s.exists()) return alert("Código inválido");
-    db.ref(`usuarios/${uid}/familyId`).set(Object.keys(s.val())[0]);
-  });
+ db.ref("familias").orderByChild("inviteCode").equalTo(fam-code.value.toUpperCase())
+ .once("value",s=>{
+  if(!s.exists()) return alert("Código inválido");
+  db.ref(`usuarios/${uid}/familyId`).set(Object.keys(s.val())[0]);
+ });
 }
 
-// HELPERS
-function show(id){
-  ["loading","sec-login","sec-family","sec-app"].forEach(s=>document.getElementById(s).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
+/* ========= UI ========= */
+function show(id){["loading","sec-login","sec-family","sec-app"].forEach(hide);document.getElementById(id).classList.remove("hidden")}
+function hide(id){document.getElementById(id).classList.add("hidden")}
+function showTab(id){
+ ["tab-diario","tab-salud","tab-food"].forEach(t=>{
+  document.getElementById(t).classList.add("hidden");
+  document.getElementById("btn-"+t).classList.remove("tab-active");
+ });
+ document.getElementById(id).classList.remove("hidden");
+ document.getElementById("btn-"+id).classList.add("tab-active");
 }
-function switchBebe(i){bIdx=i;render();}
-function logout(){auth.signOut().then(()=>location.reload());}
+function switchBebe(i){bIdx=i;render()}
+function toggleMenu(){document.getElementById("side-menu").classList.toggle("hidden")}
+function logout(){auth.signOut().then(()=>location.reload())}
 </script>
 
 </body>
