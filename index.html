@@ -4,14 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EvaCare Ultra Plus</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-
 <style>
 .hidden{display:none!important}
 .tab-active{border-bottom:3px solid #2563eb;color:#2563eb;font-weight:900}
@@ -21,7 +18,6 @@
 .is-today { border: 2px solid #2563eb !important; background-color: #eff6ff; font-weight: 900; }
 </style>
 </head>
-
 <body class="bg-slate-50 pb-24 text-slate-800">
 
 <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
@@ -34,8 +30,8 @@
     <input id="log-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl border">
     <input id="log-pass" type="password" placeholder="Contraseña" class="w-full p-4 rounded-xl border">
     <div class="grid grid-cols-2 gap-2">
-        <button onclick="login()" class="bg-blue-600 text-white p-4 rounded-xl font-black shadow-lg">Entrar</button>
-        <button onclick="register()" class="bg-slate-100 text-slate-600 p-4 rounded-xl font-black">Registrarse</button>
+        <button onclick="login()" class="bg-blue-600 text-white p-4 rounded-xl font-black">Entrar</button>
+        <button onclick="register()" class="bg-slate-100 text-slate-600 p-4 rounded-xl font-black">Registro</button>
     </div>
   </div>
 </section>
@@ -43,15 +39,11 @@
 <section id="sec-family" class="hidden min-h-screen flex items-center justify-center p-6">
   <div class="bg-white p-8 rounded-3xl w-full max-w-md space-y-6 shadow-xl text-center">
     <h3 class="text-2xl font-black">Tu Familia</h3>
-    <div class="space-y-2">
-        <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-50 border" placeholder="Nombre familia">
-        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear Familia</button>
-    </div>
+    <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-50 border" placeholder="Nombre familia">
+    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear Familia</button>
     <div class="text-slate-300 italic">o</div>
-    <div class="space-y-2">
-        <input id="fam-code" class="w-full p-4 rounded-xl bg-slate-50 border uppercase text-center" placeholder="Código">
-        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse</button>
-    </div>
+    <input id="fam-code" class="w-full p-4 rounded-xl bg-slate-50 border uppercase text-center" placeholder="Código">
+    <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse</button>
   </div>
 </section>
 
@@ -69,43 +61,32 @@
         </div>
 
         <div id="alert-panel" class="bg-amber-50 border border-amber-100 rounded-2xl p-4 space-y-3">
-            <h4 class="text-[10px] font-black text-amber-600 uppercase flex items-center gap-2">
-                <i class="fa-solid fa-bell animate-bounce"></i> Próximos Avisos
-            </h4>
+            <h4 class="text-[10px] font-black text-amber-600 uppercase flex items-center gap-2"><i class="fa-solid fa-bell animate-bounce"></i> Próximos Avisos</h4>
             <div id="alert-content" class="space-y-2"></div>
         </div>
 
         <div class="grid grid-cols-3 gap-3">
-          <button onclick="quickLog('💦 Pis')" class="bg-white p-3 rounded-2xl border flex flex-col items-center"><span>💦</span><span class="text-[9px] font-black uppercase">Pis</span></button>
-          <button onclick="quickLog('💩 Caca')" class="bg-white p-3 rounded-2xl border flex flex-col items-center"><span>💩</span><span class="text-[9px] font-black uppercase">Caca</span></button>
-          <button id="btn-siesta" onclick="toggleSiesta()" class="bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center">
-            <span id="icon-siesta">😴</span><span id="txt-siesta" class="text-[9px] font-black uppercase">Siesta</span>
-          </button>
+          <button onclick="quickLog('💦 Pis')" class="bg-white p-3 rounded-2xl border flex flex-col items-center text-[9px] font-black uppercase"><span>💦</span>Pis</button>
+          <button onclick="quickLog('💩 Caca')" class="bg-white p-3 rounded-2xl border flex flex-col items-center text-[9px] font-black uppercase"><span>💩</span>Caca</button>
+          <button id="btn-siesta" onclick="toggleSiesta()" class="bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center text-[9px] font-black uppercase"><span id="icon-siesta">😴</span>Siesta</button>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-            <button onclick="showElement('modal-bibe')" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-md">
-                <span>🍼 BIBERÓN</span><i class="fa-solid fa-plus-circle opacity-50"></i>
-            </button>
-            <button onclick="showElement('modal-pecho')" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-md">
-                <span>🤱 PECHO</span><i class="fa-solid fa-chevron-right opacity-50"></i>
-            </button>
+            <button onclick="showElement('modal-bibe')" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center"><span>🍼 BIBERÓN</span><i class="fa-solid fa-plus-circle opacity-50"></i></button>
+            <button onclick="showElement('modal-pecho')" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center"><span>🤱 PECHO</span><i class="fa-solid fa-chevron-right opacity-50"></i></button>
         </div>
 
         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div class="flex text-[10px] font-black uppercase bg-slate-50 border-b overflow-x-auto">
-            <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 min-w-[80px] py-4 tab-active">Diario</button>
-            <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 min-w-[80px] py-4">Salud</button>
-            <button id="btn-tab-cal" onclick="showTab('tab-cal')" class="flex-1 min-w-[80px] py-4 text-blue-600">📅 Agenda</button>
+          <div class="flex text-[10px] font-black uppercase bg-slate-50 border-b">
+            <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 py-4 tab-active">Diario</button>
+            <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 py-4">Salud</button>
+            <button id="btn-tab-cal" onclick="showTab('tab-cal')" class="flex-1 py-4 text-blue-600">📅 Agenda</button>
           </div>
-
           <div id="tab-diario" class="p-4 space-y-3 min-h-[300px]"></div>
-
           <div id="tab-salud" class="hidden p-4 space-y-4">
             <button onclick="modalMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-xl font-black border border-red-100 text-xs uppercase">+ NUEVO TRATAMIENTO</button>
             <div id="med-list" class="space-y-3"></div>
           </div>
-
           <div id="tab-cal" class="hidden p-4 space-y-4">
              <div id="calendar-container" class="space-y-4">
                 <div class="flex justify-between items-center font-black text-sm px-2">
@@ -115,9 +96,7 @@
                         <button onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
-                <div class="calendar-grid text-[9px] font-bold text-slate-400 text-center uppercase">
-                    <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span>
-                </div>
+                <div class="calendar-grid text-[9px] font-bold text-slate-400 text-center uppercase"><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span></div>
                 <div id="calendar-days" class="calendar-grid"></div>
              </div>
              <hr>
@@ -127,27 +106,8 @@
     </main>
 </section>
 
-<div id="modal-bibe" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-4">
-        <h4 class="font-black text-center">Cantidad Biberón</h4>
-        <button id="btn-repeat-ml" onclick="logBibe(this.dataset.ml)" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm italic">Repetir última</button>
-        <div class="flex gap-2">
-            <input id="input-ml" type="number" placeholder="ml" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-center">
-            <button onclick="logBibe(document.getElementById('input-ml').value)" class="bg-blue-600 text-white px-6 rounded-xl font-black text-xs">OK</button>
-        </div>
-        <button onclick="closeModal('modal-bibe')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button>
-    </div>
-</div>
-
-<div id="modal-pecho" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-3">
-        <h4 class="font-black text-center text-sm">Lado del Pecho</h4>
-        <button onclick="logTomaPecho('Izquierdo')" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm">Izquierdo (L)</button>
-        <button onclick="logTomaPecho('Derecho')" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm">Derecho (R)</button>
-        <button onclick="logTomaPecho('Ambos')" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm">Ambos</button>
-        <button onclick="closeModal('modal-pecho')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button>
-    </div>
-</div>
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"><div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-4"><h4 class="font-black text-center">Cantidad ml</h4><button id="btn-repeat-ml" onclick="logBibe(this.dataset.ml)" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm">Repetir última</button><div class="flex gap-2"><input id="input-ml" type="number" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-center"><button onclick="logBibe(document.getElementById('input-ml').value)" class="bg-blue-600 text-white px-6 rounded-xl font-black text-xs">OK</button></div><button onclick="closeModal('modal-bibe')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button></div></div>
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"><div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-3"><button onclick="logTomaPecho('Izquierdo')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Izquierdo (L)</button><button onclick="logTomaPecho('Derecho')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Derecho (R)</button><button onclick="logTomaPecho('Ambos')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Ambos</button><button onclick="closeModal('modal-pecho')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button></div></div>
 
 <div id="side-menu" class="hidden fixed inset-0 z-40">
   <div class="absolute inset-0 bg-black/40" onclick="toggleMenu()"></div>
@@ -157,253 +117,136 @@
         <div class="bg-slate-50 p-4 rounded-2xl space-y-3">
             <input id="edit-name" type="text" placeholder="Nombre" class="w-full p-3 rounded-lg border text-sm">
             <input id="edit-birth" type="date" class="w-full p-3 rounded-lg border text-sm">
-            <div class="flex gap-2">
-                <input id="edit-peso" type="number" step="0.01" placeholder="Kg" class="w-1/2 p-3 rounded-lg border text-sm">
-                <input id="edit-talla" type="number" placeholder="cm" class="w-1/2 p-3 rounded-lg border text-sm">
-            </div>
+            <div class="flex gap-2"><input id="edit-peso" type="number" step="0.01" placeholder="Kg" class="w-1/2 p-3 rounded-lg border text-sm"><input id="edit-talla" type="number" placeholder="cm" class="w-1/2 p-3 rounded-lg border text-sm"></div>
             <button onclick="saveBebeData()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-black text-xs">GUARDAR CAMBIOS</button>
         </div>
         <div class="p-4 bg-blue-50 rounded-2xl text-xs font-bold space-y-2">
             <button onclick="setPlazoTomas()" class="w-full text-left py-2">Intervalo Tomas: <span id="display-plazo">3</span>h</button>
             <button onclick="addChild()" class="w-full text-left py-2 border-t text-blue-600">➕ Añadir otro bebé</button>
         </div>
-        <div class="p-4 bg-slate-50 rounded-2xl">
-            <p class="text-[10px] font-black text-slate-400 uppercase">Código Familia</p>
-            <p id="display-code" class="text-lg font-mono font-black text-blue-600 tracking-tighter">---</p>
-        </div>
+        <div class="p-4 bg-slate-50 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase">Código Familia</p><p id="display-code" class="text-lg font-mono font-black text-blue-600 tracking-tighter">---</p></div>
     </div>
     <button onclick="logout()" class="text-red-500 font-black p-4 border-t text-left">Cerrar Sesión</button>
   </div>
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
-  authDomain: "evacare-24cae.firebaseapp.com",
-  databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "evacare-24cae"
-};
+const firebaseConfig = { apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I", authDomain: "evacare-24cae.firebaseapp.com", databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app", projectId: "evacare-24cae" };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.database();
-
+const auth = firebase.auth(); const db = firebase.database();
 let uid, familyId, familyData, bebeIndex = 0;
-let siestaStart = null;
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
+let siestaStart = null; let currentMonth = new Date().getMonth(); let currentYear = new Date().getFullYear();
 
-// --- AUTENTICACIÓN ---
-auth.onAuthStateChanged(user => {
-    if (user) { uid = user.uid; checkFamily(); } 
-    else { hideElement("loading"); showElement("sec-login"); hideElement("sec-app"); }
-});
-
-function login() {
-    const e = document.getElementById("log-email").value, p = document.getElementById("log-pass").value;
-    if(!e || !p) return alert("Rellena los datos");
-    auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
-}
-
-function register() {
-    const e = document.getElementById("log-email").value, p = document.getElementById("log-pass").value;
-    if(!e || !p) return alert("Rellena los datos");
-    auth.createUserWithEmailAndPassword(e, p).catch(err => alert(err.message));
-}
-
+auth.onAuthStateChanged(user => { if (user) { uid = user.uid; checkFamily(); } else { hideElement("loading"); showElement("sec-login"); } });
+function login() { auth.signInWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value).catch(err => alert(err.message)); }
+function register() { auth.createUserWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value).catch(err => alert(err.message)); }
 function logout() { auth.signOut().then(() => location.reload()); }
 
-// --- GESTIÓN FAMILIAR ---
 function checkFamily() {
     db.ref(`usuarios/${uid}/familyId`).once("value", s => {
-        familyId = s.val();
-        hideElement("loading");
-        if(familyId) { 
-            hideElement("sec-family"); 
-            hideElement("sec-login"); 
-            loadAppData(); 
-        } else { 
-            showElement("sec-family"); 
-            hideElement("sec-app"); 
-        }
+        familyId = s.val(); hideElement("loading");
+        if(familyId) { hideElement("sec-family"); hideElement("sec-login"); loadAppData(); } 
+        else { showElement("sec-family"); }
     });
 }
 
 function createFamily() {
-    const name = document.getElementById("fam-name").value;
-    if(!name) return alert("Nombre de la familia?");
-    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const newFamRef = db.ref("familias").push();
-    newFamRef.set({
-        name: name, inviteCode: inviteCode, admin: uid,
-        config: { plazoTomas: 3 },
-        children: { [Date.now()]: { name: "Bebé", peso: 0, talla: 0 } }
-    }).then(() => {
-        db.ref(`usuarios/${uid}/familyId`).set(newFamRef.key);
-        db.ref(`codigos_familia/${inviteCode}`).set(newFamRef.key);
+    const name = document.getElementById("fam-name").value; if(!name) return;
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const ref = db.ref("familias").push();
+    ref.set({ name, inviteCode: code, admin: uid, config: { plazoTomas: 3 }, children: { [Date.now()]: { name: "Bebé", peso: 0, talla: 0 } } }).then(() => {
+        db.ref(`usuarios/${uid}/familyId`).set(ref.key); db.ref(`codigos_familia/${code}`).set(ref.key);
     });
 }
 
 function joinFamily() {
     const code = document.getElementById("fam-code").value.toUpperCase();
-    db.ref(`codigos_familia/${code}`).once("value", s => {
-        if(s.exists()) db.ref(`usuarios/${uid}/familyId`).set(s.val());
-        else alert("Código no encontrado");
-    });
+    db.ref(`codigos_familia/${code}`).once("value", s => { if(s.exists()) db.ref(`usuarios/${uid}/familyId`).set(s.val()); else alert("Código erróneo"); });
 }
 
 function loadAppData() {
     db.ref("familias/" + familyId).on("value", snap => {
-        familyData = snap.val();
-        if(!familyData) return;
-        renderUI();
-        renderCalendar();
-        updateAlertPanel();
-        showElement("sec-app");
+        familyData = snap.val(); if(!familyData) return;
+        renderUI(); renderCalendar(); updateAlertPanel(); showElement("sec-app");
     });
 }
 
-// --- PANEL DE AVISOS ---
 function updateAlertPanel() {
     const cid = Object.keys(familyData.children)[bebeIndex];
-    const child = familyData.children[cid];
-    const now = Date.now();
-    let alerts = [];
-
+    const child = familyData.children[cid]; const now = Date.now(); let alerts = [];
     if (child.logs) {
         const lastToma = Object.values(child.logs).filter(l => l.txt.includes("Biberón") || l.txt.includes("Pecho")).sort((a,b)=>b.ts-a.ts)[0];
-        if (lastToma) {
-            const nextTs = lastToma.ts + ((familyData.config?.plazoTomas || 3) * 3600000);
-            alerts.push({ time: nextTs, text: `Siguiente Toma`, icon: '🍼' });
-        }
+        if (lastToma) alerts.push({ time: lastToma.ts + ((familyData.config?.plazoTomas || 3)*3600000), text: `Siguiente Toma`, icon: '🍼' });
     }
-
     if (child.meds) {
-        Object.values(child.meds).forEach(m => {
-            if (m.lastTs) {
-                const nextTs = m.lastTs + (m.horas * 3600000);
-                alerts.push({ time: nextTs, text: `Dosis: ${m.nombre}`, icon: '💊' });
-            }
-        });
+        Object.values(child.meds).forEach(m => { if (m.lastTs) alerts.push({ time: m.lastTs + (m.horas*3600000), text: `Dosis: ${m.nombre}`, icon: '💊' }); });
     }
-
     if (child.eventos) {
-        const limit = now + (15 * 24 * 3600000);
         Object.values(child.eventos).forEach(e => {
             const evTs = new Date(`${e.fecha}T${e.hora || '00:00'}`).getTime();
-            if (evTs >= now && evTs <= limit) alerts.push({ time: evTs, text: e.titulo, icon: '📅' });
+            if (evTs >= now && evTs <= now + (15*24*3600000)) alerts.push({ time: evTs, text: e.titulo, icon: '📅' });
         });
     }
-
-    alerts.sort((a,b) => a.time - b.time);
-    const container = document.getElementById("alert-content");
-    container.innerHTML = alerts.slice(0, 3).map(a => {
-        const diff = a.time - now;
-        const isPast = diff < 0;
-        const timeStr = isPast ? "¡AHORA!" : formatDiff(diff);
-        return `<div class="flex justify-between items-center bg-white/60 p-2 rounded-lg text-[11px]">
-            <span>${a.icon} ${a.text}</span>
-            <span class="${isPast?'text-red-600 font-black animate-pulse':'text-amber-700 font-bold'}">${timeStr}</span>
-        </div>`;
-    }).join("") || `<p class="text-[10px] text-slate-400 italic">No hay avisos pendientes</p>`;
+    alerts.sort((a,b)=>a.time-b.time);
+    document.getElementById("alert-content").innerHTML = alerts.slice(0,3).map(a => {
+        const diff = a.time - now; const isPast = diff < 0;
+        return `<div class="flex justify-between items-center bg-white/60 p-2 rounded-lg text-[11px]"><span>${a.icon} ${a.text}</span><span class="${isPast?'text-red-600 animate-pulse font-black':'text-amber-700 font-bold'}">${isPast?'¡AHORA!':formatDiff(diff)}</span></div>`;
+    }).join("") || `<p class="text-[10px] text-slate-400 italic text-center">Sin avisos</p>`;
 }
 
-function formatDiff(ms) {
-    const min = Math.floor(ms / 60000);
-    const h = Math.floor(min / 60);
-    return h > 0 ? `${h}h ${min%60}m` : `${min}m`;
-}
+function formatDiff(ms) { const min = Math.floor(ms/60000); const h = Math.floor(min/60); return h>0 ? `${h}h ${min%60}m` : `${min}m`; }
 
-// --- RENDER UI ---
 function renderUI() {
-    const keys = Object.keys(familyData.children);
-    const cid = keys[bebeIndex];
-    const child = familyData.children[cid];
-
+    const keys = Object.keys(familyData.children); const cid = keys[bebeIndex]; const child = familyData.children[cid];
     document.getElementById("bebeSelector").innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>${familyData.children[k].name}</option>`).join("");
     document.getElementById("info-peso").innerText = (child.peso || "-") + "kg";
     document.getElementById("info-talla").innerText = (child.talla || "-") + "cm";
-    document.getElementById("info-edad").innerText = child.nacimiento ? calcularEdad(child.nacimiento) : "-";
-    
-    document.getElementById("edit-name").value = child.name || "";
-    document.getElementById("edit-birth").value = child.nacimiento || "";
-    document.getElementById("edit-peso").value = child.peso || "";
-    document.getElementById("edit-talla").value = child.talla || "";
+    document.getElementById("info-edad").innerText = child.nacimiento ? calcularEdadPersonalizada(child.nacimiento) : "-";
     document.getElementById("display-code").innerText = familyData.inviteCode;
     document.getElementById("display-plazo").innerText = familyData.config?.plazoTomas || 3;
+    
+    // Lista Diario
+    document.getElementById("tab-diario").innerHTML = child.logs ? Object.values(child.logs).sort((a,b)=>b.ts-a.ts).slice(0,25).map(l=>`<div class="p-3 bg-white rounded-xl border flex justify-between items-center text-xs shadow-sm"><span class="font-bold">${l.txt}</span><span class="text-[10px] text-slate-400">${l.h}</span></div>`).join("") : "";
 
-    const lastB = child.lastBibeMl || 0;
-    const btnRep = document.getElementById("btn-repeat-ml");
-    btnRep.innerText = `Repetir última (${lastB} ml)`;
-    btnRep.dataset.ml = lastB;
-    btnRep.style.display = lastB > 0 ? "block" : "none";
-
-    document.getElementById("tab-diario").innerHTML = child.logs ? Object.values(child.logs).sort((a,b)=>b.ts-a.ts).slice(0,30).map(l=>`
-        <div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm text-xs">
-            <span class="font-bold">${l.txt}</span>
-            <span class="text-[10px] text-slate-400">${l.h}</span>
-        </div>`).join("") : "";
-
+    // Lista Salud
     document.getElementById("med-list").innerHTML = child.meds ? Object.keys(child.meds).map(k => {
         const m = child.meds[k];
-        return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center">
-            <div class="text-xs"><b>${m.nombre}</b><p class="text-[10px] text-slate-400">${m.dosis} · cada ${m.horas}h</p></div>
-            <button onclick="darDosis('${k}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-[10px] font-black">DAR</button>
+        return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm">
+            <div class="text-xs"><b>${m.nombre}</b><p class="text-[9px] text-slate-400 uppercase">${m.dosis} · cada ${m.horas}h</p></div>
+            <div class="flex gap-2">
+                <button onclick="confirmarDosis('${k}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-[10px] font-black">DAR</button>
+                <button onclick="deleteMed('${k}')" class="text-slate-300 px-1"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
         </div>`;
     }).join("") : "";
 }
 
-// --- ACCIONES ---
-function quickLog(txt) {
+function calcularEdadPersonalizada(fecha) {
+    const nac = new Date(fecha); const hoy = new Date();
+    const diffMs = hoy - nac; const dias = Math.floor(diffMs / 86400000);
+    const meses = (hoy.getFullYear() - nac.getFullYear()) * 12 + (hoy.getMonth() - nac.getMonth());
+    if (meses < 1) return dias + " d";
+    if (meses < 18) return meses + " m";
+    return Math.floor(meses / 12) + " a";
+}
+
+function confirmarDosis(k) {
     const cid = Object.keys(familyData.children)[bebeIndex];
-    const ts = Date.now();
-    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
-        txt, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
-    });
-}
-
-function logBibe(ml) {
-    if(!ml || ml <= 0) return alert("Escribe ml");
-    const cid = Object.keys(familyData.children)[bebeIndex];
-    const ts = Date.now();
-    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
-        txt: `🍼 Biberón: ${ml}ml`, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
-    });
-    db.ref(`familias/${familyId}/children/${cid}/lastBibeMl`).set(ml);
-    closeModal('modal-bibe');
-}
-
-function logTomaPecho(lado) {
-    quickLog("🤱 Pecho " + lado);
-    closeModal('modal-pecho');
-}
-
-function toggleSiesta() {
-    const btn = document.getElementById("btn-siesta");
-    const txt = document.getElementById("txt-siesta");
-    if(!siestaStart) {
-        siestaStart = Date.now();
-        btn.className = "bg-indigo-600 text-white p-3 rounded-2xl flex flex-col items-center shadow-lg";
-        txt.innerText = "DESPERTAR";
-        quickLog("💤 Inicia siesta");
-    } else {
-        const diff = Math.floor((Date.now() - siestaStart) / 60000);
-        quickLog(`⏰ Fin siesta: ${diff} min`);
-        siestaStart = null;
-        btn.className = "bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center";
-        txt.innerText = "SIESTA";
+    const m = familyData.children[cid].meds[k];
+    const now = Date.now();
+    if (m.lastTs) {
+        const diffMs = now - m.lastTs;
+        const plazoMs = m.horas * 3600000;
+        if (diffMs < plazoMs) {
+            const faltan = formatDiff(plazoMs - diffMs);
+            if (!confirm(`¡AVISO! No ha pasado el plazo. Faltan ${faltan} para la dosis teórica. ¿Quieres darla de todos modos?`)) return;
+        }
     }
-}
-
-function modalMed() {
-    const n = prompt("Nombre med:"), d = prompt("Dosis:"), h = prompt("Cada cuantas horas:");
-    if(n && h) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds`).push({nombre:n, dosis:d, horas:parseFloat(h), inicio:Date.now()});
-}
-
-function darDosis(k) {
-    const m = familyData.children[Object.keys(familyData.children)[bebeIndex]].meds[k];
-    db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds/${k}/lastTs`).set(Date.now());
+    db.ref(`familias/${familyId}/children/${cid}/meds/${k}/lastTs`).set(now);
     quickLog("💊 Dosis: " + m.nombre);
 }
+
+function deleteMed(k) { if(confirm("¿Eliminar medicación?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds/${k}`).remove(); }
 
 function renderCalendar() {
     const days = document.getElementById("calendar-days");
@@ -414,38 +257,70 @@ function renderCalendar() {
     const last = new Date(currentYear, currentMonth + 1, 0).getDate();
     for(let x=0; x<first; x++) days.innerHTML += `<div></div>`;
     const evs = familyData.children[Object.keys(familyData.children)[bebeIndex]].eventos || {};
-    const today = new Date();
     for(let i=1; i<=last; i++) {
         const dStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
         const hasE = Object.values(evs).some(e => e.fecha === dStr);
-        const isT = i === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
-        days.innerHTML += `<div onclick="addEvento('${dStr}')" class="calendar-day ${hasE?'has-event':'bg-white border'} ${isT?'is-today':''}">${i}</div>`;
+        days.innerHTML += `<div onclick="addEvento('${dStr}')" class="calendar-day ${hasE?'has-event':'bg-white border'}">${i}</div>`;
     }
-    document.getElementById("cal-events-list").innerHTML = Object.values(evs).sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(e=>`
-        <div class="p-2 bg-white rounded-lg border text-[10px] flex justify-between">
-            <b>${e.titulo}</b><span>${e.fecha} · ${e.hora}</span>
-        </div>`).join("");
+    // Lista de eventos corregida con botón eliminar y fecha/hora
+    document.getElementById("cal-events-list").innerHTML = Object.keys(evs).map(k => {
+        const e = evs[k];
+        return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center text-[10px] shadow-sm">
+            <div><b class="text-blue-600">${e.titulo}</b><p class="text-slate-400 font-bold uppercase">${e.fecha} · ${e.hora}</p></div>
+            <button onclick="deleteEvent('${k}')" class="text-slate-300 p-2"><i class="fa-solid fa-trash-can"></i></button>
+        </div>`;
+    }).join("");
 }
 
 function addEvento(d) {
-    const t = prompt("Cita:"), h = prompt("Hora (HH:MM):", "12:00");
-    if(t) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos`).push({titulo:t, fecha:d, hora:h});
+    const t = prompt("Evento / Cita:");
+    const h = prompt("Hora (ej. 17:30):", "10:00");
+    if(t && h) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos`).push({titulo:t, fecha:d, hora:h});
 }
 
-function calcularEdad(f) {
-    const n = new Date(f), h = new Date();
-    let m = (h.getFullYear() - n.getFullYear()) * 12 + h.getMonth() - n.getMonth();
-    return m < 1 ? Math.floor((h-n)/86400000)+"d" : m < 12 ? m+"m" : Math.floor(m/12)+"a";
+function deleteEvent(k) { if(confirm("¿Borrar evento?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos/${k}`).remove(); }
+
+function quickLog(txt) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({ txt, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+}
+
+function logBibe(ml) {
+    if(!ml || ml <= 0) return;
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    db.ref(`familias/${familyId}/children/${cid}/logs/${Date.now()}`).set({ txt: `🍼 Biberón: ${ml}ml`, ts: Date.now(), h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+    db.ref(`familias/${familyId}/children/${cid}/lastBibeMl`).set(ml);
+    closeModal('modal-bibe');
+}
+
+function logTomaPecho(lado) { quickLog("🤱 Pecho " + lado); closeModal('modal-pecho'); }
+
+function toggleSiesta() {
+    const btn = document.getElementById("btn-siesta");
+    if(!siestaStart) {
+        siestaStart = Date.now();
+        btn.className = "bg-indigo-600 text-white p-3 rounded-2xl flex flex-col items-center shadow-lg text-[9px] font-black uppercase";
+        quickLog("💤 Inicia siesta");
+    } else {
+        const diff = Math.floor((Date.now() - siestaStart) / 60000);
+        quickLog(`⏰ Fin siesta: ${diff} min`);
+        siestaStart = null;
+        btn.className = "bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center text-[9px] font-black uppercase";
+    }
+}
+
+function modalMed() {
+    const n = prompt("Nombre medicación:"), d = prompt("Dosis (ej. 2.5ml):"), h = prompt("Frecuencia (horas):");
+    if(n && h) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds`).push({nombre:n, dosis:d, horas:parseFloat(h), inicio:Date.now()});
 }
 
 function saveBebeData() {
     const cid = Object.keys(familyData.children)[bebeIndex];
     db.ref(`familias/${familyId}/children/${cid}`).update({
-        name: document.getElementById("edit-name").value,
-        nacimiento: document.getElementById("edit-birth").value,
-        peso: document.getElementById("edit-peso").value,
-        talla: document.getElementById("edit-talla").value
-    }).then(() => { alert("Datos actualizados"); toggleMenu(); });
+        name: document.getElementById("edit-name").value, nacimiento: document.getElementById("edit-birth").value,
+        peso: document.getElementById("edit-peso").value, talla: document.getElementById("edit-talla").value
+    }).then(() => { alert("Guardado"); toggleMenu(); });
 }
 
 function showTab(id) { ["tab-diario","tab-salud","tab-cal"].forEach(t=>{document.getElementById(t).classList.add("hidden");document.getElementById("btn-"+t).classList.remove("tab-active")}); document.getElementById(id).classList.remove("hidden"); document.getElementById("btn-"+id).classList.add("tab-active"); }
@@ -454,8 +329,9 @@ function hideElement(id) { document.getElementById(id).classList.add("hidden"); 
 function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 function toggleMenu() { document.getElementById("side-menu").classList.toggle("hidden"); }
 function switchBebe(i) { bebeIndex=i; renderUI(); renderCalendar(); }
-function setPlazoTomas() { const h = prompt("Intervalo tomas (horas):", 3); if(h) db.ref(`familias/${familyId}/config/plazoTomas`).set(parseInt(h)); }
-function addChild() { const n = prompt("Nombre del nuevo bebé:"); if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n, peso:0, talla:0}); }
+function changeMonth(d) { currentMonth+=d; if(currentMonth<0){currentMonth=11;currentYear--} if(currentMonth>11){currentMonth=0;currentYear++} renderCalendar(); }
+function setPlazoTomas() { const h = prompt("Horas intervalo:", 3); if(h) db.ref(`familias/${familyId}/config/plazoTomas`).set(parseInt(h)); }
+function addChild() { const n = prompt("Nombre:"); if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n, peso:0, talla:0}); }
 </script>
 </body>
 </html>
