@@ -84,10 +84,10 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-            <button onclick="modalBibe()" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-md">
+            <button onclick="showElement('modal-bibe')" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-md">
                 <span>🍼 BIBERÓN</span><i class="fa-solid fa-plus-circle opacity-50"></i>
             </button>
-            <button onclick="modalPecho()" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-md">
+            <button onclick="showElement('modal-pecho')" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center shadow-md">
                 <span>🤱 PECHO</span><i class="fa-solid fa-chevron-right opacity-50"></i>
             </button>
         </div>
@@ -155,7 +155,6 @@
     <div class="flex-1 space-y-6">
         <h3 class="text-2xl font-black italic text-blue-600">EvaCare</h3>
         <div class="bg-slate-50 p-4 rounded-2xl space-y-3">
-            <p class="text-[10px] font-black text-slate-400 uppercase">Datos del Bebé</p>
             <input id="edit-name" type="text" placeholder="Nombre" class="w-full p-3 rounded-lg border text-sm">
             <input id="edit-birth" type="date" class="w-full p-3 rounded-lg border text-sm">
             <div class="flex gap-2">
@@ -164,7 +163,7 @@
             </div>
             <button onclick="saveBebeData()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-black text-xs">GUARDAR CAMBIOS</button>
         </div>
-        <div class="p-4 bg-blue-50 rounded-2xl text-xs font-bold">
+        <div class="p-4 bg-blue-50 rounded-2xl text-xs font-bold space-y-2">
             <button onclick="setPlazoTomas()" class="w-full text-left py-2">Intervalo Tomas: <span id="display-plazo">3</span>h</button>
             <button onclick="addChild()" class="w-full text-left py-2 border-t text-blue-600">➕ Añadir otro bebé</button>
         </div>
@@ -178,7 +177,6 @@
 </div>
 
 <script>
-// CONFIGURACIÓN FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
@@ -194,7 +192,7 @@ let siestaStart = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
-// --- SISTEMA DE AUTENTICACIÓN ---
+// --- AUTENTICACIÓN ---
 auth.onAuthStateChanged(user => {
     if (user) { uid = user.uid; checkFamily(); } 
     else { hideElement("loading"); showElement("sec-login"); hideElement("sec-app"); }
@@ -202,31 +200,37 @@ auth.onAuthStateChanged(user => {
 
 function login() {
     const e = document.getElementById("log-email").value, p = document.getElementById("log-pass").value;
-    if(!e || !p) return alert("Completa los datos");
+    if(!e || !p) return alert("Rellena los datos");
     auth.signInWithEmailAndPassword(e, p).catch(err => alert(err.message));
 }
 
 function register() {
     const e = document.getElementById("log-email").value, p = document.getElementById("log-pass").value;
-    if(!e || !p) return alert("Completa los datos");
+    if(!e || !p) return alert("Rellena los datos");
     auth.createUserWithEmailAndPassword(e, p).catch(err => alert(err.message));
 }
 
 function logout() { auth.signOut().then(() => location.reload()); }
 
-// --- SISTEMA DE FAMILIA ---
+// --- GESTIÓN FAMILIAR ---
 function checkFamily() {
     db.ref(`usuarios/${uid}/familyId`).once("value", s => {
         familyId = s.val();
         hideElement("loading");
-        if(familyId) { hideElement("sec-family"); hideElement("sec-login"); loadAppData(); } 
-        else { showElement("sec-family"); hideElement("sec-app"); }
+        if(familyId) { 
+            hideElement("sec-family"); 
+            hideElement("sec-login"); 
+            loadAppData(); 
+        } else { 
+            showElement("sec-family"); 
+            hideElement("sec-app"); 
+        }
     });
 }
 
 function createFamily() {
     const name = document.getElementById("fam-name").value;
-    if(!name) return alert("Nombre familia?");
+    if(!name) return alert("Nombre de la familia?");
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const newFamRef = db.ref("familias").push();
     newFamRef.set({
@@ -243,7 +247,7 @@ function joinFamily() {
     const code = document.getElementById("fam-code").value.toUpperCase();
     db.ref(`codigos_familia/${code}`).once("value", s => {
         if(s.exists()) db.ref(`usuarios/${uid}/familyId`).set(s.val());
-        else alert("Código no válido");
+        else alert("Código no encontrado");
     });
 }
 
@@ -258,15 +262,200 @@ function loadAppData() {
     });
 }
 
-// --- RENDERIZADO Y PANEL DE AVISOS ---
+// --- PANEL DE AVISOS ---
 function updateAlertPanel() {
     const cid = Object.keys(familyData.children)[bebeIndex];
     const child = familyData.children[cid];
     const now = Date.now();
     let alerts = [];
 
-    // Siguiente Toma
     if (child.logs) {
         const lastToma = Object.values(child.logs).filter(l => l.txt.includes("Biberón") || l.txt.includes("Pecho")).sort((a,b)=>b.ts-a.ts)[0];
         if (lastToma) {
-            const nextTs = lastToma
+            const nextTs = lastToma.ts + ((familyData.config?.plazoTomas || 3) * 3600000);
+            alerts.push({ time: nextTs, text: `Siguiente Toma`, icon: '🍼' });
+        }
+    }
+
+    if (child.meds) {
+        Object.values(child.meds).forEach(m => {
+            if (m.lastTs) {
+                const nextTs = m.lastTs + (m.horas * 3600000);
+                alerts.push({ time: nextTs, text: `Dosis: ${m.nombre}`, icon: '💊' });
+            }
+        });
+    }
+
+    if (child.eventos) {
+        const limit = now + (15 * 24 * 3600000);
+        Object.values(child.eventos).forEach(e => {
+            const evTs = new Date(`${e.fecha}T${e.hora || '00:00'}`).getTime();
+            if (evTs >= now && evTs <= limit) alerts.push({ time: evTs, text: e.titulo, icon: '📅' });
+        });
+    }
+
+    alerts.sort((a,b) => a.time - b.time);
+    const container = document.getElementById("alert-content");
+    container.innerHTML = alerts.slice(0, 3).map(a => {
+        const diff = a.time - now;
+        const isPast = diff < 0;
+        const timeStr = isPast ? "¡AHORA!" : formatDiff(diff);
+        return `<div class="flex justify-between items-center bg-white/60 p-2 rounded-lg text-[11px]">
+            <span>${a.icon} ${a.text}</span>
+            <span class="${isPast?'text-red-600 font-black animate-pulse':'text-amber-700 font-bold'}">${timeStr}</span>
+        </div>`;
+    }).join("") || `<p class="text-[10px] text-slate-400 italic">No hay avisos pendientes</p>`;
+}
+
+function formatDiff(ms) {
+    const min = Math.floor(ms / 60000);
+    const h = Math.floor(min / 60);
+    return h > 0 ? `${h}h ${min%60}m` : `${min}m`;
+}
+
+// --- RENDER UI ---
+function renderUI() {
+    const keys = Object.keys(familyData.children);
+    const cid = keys[bebeIndex];
+    const child = familyData.children[cid];
+
+    document.getElementById("bebeSelector").innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>${familyData.children[k].name}</option>`).join("");
+    document.getElementById("info-peso").innerText = (child.peso || "-") + "kg";
+    document.getElementById("info-talla").innerText = (child.talla || "-") + "cm";
+    document.getElementById("info-edad").innerText = child.nacimiento ? calcularEdad(child.nacimiento) : "-";
+    
+    document.getElementById("edit-name").value = child.name || "";
+    document.getElementById("edit-birth").value = child.nacimiento || "";
+    document.getElementById("edit-peso").value = child.peso || "";
+    document.getElementById("edit-talla").value = child.talla || "";
+    document.getElementById("display-code").innerText = familyData.inviteCode;
+    document.getElementById("display-plazo").innerText = familyData.config?.plazoTomas || 3;
+
+    const lastB = child.lastBibeMl || 0;
+    const btnRep = document.getElementById("btn-repeat-ml");
+    btnRep.innerText = `Repetir última (${lastB} ml)`;
+    btnRep.dataset.ml = lastB;
+    btnRep.style.display = lastB > 0 ? "block" : "none";
+
+    document.getElementById("tab-diario").innerHTML = child.logs ? Object.values(child.logs).sort((a,b)=>b.ts-a.ts).slice(0,30).map(l=>`
+        <div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm text-xs">
+            <span class="font-bold">${l.txt}</span>
+            <span class="text-[10px] text-slate-400">${l.h}</span>
+        </div>`).join("") : "";
+
+    document.getElementById("med-list").innerHTML = child.meds ? Object.keys(child.meds).map(k => {
+        const m = child.meds[k];
+        return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center">
+            <div class="text-xs"><b>${m.nombre}</b><p class="text-[10px] text-slate-400">${m.dosis} · cada ${m.horas}h</p></div>
+            <button onclick="darDosis('${k}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-[10px] font-black">DAR</button>
+        </div>`;
+    }).join("") : "";
+}
+
+// --- ACCIONES ---
+function quickLog(txt) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
+        txt, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+    });
+}
+
+function logBibe(ml) {
+    if(!ml || ml <= 0) return alert("Escribe ml");
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
+        txt: `🍼 Biberón: ${ml}ml`, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+    });
+    db.ref(`familias/${familyId}/children/${cid}/lastBibeMl`).set(ml);
+    closeModal('modal-bibe');
+}
+
+function logTomaPecho(lado) {
+    quickLog("🤱 Pecho " + lado);
+    closeModal('modal-pecho');
+}
+
+function toggleSiesta() {
+    const btn = document.getElementById("btn-siesta");
+    const txt = document.getElementById("txt-siesta");
+    if(!siestaStart) {
+        siestaStart = Date.now();
+        btn.className = "bg-indigo-600 text-white p-3 rounded-2xl flex flex-col items-center shadow-lg";
+        txt.innerText = "DESPERTAR";
+        quickLog("💤 Inicia siesta");
+    } else {
+        const diff = Math.floor((Date.now() - siestaStart) / 60000);
+        quickLog(`⏰ Fin siesta: ${diff} min`);
+        siestaStart = null;
+        btn.className = "bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center";
+        txt.innerText = "SIESTA";
+    }
+}
+
+function modalMed() {
+    const n = prompt("Nombre med:"), d = prompt("Dosis:"), h = prompt("Cada cuantas horas:");
+    if(n && h) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds`).push({nombre:n, dosis:d, horas:parseFloat(h), inicio:Date.now()});
+}
+
+function darDosis(k) {
+    const m = familyData.children[Object.keys(familyData.children)[bebeIndex]].meds[k];
+    db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds/${k}/lastTs`).set(Date.now());
+    quickLog("💊 Dosis: " + m.nombre);
+}
+
+function renderCalendar() {
+    const days = document.getElementById("calendar-days");
+    const date = new Date(currentYear, currentMonth, 1);
+    document.getElementById("cal-month-name").innerText = date.toLocaleDateString('es-ES', {month:'long', year:'numeric'}).toUpperCase();
+    days.innerHTML = "";
+    const first = (date.getDay() + 6) % 7;
+    const last = new Date(currentYear, currentMonth + 1, 0).getDate();
+    for(let x=0; x<first; x++) days.innerHTML += `<div></div>`;
+    const evs = familyData.children[Object.keys(familyData.children)[bebeIndex]].eventos || {};
+    const today = new Date();
+    for(let i=1; i<=last; i++) {
+        const dStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        const hasE = Object.values(evs).some(e => e.fecha === dStr);
+        const isT = i === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+        days.innerHTML += `<div onclick="addEvento('${dStr}')" class="calendar-day ${hasE?'has-event':'bg-white border'} ${isT?'is-today':''}">${i}</div>`;
+    }
+    document.getElementById("cal-events-list").innerHTML = Object.values(evs).sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(e=>`
+        <div class="p-2 bg-white rounded-lg border text-[10px] flex justify-between">
+            <b>${e.titulo}</b><span>${e.fecha} · ${e.hora}</span>
+        </div>`).join("");
+}
+
+function addEvento(d) {
+    const t = prompt("Cita:"), h = prompt("Hora (HH:MM):", "12:00");
+    if(t) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos`).push({titulo:t, fecha:d, hora:h});
+}
+
+function calcularEdad(f) {
+    const n = new Date(f), h = new Date();
+    let m = (h.getFullYear() - n.getFullYear()) * 12 + h.getMonth() - n.getMonth();
+    return m < 1 ? Math.floor((h-n)/86400000)+"d" : m < 12 ? m+"m" : Math.floor(m/12)+"a";
+}
+
+function saveBebeData() {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    db.ref(`familias/${familyId}/children/${cid}`).update({
+        name: document.getElementById("edit-name").value,
+        nacimiento: document.getElementById("edit-birth").value,
+        peso: document.getElementById("edit-peso").value,
+        talla: document.getElementById("edit-talla").value
+    }).then(() => { alert("Datos actualizados"); toggleMenu(); });
+}
+
+function showTab(id) { ["tab-diario","tab-salud","tab-cal"].forEach(t=>{document.getElementById(t).classList.add("hidden");document.getElementById("btn-"+t).classList.remove("tab-active")}); document.getElementById(id).classList.remove("hidden"); document.getElementById("btn-"+id).classList.add("tab-active"); }
+function showElement(id) { document.getElementById(id).classList.remove("hidden"); }
+function hideElement(id) { document.getElementById(id).classList.add("hidden"); }
+function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+function toggleMenu() { document.getElementById("side-menu").classList.toggle("hidden"); }
+function switchBebe(i) { bebeIndex=i; renderUI(); renderCalendar(); }
+function setPlazoTomas() { const h = prompt("Intervalo tomas (horas):", 3); if(h) db.ref(`familias/${familyId}/config/plazoTomas`).set(parseInt(h)); }
+function addChild() { const n = prompt("Nombre del nuevo bebé:"); if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n, peso:0, talla:0}); }
+</script>
+</body>
+</html>
