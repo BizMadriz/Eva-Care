@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EvaCare</title>
+<title>EvaCare Pro</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -14,7 +14,8 @@
 
 <style>
 .hidden{display:none!important}
-.tab-active{border-bottom:3px solid #2563eb;color:#2563eb}
+.tab-active{border-bottom:3px solid #2563eb;color:#2563eb;font-weight:900}
+.bg-baby{background-color: #f8fafc;}
 </style>
 </head>
 
@@ -22,111 +23,111 @@
 
 <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
   <h1 class="text-4xl font-black italic text-blue-600 animate-pulse">EvaCare</h1>
-  <p class="mt-3 text-xs tracking-widest uppercase text-slate-400">Iniciando sesión...</p>
+  <p id="loading-text" class="mt-3 text-xs tracking-widest uppercase text-slate-400">Cargando...</p>
 </div>
 
 <section id="sec-login" class="hidden min-h-screen flex items-center justify-center p-6">
-  <div class="w-full max-w-md space-y-4">
-    <h2 class="text-4xl font-black italic text-blue-600 text-center mb-8">EvaCare</h2>
-    <div class="space-y-2">
-      <input id="log-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl border border-slate-200 outline-blue-500">
-      <input id="log-pass" type="password" placeholder="Contraseña" class="w-full p-4 rounded-xl border border-slate-200 outline-blue-500">
-    </div>
-    <button onclick="login()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black shadow-lg active:scale-95 transition-transform">Entrar</button>
-    <button onclick="register()" class="w-full bg-white text-slate-600 p-4 rounded-xl font-bold border border-slate-200">Crear cuenta</button>
+  <div class="w-full max-w-md space-y-4 text-center">
+    <h2 class="text-4xl font-black italic text-blue-600 mb-8">EvaCare</h2>
+    <input id="log-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl border border-slate-200">
+    <input id="log-pass" type="password" placeholder="Contraseña" class="w-full p-4 rounded-xl border border-slate-200">
+    <button onclick="login()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black shadow-lg">Entrar</button>
+    <button onclick="register()" class="w-full bg-white text-slate-500 p-4 rounded-xl font-bold border">Crear cuenta</button>
   </div>
 </section>
 
 <section id="sec-family" class="hidden min-h-screen flex items-center justify-center p-6">
-  <div class="bg-white p-8 rounded-3xl w-full max-w-md space-y-6 shadow-xl border border-slate-100">
-    <div class="text-center">
-        <h3 class="text-2xl font-black text-slate-800">¡Bienvenido!</h3>
-        <p class="text-slate-500 text-sm">Configura tu entorno familiar</p>
-    </div>
-    
-    <div class="space-y-3">
-        <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100" placeholder="Nombre de familia">
-        <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear nueva familia</button>
-    </div>
-
-    <div class="flex items-center gap-4 text-slate-300">
-        <hr class="flex-1"><span>o</span><hr class="flex-1">
-    </div>
-
-    <div class="space-y-3">
-        <input id="fam-code" class="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 uppercase text-center font-bold tracking-widest" placeholder="Código">
-        <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirme con código</button>
-    </div>
+  <div class="bg-white p-8 rounded-3xl w-full max-w-md space-y-6 shadow-xl">
+    <h3 class="text-2xl font-black">Tu Familia</h3>
+    <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-50 border" placeholder="Nombre familia">
+    <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear</button>
+    <div class="text-center text-slate-300 italic">o</div>
+    <input id="fam-code" class="w-full p-4 rounded-xl bg-slate-50 border uppercase text-center" placeholder="Código">
+    <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse</button>
   </div>
 </section>
 
 <section id="sec-app" class="hidden">
-    <header class="bg-white p-4 flex justify-between items-center border-b sticky top-0 z-20 shadow-sm">
-      <div class="flex items-center gap-2">
-          <span class="text-xl">👶</span>
-          <select id="bebeSelector" onchange="switchBebe(this.value)" class="font-black text-blue-600 bg-transparent outline-none text-lg"></select>
-      </div>
-      <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50"><i class="fa-solid fa-bars text-slate-600"></i></button>
+    <header class="bg-white p-4 flex justify-between items-center border-b sticky top-0 z-20">
+      <select id="bebeSelector" onchange="switchBebe(this.value)" class="font-black text-blue-600 bg-transparent outline-none text-lg"></select>
+      <button onclick="toggleMenu()" class="text-slate-600 p-2"><i class="fa-solid fa-bars text-xl"></i></button>
     </header>
 
     <main class="p-4 space-y-6 max-w-lg mx-auto">
-        <div class="grid grid-cols-4 gap-3">
-          <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 active:bg-blue-50">
-            <span class="text-xl">💦</span><span class="text-[10px] font-bold uppercase">Pis</span>
-          </button>
-          <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 active:bg-blue-50">
-            <span class="text-xl">💩</span><span class="text-[10px] font-bold uppercase">Caca</span>
-          </button>
-          <button onclick="quickLog('🛁 Baño')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 active:bg-blue-50">
-            <span class="text-xl">🛁</span><span class="text-[10px] font-bold uppercase">Baño</span>
-          </button>
-          <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-2xl shadow-md flex flex-col items-center gap-1 active:opacity-90">
-            <span class="text-xl">🍼</span><span class="text-[10px] font-bold uppercase">Toma</span>
+        
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="quickLog('💦 Pis')" class="bg-white p-3 rounded-2xl border flex flex-col items-center"><span>💦</span><span class="text-[10px] font-bold">PIS</span></button>
+          <button onclick="quickLog('💩 Caca')" class="bg-white p-3 rounded-2xl border flex flex-col items-center"><span>💩</span><span class="text-[10px] font-bold">CACA</span></button>
+          <button id="btn-siesta" onclick="toggleSiesta()" class="bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center">
+            <span id="icon-siesta">😴</span><span id="txt-siesta" class="text-[10px] font-bold">SIESTA</span>
           </button>
         </div>
 
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="logToma('Bibe')" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center">
+                <span>🍼 BIBE</span><i class="fa-solid fa-clock text-xs opacity-50"></i>
+            </button>
+            <button onclick="modalPecho()" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center">
+                <span>🤱 PECHO</span><i class="fa-solid fa-chevron-right text-xs opacity-50"></i>
+            </button>
+        </div>
+
         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div class="flex text-[11px] font-black uppercase bg-slate-50/50 border-b">
-            <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 py-4 tab-active">Diario</button>
-            <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 py-4">Salud</button>
-            <button id="btn-tab-food" onclick="showTab('tab-food')" class="flex-1 py-4">Comida</button>
+          <div class="flex text-[10px] font-black uppercase bg-slate-50 border-b overflow-x-auto">
+            <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 min-w-[80px] py-4 tab-active">Diario</button>
+            <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 min-w-[80px] py-4">Salud</button>
+            <button id="btn-tab-food" onclick="showTab('tab-food')" class="flex-1 min-w-[80px] py-4">Comida</button>
+            <button id="btn-tab-cal" onclick="showTab('tab-cal')" class="flex-1 min-w-[80px] py-4 text-blue-600">📅 Calendario</button>
           </div>
 
           <div id="tab-diario" class="p-4 space-y-3 min-h-[300px]"></div>
 
           <div id="tab-salud" class="hidden p-4 space-y-4">
-            <button onclick="addMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100 font-black text-sm">+ MEDICACIÓN</button>
-            <div id="med-list" class="space-y-2"></div>
+            <button onclick="modalMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-xl font-black">+ NUEVO TRATAMIENTO</button>
+            <div id="med-list" class="space-y-3"></div>
           </div>
 
           <div id="tab-food" class="hidden p-4 space-y-4">
-            <button onclick="addFood()" class="w-full bg-orange-50 text-orange-600 p-4 rounded-2xl border border-orange-100 font-black text-sm">+ ALIMENTO</button>
-            <div id="food-list" class="space-y-2"></div>
+            <button onclick="addFood()" class="w-full bg-orange-50 text-orange-600 p-4 rounded-xl font-black">+ ALIMENTO</button>
+            <div id="food-list"></div>
+          </div>
+
+          <div id="tab-cal" class="hidden p-4 space-y-4">
+            <button onclick="addEvento()" class="w-full bg-blue-50 text-blue-600 p-4 rounded-xl font-black">+ AÑADIR EVENTO</button>
+            <div id="cal-list" class="space-y-2"></div>
           </div>
         </div>
     </main>
 </section>
 
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-4">
+        <h4 class="font-black text-center">¿Qué lado?</h4>
+        <button onclick="logToma('Pecho Izq')" class="w-full p-4 bg-slate-100 rounded-xl font-bold">Izquierdo</button>
+        <button onclick="logToma('Pecho Der')" class="w-full p-4 bg-slate-100 rounded-xl font-bold">Derecho</button>
+        <button onclick="logToma('Ambos Pechos')" class="w-full p-4 bg-slate-100 rounded-xl font-bold">Ambos</button>
+        <button onclick="closeModal('modal-pecho')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button>
+    </div>
+</div>
+
 <div id="side-menu" class="hidden fixed inset-0 z-40">
-  <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="toggleMenu()"></div>
-  <div class="absolute inset-y-0 left-0 bg-white w-4/5 max-w-xs p-8 flex flex-col shadow-2xl">
+  <div class="absolute inset-0 bg-black/40" onclick="toggleMenu()"></div>
+  <div class="absolute inset-y-0 left-0 bg-white w-3/4 max-w-xs p-8 flex flex-col">
     <div class="flex-1 space-y-6">
-        <h3 class="text-3xl font-black italic text-blue-600">EvaCare</h3>
-        <button onclick="addChild()" class="w-full text-left py-3 px-4 rounded-xl bg-slate-50 font-bold text-slate-700"><i class="fa-solid fa-baby mr-3 text-blue-500"></i>Añadir Bebé</button>
-        
-        <div class="p-5 bg-blue-600 rounded-3xl text-white shadow-lg shadow-blue-200">
-            <p class="text-[10px] uppercase font-black opacity-70 mb-1">Código de Invitación</p>
-            <p id="display-code" class="text-2xl font-mono font-black tracking-widest">------</p>
-            <p class="text-[9px] mt-2 leading-tight opacity-80">Comparte este código para que otros familiares se unan.</p>
+        <h3 class="text-2xl font-black italic text-blue-600">EvaCare</h3>
+        <button onclick="setPlazoTomas()" class="w-full text-left font-bold text-slate-600 small"><i class="fa-solid fa-gear mr-2"></i>Plazo Tomas: <span id="display-plazo">3</span>h</button>
+        <button onclick="addChild()" class="w-full text-left font-bold text-slate-600"><i class="fa-solid fa-plus mr-2"></i>Añadir Bebé</button>
+        <div class="p-4 bg-slate-50 rounded-2xl">
+            <p class="text-[10px] font-black text-slate-400 uppercase">Código Familia</p>
+            <p id="display-code" class="text-xl font-mono font-black text-blue-600">---</p>
         </div>
     </div>
-    
-    <button onclick="logout()" class="w-full text-left p-4 text-red-500 font-black border-t border-slate-100"><i class="fa-solid fa-power-off mr-3"></i>Cerrar Sesión</button>
+    <button onclick="logout()" class="text-red-500 font-black p-4 border-t text-left">Cerrar Sesión</button>
   </div>
 </div>
 
 <script>
-/* ---------- CONFIG ---------- */
+// --- CONFIGURACIÓN ---
 const firebaseConfig = {
   apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I",
   authDomain: "evacare-24cae.firebaseapp.com",
@@ -138,173 +139,223 @@ const auth = firebase.auth();
 const db   = firebase.database();
 
 let uid, familyId, familyData, bebeIndex = 0;
+let siestaStart = null;
 
-/* ---------- AUTH OBSERVER ---------- */
+// --- AUTH ---
 auth.onAuthStateChanged(user => {
-  if (user) {
-    uid = user.uid;
-    checkUserFamily();
-  } else {
-    document.getElementById("loading").classList.add("hidden");
-    show("sec-login");
-  }
+    if (user) { uid = user.uid; checkFamily(); } 
+    else { hideElement("loading"); showElement("sec-login"); }
 });
 
-function checkUserFamily() {
-  db.ref(`usuarios/${uid}/familyId`).once("value").then(s => {
-    familyId = s.val();
-    document.getElementById("loading").classList.add("hidden");
-    if (familyId) {
-      loadApp();
-    } else {
-      show("sec-family");
-    }
-  });
+function checkFamily() {
+    db.ref(`usuarios/${uid}/familyId`).once("value", s => {
+        familyId = s.val();
+        hideElement("loading");
+        familyId ? loadAppData() : showElement("sec-family");
+    });
 }
 
-/* ---------- LOGIN / REG ---------- */
-function login() {
-  const email = document.getElementById("log-email").value.trim();
-  const pass = document.getElementById("log-pass").value;
-  if(!email || !pass) return alert("Rellena todos los campos");
-
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(() => { /* El observador hará el resto */ })
-    .catch(e => alert("Error al entrar: " + e.message));
+function loadAppData() {
+    db.ref("familias/" + familyId).on("value", snap => {
+        familyData = snap.val();
+        if(!familyData) return;
+        document.getElementById("display-code").innerText = familyData.inviteCode;
+        document.getElementById("display-plazo").innerText = familyData.config?.plazoTomas || 3;
+        renderUI();
+        showElement("sec-app");
+    });
 }
 
-function register() {
-  const email = document.getElementById("log-email").value.trim();
-  const pass = document.getElementById("log-pass").value;
-  if(pass.length < 6) return alert("La contraseña debe tener 6+ caracteres");
+// --- RENDER ---
+function renderUI() {
+    if (!familyData.children) return;
+    const keys = Object.keys(familyData.children);
+    const child = familyData.children[keys[bebeIndex]];
 
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(() => { /* El observador hará el resto */ })
-    .catch(e => alert("Error al registrar: " + e.message));
-}
+    // Selector
+    document.getElementById("bebeSelector").innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>👶 ${familyData.children[k].name}</option>`).join("");
 
-/* ---------- APP LOGIC ---------- */
-function loadApp() {
-  db.ref("familias/" + familyId).on("value", snap => {
-    familyData = snap.val();
-    if (!familyData) return show("sec-family");
-
-    document.getElementById("display-code").innerText = familyData.inviteCode || "---";
-
-    if (!familyData.children) {
-      show("sec-app");
-      if(confirm("No hay bebés. ¿Añadir uno?")) addChild();
-      return;
-    }
-    render();
-    show("sec-app");
-  });
-}
-
-function render() {
-  const keys = Object.keys(familyData.children);
-  const childKey = keys[bebeIndex];
-  const child = familyData.children[childKey];
-
-  const selector = document.getElementById("bebeSelector");
-  selector.innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>${familyData.children[k].name}</option>`).join("");
-
-  const diarioDiv = document.getElementById("tab-diario");
-  if(child.logs) {
-    diarioDiv.innerHTML = Object.values(child.logs)
-      .sort((a,b) => b.ts - a.ts)
-      .map(l => `
-        <div class="p-4 bg-white rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">
-          <span class="font-bold text-slate-700">${l.txt}</span>
-          <span class="text-[10px] text-slate-400 font-black bg-slate-50 px-2 py-1 rounded-lg">${l.h}</span>
+    // Diario
+    document.getElementById("tab-diario").innerHTML = child.logs ? Object.values(child.logs).sort((a,b)=>b.ts-a.ts).map(l=>`
+        <div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm">
+            <div class="flex flex-col">
+                <span class="font-bold text-slate-700 text-sm">${l.txt}</span>
+                ${l.proxima ? `<span class="text-[9px] text-blue-500 font-bold italic">Próxima: ${l.proxima}</span>` : ''}
+            </div>
+            <span class="text-[10px] font-mono text-slate-400">${l.h}</span>
         </div>
-      `).join("");
-  } else {
-    diarioDiv.innerHTML = `<div class="text-center py-12 text-slate-300"><i class="fa-solid fa-moon text-4xl mb-3"></i><p class="text-sm font-bold">Todo tranquilo por ahora</p></div>`;
-  }
+    `).join("") : "";
 
-  document.getElementById("med-list").innerHTML = child.meds 
-    ? Object.values(child.meds).map(m=>`<div class="p-4 bg-white rounded-2xl border border-slate-100"><b class="text-red-500">${m.nombre}</b><p class="text-xs text-slate-500">${m.dosis}</p></div>`).join("")
-    : "";
+    // Salud (Medicación)
+    document.getElementById("med-list").innerHTML = child.meds ? Object.keys(child.meds).map(k => {
+        const m = child.meds[k];
+        return `
+        <div class="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-2">
+            <div class="flex justify-between">
+                <b class="text-red-500">${m.nombre}</b>
+                <span class="text-[10px] font-bold text-slate-400">${m.dosis}</span>
+            </div>
+            <div class="text-[10px] text-slate-500">Cada ${m.horas}h · Durante ${m.dias} días</div>
+            <button onclick="darDosis('${k}')" class="w-full py-2 bg-red-600 text-white rounded-lg font-black text-xs">DAR DOSIS</button>
+        </div>`;
+    }).join("") : "";
 
-  document.getElementById("food-list").innerHTML = child.foods 
-    ? Object.values(child.foods).map(f=>`<div class="p-4 bg-white rounded-2xl border border-slate-100"><b>${f.nombre}</b> <span class="text-xs text-orange-500 font-bold">${f.reaccion||""}</span></div>`).join("")
-    : "";
+    // Calendario
+    document.getElementById("cal-list").innerHTML = child.eventos ? Object.values(child.eventos).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).map(e=>`
+        <div class="p-3 bg-blue-50 rounded-xl border border-blue-100 flex justify-between">
+            <span class="font-bold text-blue-800 text-xs">${e.titulo}</span>
+            <span class="text-[10px] text-blue-400">${e.fecha}</span>
+        </div>
+    `).join("") : "";
+
+    // Comida
+    document.getElementById("food-list").innerHTML = child.foods ? Object.values(child.foods).map(f=>`<div class="p-3 border-b text-sm"><b>${f.nombre}</b> ${f.reaccion||''}</div>`).join("") : "";
 }
 
-/* ---------- ACTIONS ---------- */
+// --- LÓGICA TOMAS ---
+function setPlazoTomas() {
+    const h = prompt("Horas entre tomas:", familyData.config?.plazoTomas || 3);
+    if(h) db.ref(`familias/${familyId}/config/plazoTomas`).set(parseInt(h));
+}
+
+function modalPecho() { showElement("modal-pecho"); }
+
+function logToma(tipo) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    const ts = Date.now();
+    const plazo = familyData.config?.plazoTomas || 3;
+    
+    // Calcular próxima toma
+    const d = new Date();
+    d.setHours(d.getHours() + parseInt(plazo));
+    const hProxima = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
+        txt: "🍼 Toma: " + tipo,
+        ts,
+        h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+        proxima: hProxima
+    });
+    
+    closeModal('modal-pecho');
+    alert("Registrado. Próxima toma a las: " + hProxima);
+}
+
+// --- LÓGICA SIESTA ---
+function toggleSiesta() {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    if(!siestaStart) {
+        siestaStart = Date.now();
+        document.getElementById("btn-siesta").classList.replace("bg-indigo-50", "bg-indigo-600");
+        document.getElementById("btn-siesta").classList.replace("text-indigo-700", "text-white");
+        document.getElementById("txt-siesta").innerText = "DESPERTAR";
+        quickLog("💤 Inicia siesta");
+    } else {
+        const diff = Math.floor((Date.now() - siestaStart) / 60000);
+        quickLog(`⏰ Fin siesta: ${diff} min`);
+        siestaStart = null;
+        document.getElementById("btn-siesta").classList.replace("bg-indigo-600", "bg-indigo-50");
+        document.getElementById("btn-siesta").classList.replace("text-white", "text-indigo-700");
+        document.getElementById("txt-siesta").innerText = "SIESTA";
+    }
+}
+
+// --- LÓGICA MEDICACIÓN ---
+function modalMed() {
+    const n = prompt("Nombre Medicamento (ej: Apiretal):");
+    const d = prompt("Dosis (ej: 2ml):");
+    const h = prompt("Cada cuantas horas:");
+    const j = prompt("Cuántos días de tratamiento:");
+    if(n && d && h && j) {
+        const cid = Object.keys(familyData.children)[bebeIndex];
+        db.ref(`familias/${familyId}/children/${cid}/meds`).push({
+            nombre: n, dosis: d, horas: h, dias: j, inicio: Date.now()
+        });
+    }
+}
+
+function darDosis(medKey) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    const med = familyData.children[cid].meds[medKey];
+    const ts = Date.now();
+    
+    const d = new Date();
+    d.setHours(d.getHours() + parseInt(med.horas));
+    const hProxima = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
+        txt: "💊 Dosis: " + med.nombre,
+        ts,
+        h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+        proxima: hProxima
+    });
+    alert("Dosis registrada. Próxima en " + med.horas + "h (a las " + hProxima + ")");
+}
+
+// --- CALENDARIO ---
+function addEvento() {
+    const t = prompt("Evento (ej: Pediatra, Vacuna):");
+    const f = prompt("Fecha (ej: 2026-03-15):");
+    if(t && f) {
+        const cid = Object.keys(familyData.children)[bebeIndex];
+        db.ref(`familias/${familyId}/children/${cid}/eventos`).push({titulo: t, fecha: f});
+    }
+}
+
+// --- HELPERS ---
 function quickLog(txt) {
-  const keys = Object.keys(familyData.children);
-  const cid = keys[bebeIndex];
-  const ts = Date.now();
-  db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
-    txt, ts,
-    h: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
-  });
-}
-
-function addChild() {
-  const n = prompt("Nombre del bebé:");
-  if (n) db.ref(`familias/${familyId}/children`).push({name: n});
-}
-
-function addMed() {
-  const n = prompt("Medicamento:");
-  const d = prompt("Dosis:");
-  if(n && d) {
     const cid = Object.keys(familyData.children)[bebeIndex];
-    db.ref(`familias/${familyId}/children/${cid}/meds`).push({nombre: n, dosis: d});
-  }
-}
-
-function addFood() {
-  const n = prompt("Alimento:");
-  const r = prompt("Reacción (opcional):");
-  if(n) {
-    const cid = Object.keys(familyData.children)[bebeIndex];
-    db.ref(`familias/${familyId}/children/${cid}/foods`).push({nombre: n, reaccion: r});
-  }
-}
-
-/* ---------- FAMILY ---------- */
-function createFamily() {
-  const name = document.getElementById("fam-name").value.trim();
-  if(!name) return alert("Ponle un nombre a tu familia");
-  const fid = db.ref("familias").push().key;
-  const code = Math.random().toString(36).substring(2,8).toUpperCase();
-  db.ref("familias/"+fid).set({name, inviteCode: code})
-    .then(() => db.ref(`usuarios/${uid}/familyId`).set(fid));
-}
-
-function joinFamily() {
-  const code = document.getElementById("fam-code").value.toUpperCase().trim();
-  db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", s => {
-    if(!s.exists()) return alert("Código no válido");
-    const fid = Object.keys(s.val())[0];
-    db.ref(`usuarios/${uid}/familyId`).set(fid);
-  });
-}
-
-/* ---------- UI ---------- */
-function show(id) {
-  document.getElementById("sec-login").classList.add("hidden");
-  document.getElementById("sec-family").classList.add("hidden");
-  document.getElementById("sec-app").classList.add("hidden");
-  document.getElementById(id).classList.remove("hidden");
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
+        txt, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+    });
 }
 
 function showTab(id) {
-  ["tab-diario","tab-salud","tab-food"].forEach(t => {
-    document.getElementById(t).classList.add("hidden");
-    document.getElementById("btn-"+t).classList.remove("tab-active");
-  });
-  document.getElementById(id).classList.remove("hidden");
-  document.getElementById("btn-"+id).classList.add("tab-active");
+    ["tab-diario","tab-salud","tab-food","tab-cal"].forEach(t => {
+        document.getElementById(t).classList.add("hidden");
+        document.getElementById("btn-"+t).classList.remove("tab-active");
+    });
+    document.getElementById(id).classList.remove("hidden");
+    document.getElementById("btn-"+id).classList.add("tab-active");
 }
 
-function switchBebe(i) { bebeIndex = i; render(); }
+function showElement(id) { 
+    if(id.startsWith('sec')) {
+        document.getElementById("sec-login").classList.add("hidden");
+        document.getElementById("sec-family").classList.add("hidden");
+        document.getElementById("sec-app").classList.add("hidden");
+    }
+    document.getElementById(id).classList.remove("hidden"); 
+}
+function hideElement(id) { document.getElementById(id).classList.add("hidden"); }
+function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+function switchBebe(i) { bebeIndex=i; renderUI(); }
 function toggleMenu() { document.getElementById("side-menu").classList.toggle("hidden"); }
-function logout() { auth.signOut().then(() => location.reload()); }
+function login() { auth.signInWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value); }
+function register() { auth.createUserWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value); }
+function logout() { auth.signOut().then(()=>location.reload()); }
+function addChild() {
+    const n = prompt("Nombre:");
+    if(n) db.ref(`familias/${familyId}/children`).push({name:n});
+}
+function createFamily() {
+    const name = document.getElementById("fam-name").value;
+    const fid = db.ref("familias").push().key;
+    const code = Math.random().toString(36).substring(2,8).toUpperCase();
+    db.ref("familias/"+fid).set({name, inviteCode:code, config: {plazoTomas: 3}})
+      .then(()=> db.ref(`usuarios/${uid}/familyId`).set(fid));
+}
+function joinFamily() {
+    const code = document.getElementById("fam-code").value.toUpperCase();
+    db.ref("familias").orderByChild("inviteCode").equalTo(code).once("value", s => {
+        if(s.exists()) db.ref(`usuarios/${uid}/familyId`).set(Object.keys(s.val())[0]);
+    });
+}
+function addFood() {
+    const n = prompt("Alimento:");
+    if(n) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/foods`).push({nombre:n});
+}
 </script>
 </body>
 </html>
