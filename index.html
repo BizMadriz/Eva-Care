@@ -20,13 +20,11 @@
 
 <body class="bg-slate-50 pb-24">
 
-<!-- ================= LOADING ================= -->
 <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center bg-white z-50">
   <h1 class="text-4xl font-black italic text-blue-600 animate-pulse">EvaCare</h1>
   <p class="mt-3 text-xs tracking-widest uppercase text-slate-400">Sincronizando</p>
 </div>
 
-<!-- ================= LOGIN ================= -->
 <section id="sec-login" class="hidden min-h-screen flex items-center justify-center p-6">
   <div class="w-full max-w-md space-y-4">
     <h2 class="text-3xl font-black italic text-blue-600">EvaCare</h2>
@@ -37,69 +35,77 @@
   </div>
 </section>
 
-<!-- ================= FAMILY ================= -->
 <section id="sec-family" class="hidden min-h-screen flex items-center justify-center p-6">
-  <div class="bg-white p-6 rounded-2xl w-full max-w-md space-y-4">
-    <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-100" placeholder="Nombre de familia">
+  <div class="bg-white p-6 rounded-2xl w-full max-w-md space-y-4 shadow-lg">
+    <h3 class="font-bold text-lg">Configuración de Familia</h3>
+    <input id="fam-name" class="w-full p-4 rounded-xl bg-slate-100" placeholder="Nombre de familia (Ej: Familia Pérez)">
     <button onclick="createFamily()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black">Crear familia</button>
-    <hr>
+    <div class="relative py-4">
+        <div class="absolute inset-0 flex items-center"><span class="w-full border-t"></span></div>
+        <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-slate-500">O únete a una</span></div>
+    </div>
     <input id="fam-code" class="w-full p-4 rounded-xl bg-slate-100 uppercase" placeholder="Código invitación">
     <button onclick="joinFamily()" class="w-full bg-green-500 text-white p-4 rounded-xl font-black">Unirse</button>
   </div>
 </section>
 
-<!-- ================= APP ================= -->
 <section id="sec-app" class="hidden">
 
-<header class="bg-white p-4 flex justify-between items-center border-b">
-  <select id="bebeSelector" onchange="switchBebe(this.value)" class="font-black text-blue-600"></select>
-  <button onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+<header class="bg-white p-4 flex justify-between items-center border-b sticky top-0 z-10">
+  <select id="bebeSelector" onchange="switchBebe(this.value)" class="font-black text-blue-600 bg-transparent outline-none"></select>
+  <button onclick="toggleMenu()" class="text-xl p-2"><i class="fa-solid fa-bars"></i></button>
 </header>
 
 <main class="p-4 space-y-6">
 
-<!-- QUICK LOG -->
 <div class="grid grid-cols-4 gap-2">
-  <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-xl">Pis</button>
-  <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-xl">Caca</button>
-  <button onclick="quickLog('🛁 Baño')" class="bg-white p-4 rounded-xl">Baño</button>
-  <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-xl">Toma</button>
+  <button onclick="quickLog('💦 Pis')" class="bg-white p-4 rounded-xl shadow-sm border text-sm font-bold">Pis</button>
+  <button onclick="quickLog('💩 Caca')" class="bg-white p-4 rounded-xl shadow-sm border text-sm font-bold">Caca</button>
+  <button onclick="quickLog('🛁 Baño')" class="bg-white p-4 rounded-xl shadow-sm border text-sm font-bold">Baño</button>
+  <button onclick="quickLog('🍼 Toma')" class="bg-blue-600 text-white p-4 rounded-xl shadow-md text-sm font-black">Toma</button>
 </div>
 
-<!-- TABS -->
-<div class="bg-white rounded-2xl border">
-  <div class="flex text-xs font-black uppercase">
-    <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 p-3 tab-active">Diario</button>
-    <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 p-3">Salud</button>
-    <button id="btn-tab-food" onclick="showTab('tab-food')" class="flex-1 p-3">Alimentos</button>
+<div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+  <div class="flex text-xs font-black uppercase bg-slate-50 border-b">
+    <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 p-4 tab-active">Diario</button>
+    <button id="btn-tab-salud" onclick="showTab('tab-salud')" class="flex-1 p-4 border-l">Salud</button>
+    <button id="btn-tab-food" onclick="showTab('tab-food')" class="flex-1 p-4 border-l">Comida</button>
   </div>
 
-  <div id="tab-diario" class="p-4 space-y-2"></div>
+  <div id="tab-diario" class="p-4 space-y-3 min-h-[300px]"></div>
 
-  <div id="tab-salud" class="hidden p-4 space-y-2">
-    <button onclick="addMed()" class="w-full bg-red-100 p-3 rounded-xl">+ Medicación</button>
-    <div id="med-list"></div>
+  <div id="tab-salud" class="hidden p-4 space-y-4">
+    <button onclick="addMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 font-bold">+ Registrar Medicación</button>
+    <div id="med-list" class="space-y-2"></div>
   </div>
 
-  <div id="tab-food" class="hidden p-4 space-y-2">
-    <button onclick="addFood()" class="w-full bg-orange-100 p-3 rounded-xl">+ Alimento</button>
-    <div id="food-list"></div>
+  <div id="tab-food" class="hidden p-4 space-y-4">
+    <button onclick="addFood()" class="w-full bg-orange-50 text-orange-600 p-4 rounded-xl border border-orange-100 font-bold">+ Registrar Alimento</button>
+    <div id="food-list" class="space-y-2"></div>
   </div>
 </div>
 
 </main>
 </section>
 
-<!-- ================= MENU ================= -->
-<div id="side-menu" class="hidden fixed inset-0 bg-black/40 z-40">
-  <div class="bg-white w-3/4 h-full p-6 space-y-4">
-    <button onclick="addChild()">+ Añadir bebé</button>
-    <hr>
-    <button onclick="logout()" class="text-red-500">Cerrar sesión</button>
+<div id="side-menu" class="hidden fixed inset-0 z-40">
+  <div class="absolute inset-0 bg-black/50" onclick="toggleMenu()"></div>
+  <div class="absolute inset-y-0 left-0 bg-white w-3/4 max-w-xs p-6 flex flex-col shadow-2xl">
+    <h3 class="text-xl font-black italic text-blue-600 mb-6">EvaCare</h3>
+    
+    <div class="flex-1 space-y-4">
+        <button onclick="addChild()" class="w-full text-left p-3 rounded-lg hover:bg-slate-100 font-bold"><i class="fa-solid fa-plus mr-2 text-blue-500"></i>Añadir bebé</button>
+        <div class="p-3 bg-blue-50 rounded-xl">
+            <p class="text-[10px] uppercase font-black text-blue-400">Código de Familia</p>
+            <p id="display-code" class="text-lg font-mono font-black tracking-widest text-blue-700">-</p>
+        </div>
+    </div>
+    
+    <hr class="my-4">
+    <button onclick="logout()" class="w-full text-left p-3 text-red-500 font-bold"><i class="fa-solid fa-right-from-bracket mr-2"></i>Cerrar sesión</button>
   </div>
 </div>
 
-<!-- ================= SCRIPT ================= -->
 <script>
 /* ---------- Firebase ---------- */
 firebase.initializeApp({
@@ -139,23 +145,30 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-/* ---------- LOGIN (FIX DEFINITIVO) ---------- */
 function login(){
   const email = document.getElementById("log-email").value;
   const pass  = document.getElementById("log-pass").value;
-  auth.signInWithEmailAndPassword(email, pass).catch(e=>alert(e.message));
+  if(!email || !pass) return alert("Introduce email y contraseña");
+  auth.signInWithEmailAndPassword(email, pass).catch(e=>alert("Error: " + e.message));
 }
+
 function register(){
   const email = document.getElementById("log-email").value;
   const pass  = document.getElementById("log-pass").value;
+  if(pass.length < 6) return alert("La contraseña debe tener al menos 6 caracteres");
   auth.createUserWithEmailAndPassword(email, pass).catch(e=>alert(e.message));
 }
 
-/* ---------- APP ---------- */
+/* ---------- APP CORE ---------- */
 function loadApp(){
-  db.ref("familias/"+familyId).on("value", snap => {
+  db.ref("familias/" + familyId).on("value", snap => {
     familyData = snap.val();
+    if (!familyData) return show("sec-family");
+    
+    document.getElementById("display-code").innerText = familyData.inviteCode || "---";
+
     if (!familyData.children) {
+      show("sec-app");
       addChild();
       return;
     }
@@ -166,24 +179,41 @@ function loadApp(){
 
 function render(){
   const keys = Object.keys(familyData.children);
-  const child = familyData.children[keys[bebeIndex]];
+  const childKey = keys[bebeIndex];
+  const child = familyData.children[childKey];
 
-  bebeSelector.innerHTML = keys.map((k,i)=>`<option value="${i}">${familyData.children[k].name}</option>`).join("");
+  // Selector de bebés
+  const selector = document.getElementById("bebeSelector");
+  selector.innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>👶 ${familyData.children[k].name}</option>`).join("");
 
-  tab-diario.innerHTML = Object.values(child.logs||{})
-    .sort((a,b)=>b.ts-a.ts)
-    .map(l=>`<div class="p-3 bg-white rounded-xl border">${l.txt}<div class="text-xs text-slate-400">${l.h}</div></div>`).join("");
+  // Render Diario
+  const diarioDiv = document.getElementById("tab-diario");
+  if(child.logs){
+    diarioDiv.innerHTML = Object.values(child.logs)
+        .sort((a,b)=>b.ts-a.ts)
+        .map(l=>`<div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm">
+                    <span class="font-bold text-slate-700">${l.txt}</span>
+                    <span class="text-xs text-slate-400 font-mono">${l.h}</span>
+                 </div>`).join("");
+  } else {
+    diarioDiv.innerHTML = `<p class="text-center text-slate-400 py-10 italic">No hay actividad hoy</p>`;
+  }
 
-  med-list.innerHTML = Object.values(child.meds||{})
-    .map(m=>`<div class="p-3 bg-white rounded-xl border">${m.nombre} · ${m.dosis}</div>`).join("");
+  // Render Salud
+  document.getElementById("med-list").innerHTML = child.meds 
+    ? Object.values(child.meds).map(m=>`<div class="p-3 bg-white rounded-xl border"><b>${m.nombre}</b> · ${m.dosis}</div>`).join("")
+    : "";
 
-  food-list.innerHTML = Object.values(child.foods||{})
-    .map(f=>`<div class="p-3 bg-white rounded-xl border">${f.nombre} ${f.reaccion||""}</div>`).join("");
+  // Render Comida
+  document.getElementById("food-list").innerHTML = child.foods 
+    ? Object.values(child.foods).map(f=>`<div class="p-3 bg-white rounded-xl border"><b>${f.nombre}</b> ${f.reaccion ? `<span class="text-xs ml-2 bg-orange-100 p-1 rounded">Reacción: ${f.reaccion}</span>` : ""}</div>`).join("")
+    : "";
 }
 
 /* ---------- ACTIONS ---------- */
 function quickLog(txt){
-  const cid = Object.keys(familyData.children)[bebeIndex];
+  const keys = Object.keys(familyData.children);
+  const cid = keys[bebeIndex];
   const ts = Date.now();
   db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({
     txt, ts,
@@ -193,48 +223,56 @@ function quickLog(txt){
 
 function addChild(){
   const n = prompt("Nombre del bebé");
-  if (n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n});
+  if (n) db.ref(`familias/${familyId}/children`).push({name:n});
 }
 
 function addMed(){
-  const n = prompt("Medicamento");
-  const d = prompt("Dosis");
-  if(!n||!d) return;
+  const n = prompt("Nombre del medicamento:");
+  const d = prompt("Dosis (ej: 1.5 ml):");
+  if(!n || !d) return;
   const cid = Object.keys(familyData.children)[bebeIndex];
-  db.ref(`familias/${familyId}/children/${cid}/meds/${Date.now()}`).set({nombre:n,dosis:d});
+  db.ref(`familias/${familyId}/children/${cid}/meds`).push({nombre:n, dosis:d});
 }
 
 function addFood(){
-  const n = prompt("Alimento");
-  const r = prompt("Reacción (opcional)");
+  const n = prompt("Alimento:");
+  const r = prompt("Reacción o notas (opcional):");
   if(!n) return;
   const cid = Object.keys(familyData.children)[bebeIndex];
-  db.ref(`familias/${familyId}/children/${cid}/foods/${Date.now()}`).set({nombre:n,reaccion:r});
+  db.ref(`familias/${familyId}/children/${cid}/foods`).push({nombre:n, reaccion:r});
 }
 
-/* ---------- FAMILY ---------- */
+/* ---------- FAMILY MANAGEMENT ---------- */
 function createFamily(){
-  const name = fam-name.value.trim();
+  const name = document.getElementById("fam-name").value.trim();
+  if(!name) return alert("Escribe un nombre para la familia");
   const fid = db.ref("familias").push().key;
   const code = Math.random().toString(36).substring(2,8).toUpperCase();
-  db.ref("familias/"+fid).set({name,inviteCode:code})
+  db.ref("familias/"+fid).set({name, inviteCode:code})
     .then(()=>db.ref(`usuarios/${uid}/familyId`).set(fid));
 }
 
 function joinFamily(){
-  db.ref("familias").orderByChild("inviteCode").equalTo(fam-code.value.toUpperCase())
+  const code = document.getElementById("fam-code").value.toUpperCase().trim();
+  if(!code) return alert("Introduce un código");
+  db.ref("familias").orderByChild("inviteCode").equalTo(code)
     .once("value", s=>{
-      if(!s.exists()) return alert("Código inválido");
-      db.ref(`usuarios/${uid}/familyId`).set(Object.keys(s.val())[0]);
+      if(!s.exists()) return alert("Código inválido o familia no encontrada");
+      const fid = Object.keys(s.val())[0];
+      db.ref(`usuarios/${uid}/familyId`).set(fid);
     });
 }
 
-/* ---------- UI ---------- */
+/* ---------- UI HELPERS ---------- */
 function show(id){
-  ["sec-login","sec-family","sec-app"].forEach(hide);
+  document.getElementById("sec-login").classList.add("hidden");
+  document.getElementById("sec-family").classList.add("hidden");
+  document.getElementById("sec-app").classList.add("hidden");
   document.getElementById(id).classList.remove("hidden");
 }
+
 function hide(id){ document.getElementById(id).classList.add("hidden"); }
+
 function showTab(id){
   ["tab-diario","tab-salud","tab-food"].forEach(t=>{
     document.getElementById(t).classList.add("hidden");
@@ -243,8 +281,11 @@ function showTab(id){
   document.getElementById(id).classList.remove("hidden");
   document.getElementById("btn-"+id).classList.add("tab-active");
 }
-function switchBebe(i){ bebeIndex=i; render(); }
+
+function switchBebe(i){ bebeIndex = i; render(); }
+
 function toggleMenu(){ document.getElementById("side-menu").classList.toggle("hidden"); }
+
 function logout(){ auth.signOut().then(()=>location.reload()); }
 </script>
 
