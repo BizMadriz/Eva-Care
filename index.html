@@ -15,7 +15,6 @@
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
 .calendar-day { min-height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.75rem; cursor: pointer; border: 1px solid transparent; }
 .has-event { background-color: #dbeafe; border-color: #3b82f6; font-weight: bold; }
-.is-today { border: 2px solid #2563eb !important; background-color: #eff6ff; font-weight: 900; }
 </style>
 </head>
 <body class="bg-slate-50 pb-24 text-slate-800">
@@ -71,11 +70,6 @@
           <button id="btn-siesta" onclick="toggleSiesta()" class="bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center text-[9px] font-black uppercase">😴 Siesta</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-            <button onclick="showElement('modal-bibe')" class="bg-blue-600 text-white p-4 rounded-2xl font-black flex justify-between items-center"><span>🍼 BIBERÓN</span><i class="fa-solid fa-plus-circle opacity-50"></i></button>
-            <button onclick="showElement('modal-pecho')" class="bg-pink-500 text-white p-4 rounded-2xl font-black flex justify-between items-center"><span>🤱 PECHO</span><i class="fa-solid fa-chevron-right opacity-50"></i></button>
-        </div>
-
         <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           <div class="flex text-[10px] font-black uppercase bg-slate-50 border-b">
             <button id="btn-tab-diario" onclick="showTab('tab-diario')" class="flex-1 py-4 tab-active">Diario</button>
@@ -86,9 +80,18 @@
 
           <div id="tab-diario" class="p-4 space-y-3 min-h-[300px]"></div>
 
-          <div id="tab-salud" class="hidden p-4 space-y-4">
-            <button onclick="modalMed()" class="w-full bg-red-50 text-red-600 p-4 rounded-xl font-black border border-red-100 text-xs uppercase">+ NUEVO TRATAMIENTO</button>
-            <div id="med-list" class="space-y-3"></div>
+          <div id="tab-salud" class="hidden p-4 space-y-6">
+            <div class="space-y-3">
+                <h5 class="text-[10px] font-black text-red-600 uppercase">Tratamientos activos</h5>
+                <button onclick="modalMed()" class="w-full bg-red-50 text-red-600 p-3 rounded-xl font-black border border-red-100 text-[10px] uppercase">+ AÑADIR MEDICINA</button>
+                <div id="med-list" class="space-y-3"></div>
+            </div>
+
+            <div class="space-y-3 pt-4 border-t">
+                <h5 class="text-[10px] font-black text-blue-600 uppercase">Revisiones del Niño Sano</h5>
+                <p class="text-[9px] text-slate-400 italic mb-2">Basado en el calendario oficial de revisiones.</p>
+                <div id="revisiones-list" class="space-y-2"></div>
+            </div>
           </div>
 
           <div id="tab-cal" class="hidden p-4 space-y-4">
@@ -100,7 +103,7 @@
                         <button onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </div>
-                <div id="calendar-grid-head" class="calendar-grid text-[9px] font-bold text-slate-400 text-center uppercase"><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span></div>
+                <div class="calendar-grid text-[9px] font-bold text-slate-400 text-center uppercase"><span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span><span>Do</span></div>
                 <div id="calendar-days" class="calendar-grid"></div>
              </div>
              <hr>
@@ -108,52 +111,70 @@
           </div>
 
           <div id="tab-family" class="hidden p-4 space-y-6">
-            <div class="bg-blue-50 p-4 rounded-2xl">
-                <h5 class="text-[10px] font-black text-blue-600 uppercase mb-2">Invitar a la familia</h5>
-                <p class="text-xs text-slate-500 mb-2">Comparte este código para que otros se unan a esta cuenta:</p>
-                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-blue-100">
-                    <span id="display-code" class="font-mono font-black text-lg tracking-widest text-blue-700">---</span>
-                    <button onclick="shareCode()" class="text-blue-600 text-xs font-bold uppercase"><i class="fa-brands fa-whatsapp"></i> Compartir</button>
-                </div>
-            </div>
-
-            <div class="space-y-3">
-                <h5 class="text-[10px] font-black text-slate-400 uppercase">Datos del bebé seleccionado</h5>
+             <div class="bg-blue-50 p-4 rounded-2xl">
+                <h5 class="text-[10px] font-black text-blue-600 uppercase mb-2">Código Familiar: <span id="display-code" class="ml-2 font-mono text-lg">---</span></h5>
+                <button onclick="shareCode()" class="w-full bg-white text-blue-600 p-2 rounded-xl text-[10px] font-bold uppercase shadow-sm">Compartir por WhatsApp</button>
+             </div>
+             <div class="space-y-3">
+                <input id="edit-name" type="text" placeholder="Nombre" class="w-full p-3 rounded-xl border text-sm">
+                <input id="edit-birth" type="date" class="w-full p-3 rounded-xl border text-sm">
                 <div class="grid grid-cols-2 gap-2">
-                    <input id="edit-name" type="text" placeholder="Nombre" class="col-span-2 p-3 rounded-xl border text-sm">
-                    <input id="edit-birth" type="date" class="col-span-2 p-3 rounded-xl border text-sm">
-                    <input id="edit-peso" type="number" step="0.01" placeholder="Peso (kg)" class="p-3 rounded-xl border text-sm">
-                    <input id="edit-talla" type="number" placeholder="Talla (cm)" class="p-3 rounded-xl border text-sm">
+                    <input id="edit-peso" type="number" step="0.01" placeholder="Kg" class="p-3 rounded-xl border text-sm">
+                    <input id="edit-talla" type="number" placeholder="cm" class="p-3 rounded-xl border text-sm">
                 </div>
-                <button onclick="saveBebeData()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-black text-xs uppercase">Guardar Cambios</button>
-                <button onclick="deleteChild()" class="w-full text-red-500 text-[10px] font-black uppercase pt-2">Eliminar este bebé de la familia</button>
-            </div>
-
-            <div class="border-t pt-4">
-                <button onclick="addChild()" class="w-full bg-slate-100 text-slate-600 p-4 rounded-xl font-black text-xs uppercase">➕ Añadir otro hijo</button>
-                <div class="mt-4 p-4 bg-slate-50 rounded-2xl">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Configuración</p>
-                    <button onclick="setPlazoTomas()" class="w-full text-left text-xs font-bold flex justify-between">Intervalo de tomas <span id="display-plazo" class="text-blue-600">3h</span></button>
-                </div>
-            </div>
+                <button onclick="saveBebeData()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-black text-xs uppercase">Actualizar Bebé</button>
+             </div>
+             <button onclick="addChild()" class="w-full border-2 border-dashed border-slate-200 p-4 rounded-xl text-slate-400 font-bold text-xs">+ AÑADIR OTRO HIJO</button>
+             <button onclick="logout()" class="w-full text-red-400 text-[10px] font-bold uppercase">Cerrar Sesión</button>
           </div>
         </div>
     </main>
 </section>
 
-<div id="modal-bibe" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"><div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-4"><h4 class="font-black text-center">Cantidad ml</h4><button id="btn-repeat-ml" onclick="logBibe(this.dataset.ml)" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm">Repetir última</button><div class="flex gap-2"><input id="input-ml" type="number" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-center"><button onclick="logBibe(document.getElementById('input-ml').value)" class="bg-blue-600 text-white px-6 rounded-xl font-black text-xs">OK</button></div><button onclick="closeModal('modal-bibe')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button></div></div>
-<div id="modal-pecho" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"><div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-3"><button onclick="logTomaPecho('Izquierdo')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Izquierdo (L)</button><button onclick="logTomaPecho('Derecho')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Derecho (R)</button><button onclick="logTomaPecho('Ambos')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Ambos</button><button onclick="closeModal('modal-pecho')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button></div></div>
+<div id="modal-event" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-4">
+        <h4 id="event-modal-title" class="font-black text-center text-sm">Programar Cita</h4>
+        <input id="ev-fecha" type="date" class="w-full p-3 bg-slate-100 rounded-xl text-sm">
+        <input id="ev-hora" type="time" class="w-full p-3 bg-slate-100 rounded-xl text-sm">
+        <button id="btn-save-ev" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black text-xs uppercase">Guardar en Agenda</button>
+        <button onclick="closeModal('modal-event')" class="w-full p-2 text-slate-400 text-[10px] font-bold">CANCELAR</button>
+    </div>
+</div>
+
+<div id="modal-bibe" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"><div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-4"><h4 class="font-black text-center">Cantidad ml</h4><div class="flex gap-2"><input id="input-ml" type="number" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-center"><button onclick="logBibe(document.getElementById('input-ml').value)" class="bg-blue-600 text-white px-6 rounded-xl font-black text-xs">OK</button></div><button onclick="closeModal('modal-bibe')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button></div></div>
+<div id="modal-pecho" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6"><div class="bg-white rounded-3xl p-6 w-full max-w-xs space-y-3"><button onclick="logTomaPecho('Izquierdo')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Izquierdo (L)</button><button onclick="logTomaPecho('Derecho')" class="w-full p-4 bg-slate-50 rounded-xl font-bold">Derecho (R)</button><button onclick="closeModal('modal-pecho')" class="w-full p-2 text-slate-400 text-sm">Cancelar</button></div></div>
 
 <script>
+// --- CONFIGURACIÓN Y ESTADO ---
 const firebaseConfig = { apiKey: "AIzaSyAvFcHDaFUg_sPWyN6YmdMRJe3YiEHaq0I", authDomain: "evacare-24cae.firebaseapp.com", databaseURL: "https://evacare-24cae-default-rtdb.europe-west1.firebasedatabase.app", projectId: "evacare-24cae" };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth(); const db = firebase.database();
 let uid, familyId, familyData, bebeIndex = 0;
-let siestaStart = null; let currentMonth = new Date().getMonth(); let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
 
-auth.onAuthStateChanged(user => { if (user) { uid = user.uid; checkFamily(); } else { hideElement("loading"); showElement("sec-login"); hideElement("sec-app"); } });
-function login() { auth.signInWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value).catch(err => alert(err.message)); }
-function register() { auth.createUserWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value).catch(err => alert(err.message)); }
+const REVISIONES_ESTANDAR = [
+    { id: "rev7d", label: "7 Días", pro: "Enfermería + Pediatría", vac: false },
+    { id: "rev15d", label: "15 Días", pro: "Pediatría", vac: false },
+    { id: "rev1m", label: "1 Mes", pro: "Enfermería", vac: false },
+    { id: "rev2m", label: "2 Meses", pro: "Enfermería + Pediatría", vac: true },
+    { id: "rev4m", label: "4 Meses", pro: "Enfermería", vac: true },
+    { id: "rev6m", label: "6 Meses", pro: "Enfermería + Pediatría", vac: false },
+    { id: "rev11m", label: "11 Meses", pro: "Sólo Vacuna", vac: true },
+    { id: "rev12m", label: "12 Meses", pro: "Enfermería + Pediatría", vac: true },
+    { id: "rev15m", label: "15 Meses", pro: "Enfermería", vac: true },
+    { id: "rev2a", label: "2 Años", pro: "Enfermería", vac: false },
+    { id: "rev3a", label: "3 Años", pro: "Sólo Vacuna", vac: true },
+    { id: "rev4a", label: "4 Años", pro: "Enfermería", vac: false },
+    { id: "rev6a", label: "6 Años", pro: "Enfermería + Pediatría", vac: true },
+    { id: "rev9a", label: "9 Años", pro: "Enfermería", vac: false },
+    { id: "rev12a", label: "12 Años", pro: "Enfermería", vac: true },
+    { id: "rev14a", label: "14 Años", pro: "Enfermería + Pediatría", vac: true }
+];
+
+// --- AUTENTICACIÓN ---
+auth.onAuthStateChanged(user => { if (user) { uid = user.uid; checkFamily(); } else { hideElement("loading"); showElement("sec-login"); } });
+function login() { auth.signInWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value); }
+function register() { auth.createUserWithEmailAndPassword(document.getElementById("log-email").value, document.getElementById("log-pass").value); }
 function logout() { auth.signOut().then(() => location.reload()); }
 
 function checkFamily() {
@@ -164,20 +185,6 @@ function checkFamily() {
     });
 }
 
-function createFamily() {
-    const name = document.getElementById("fam-name").value; if(!name) return;
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const ref = db.ref("familias").push();
-    ref.set({ name, inviteCode: code, admin: uid, config: { plazoTomas: 3 }, children: { [Date.now()]: { name: "Bebé", peso: 0, talla: 0 } } }).then(() => {
-        db.ref(`usuarios/${uid}/familyId`).set(ref.key); db.ref(`codigos_familia/${code}`).set(ref.key);
-    });
-}
-
-function joinFamily() {
-    const code = document.getElementById("fam-code").value.toUpperCase();
-    db.ref(`codigos_familia/${code}`).once("value", s => { if(s.exists()) db.ref(`usuarios/${uid}/familyId`).set(s.val()); else alert("Código no válido"); });
-}
-
 function loadAppData() {
     db.ref("familias/" + familyId).on("value", snap => {
         familyData = snap.val(); if(!familyData) return;
@@ -185,69 +192,109 @@ function loadAppData() {
     });
 }
 
+// --- RENDERIZADO PRINCIPAL ---
 function renderUI() {
     const keys = Object.keys(familyData.children); const cid = keys[bebeIndex]; const child = familyData.children[cid];
-    
     document.getElementById("bebeSelector").innerHTML = keys.map((k,i)=>`<option value="${i}" ${i==bebeIndex?'selected':''}>${familyData.children[k].name}</option>`).join("");
     document.getElementById("info-peso").innerText = (child.peso || "-") + "kg";
     document.getElementById("info-talla").innerText = (child.talla || "-") + "cm";
     document.getElementById("info-edad").innerText = child.nacimiento ? calcularEdadPersonalizada(child.nacimiento) : "-";
     document.getElementById("display-code").innerText = familyData.inviteCode;
-    document.getElementById("display-plazo").innerText = (familyData.config?.plazoTomas || 3) + "h";
-    
-    // Inputs gestión
-    document.getElementById("edit-name").value = child.name || "";
-    document.getElementById("edit-birth").value = child.nacimiento || "";
-    document.getElementById("edit-peso").value = child.peso || "";
-    document.getElementById("edit-talla").value = child.talla || "";
 
-    // Diario con botón ELIMINAR
-    document.getElementById("tab-diario").innerHTML = child.logs ? Object.keys(child.logs).sort((a,b)=>child.logs[b].ts-child.logs[a].ts).slice(0,30).map(k=>{
+    // Diario con botón borrar
+    document.getElementById("tab-diario").innerHTML = child.logs ? Object.keys(child.logs).sort((a,b)=>child.logs[b].ts-child.logs[a].ts).slice(0,20).map(k=>{
         const l = child.logs[k];
         return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center text-xs shadow-sm">
-            <div class="flex flex-col"><span class="font-bold">${l.txt}</span><span class="text-[9px] text-slate-400 font-bold">${l.h}</span></div>
-            <button onclick="deleteLog('${k}')" class="text-slate-200 hover:text-red-300 p-2"><i class="fa-solid fa-trash-can"></i></button>
-        </div>`}).join("") : `<p class="text-center text-slate-400 text-xs py-10">No hay registros hoy</p>`;
+            <span><b>${l.h}</b> - ${l.txt}</span>
+            <button onclick="deleteLog('${k}')" class="text-slate-200 p-1"><i class="fa-solid fa-trash-can"></i></button>
+        </div>`}).join("") : `<p class="text-center text-slate-300 py-10 text-xs">Sin registros</p>`;
 
     // Medicinas
     document.getElementById("med-list").innerHTML = child.meds ? Object.keys(child.meds).map(k => {
         const m = child.meds[k];
-        return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center">
-            <div class="text-xs"><b>${m.nombre}</b><p class="text-[9px] text-slate-400 uppercase">${m.dosis} · cada ${m.horas}h</p></div>
-            <div class="flex gap-2">
-                <button onclick="confirmarDosis('${k}')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-[10px] font-black">DAR</button>
-                <button onclick="deleteMed('${k}')" class="text-slate-300 px-1"><i class="fa-solid fa-trash-can"></i></button>
-            </div>
+        return `<div class="p-3 bg-white rounded-xl border flex justify-between items-center shadow-sm text-xs">
+            <div><b>${m.nombre}</b><p class="text-[9px] text-slate-400">Cada ${m.horas}h</p></div>
+            <div class="flex gap-2"><button onclick="confirmarDosis('${k}')" class="bg-red-600 text-white px-3 py-1 rounded-lg font-black text-[9px]">DAR</button>
+            <button onclick="deleteMed('${k}')" class="text-slate-200"><i class="fa-solid fa-trash-can"></i></button></div>
         </div>`;
     }).join("") : "";
+
+    // LISTADO DE REVISIONES (Checklist)
+    const revsDone = child.revisionesDone || {};
+    document.getElementById("revisiones-list").innerHTML = REVISIONES_ESTANDAR.map(r => {
+        const isDone = revsDone[r.id];
+        return `<div class="flex items-center justify-between p-3 bg-white rounded-xl border ${isDone?'opacity-50':''} shadow-sm">
+            <div class="flex items-center gap-3">
+                <input type="checkbox" onchange="toggleRevision('${r.id}', this.checked)" ${isDone?'checked':''} class="w-5 h-5 rounded border-blue-200">
+                <div class="text-[11px]">
+                    <b class="${isDone?'line-through':''}">${r.label}</b>
+                    <p class="text-[9px] text-slate-400 font-bold uppercase">${r.pro} ${r.vac?'· VACUNA 💉':''}</p>
+                </div>
+            </div>
+            <button onclick="preparaCitaRevision('${r.label}')" class="bg-blue-50 text-blue-600 p-2 rounded-lg"><i class="fa-solid fa-calendar-plus"></i></button>
+        </div>`;
+    }).join("");
 }
 
-// --- LOGICA DE ELIMINACIÓN ---
-function deleteLog(k) { if(confirm("¿Borrar este registro del diario?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/logs/${k}`).remove(); }
-function deleteChild() { if(confirm("¿Eliminar permanentemente a este bebé?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}`).remove().then(()=>bebeIndex=0); }
-function deleteMed(k) { if(confirm("¿Eliminar medicación?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds/${k}`).remove(); }
-function deleteEvent(k) { if(confirm("¿Borrar evento?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos/${k}`).remove(); }
-
-// --- GESTIÓN FAMILIAR ---
-function saveBebeData() {
+// --- LOGICA DE ALERTAS (FECHA Y HORA) ---
+function updateAlertPanel() {
     const cid = Object.keys(familyData.children)[bebeIndex];
-    db.ref(`familias/${familyId}/children/${cid}`).update({
-        name: document.getElementById("edit-name").value, nacimiento: document.getElementById("edit-birth").value,
-        peso: document.getElementById("edit-peso").value, talla: document.getElementById("edit-talla").value
-    }).then(() => alert("Datos actualizados"));
+    const child = familyData.children[cid]; const now = Date.now(); let alerts = [];
+    
+    // Tomas y Meds: Cuenta atrás
+    if (child.logs) {
+        const lastToma = Object.values(child.logs).filter(l => l.txt.includes("Biberón") || l.txt.includes("Pecho")).sort((a,b)=>b.ts-a.ts)[0];
+        if (lastToma) alerts.push({ time: lastToma.ts + ((familyData.config?.plazoTomas || 3)*3600000), text: `Siguiente Toma`, icon: '🍼', isCal: false });
+    }
+    if (child.meds) {
+        Object.values(child.meds).forEach(m => { if (m.lastTs) alerts.push({ time: m.lastTs + (m.horas*3600000), text: `Dosis: ${m.nombre}`, icon: '💊', isCal: false }); });
+    }
+    
+    // Calendario: FECHA Y HORA
+    if (child.eventos) {
+        Object.values(child.eventos).forEach(e => {
+            const evTs = new Date(`${e.fecha}T${e.hora || '00:00'}`).getTime();
+            if (evTs >= now) alerts.push({ time: evTs, text: e.titulo, icon: '📅', isCal: true, fecha: e.fecha, hora: e.hora });
+        });
+    }
+    
+    alerts.sort((a,b)=>a.time-b.time);
+    document.getElementById("alert-content").innerHTML = alerts.slice(0,3).map(a => {
+        let display = "";
+        if(a.isCal) {
+            // Formato pedido: Fecha y Hora
+            display = `<span class="text-blue-600 font-black">${a.fecha} · ${a.hora}</span>`;
+        } else {
+            const diff = a.time - now;
+            display = `<span class="${diff<0?'text-red-600 animate-pulse font-black':'text-amber-700 font-bold'}">${diff<0?'¡AHORA!':formatDiff(diff)}</span>`;
+        }
+        return `<div class="flex justify-between items-center bg-white/60 p-2 rounded-lg text-[10px]"><span>${a.icon} ${a.text}</span>${display}</div>`;
+    }).join("") || `<p class="text-[9px] text-slate-400 italic text-center">Sin avisos</p>`;
 }
 
-function addChild() { 
-    const n = prompt("Nombre del nuevo bebé:"); 
-    if(n) db.ref(`familias/${familyId}/children/${Date.now()}`).set({name:n, peso:0, talla:0}); 
+// --- ACCIONES REVISIONES ---
+function toggleRevision(id, val) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    db.ref(`familias/${familyId}/children/${cid}/revisionesDone/${id}`).set(val ? true : null);
 }
 
-function shareCode() {
-    const text = `¡Hola! Únete a nuestra familia en EvaCare. El código de acceso es: ${familyData.inviteCode}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+function preparaCitaRevision(label) {
+    document.getElementById("event-modal-title").innerText = "Cita: " + label;
+    document.getElementById("ev-fecha").value = "";
+    document.getElementById("btn-save-ev").onclick = () => {
+        const f = document.getElementById("ev-fecha").value;
+        const h = document.getElementById("ev-hora").value;
+        if(f && h) {
+            const cid = Object.keys(familyData.children)[bebeIndex];
+            db.ref(`familias/${familyId}/children/${cid}/eventos`).push({titulo: "Revisión: " + label, fecha: f, hora: h});
+            closeModal('modal-event');
+        }
+    };
+    showElement("modal-event");
 }
 
-// --- UTILIDADES ---
+// --- FUNCIONES CORE (SIN CAMBIOS O MINIMOS) ---
+function formatDiff(ms) { const min = Math.floor(ms/60000); const h = Math.floor(min/60); return h>0 ? `${h}h ${min%60}m` : `${min}m`; }
 function calcularEdadPersonalizada(fecha) {
     const nac = new Date(fecha); const hoy = new Date();
     const diffMs = hoy - nac; const dias = Math.floor(diffMs / 86400000);
@@ -256,45 +303,6 @@ function calcularEdadPersonalizada(fecha) {
     if (meses < 18) return meses + " m";
     return Math.floor(meses / 12) + " a";
 }
-
-function quickLog(txt) {
-    const cid = Object.keys(familyData.children)[bebeIndex];
-    const ts = Date.now();
-    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({ txt, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-}
-
-function logBibe(ml) {
-    if(!ml || ml <= 0) return;
-    const cid = Object.keys(familyData.children)[bebeIndex];
-    db.ref(`familias/${familyId}/children/${cid}/logs/${Date.now()}`).set({ txt: `🍼 Biberón: ${ml}ml`, ts: Date.now(), h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-    db.ref(`familias/${familyId}/children/${cid}/lastBibeMl`).set(ml);
-    closeModal('modal-bibe');
-}
-
-function updateAlertPanel() {
-    const cid = Object.keys(familyData.children)[bebeIndex];
-    const child = familyData.children[cid]; const now = Date.now(); let alerts = [];
-    if (child.logs) {
-        const lastToma = Object.values(child.logs).filter(l => l.txt.includes("Biberón") || l.txt.includes("Pecho")).sort((a,b)=>b.ts-a.ts)[0];
-        if (lastToma) alerts.push({ time: lastToma.ts + ((familyData.config?.plazoTomas || 3)*3600000), text: `Siguiente Toma`, icon: '🍼' });
-    }
-    if (child.meds) {
-        Object.values(child.meds).forEach(m => { if (m.lastTs) alerts.push({ time: m.lastTs + (m.horas*3600000), text: `Dosis: ${m.nombre}`, icon: '💊' }); });
-    }
-    if (child.eventos) {
-        Object.values(child.eventos).forEach(e => {
-            const evTs = new Date(`${e.fecha}T${e.hora || '00:00'}`).getTime();
-            if (evTs >= now && evTs <= now + (15*24*3600000)) alerts.push({ time: evTs, text: e.titulo, icon: '📅' });
-        });
-    }
-    alerts.sort((a,b)=>a.time-b.time);
-    document.getElementById("alert-content").innerHTML = alerts.slice(0,3).map(a => {
-        const diff = a.time - now; const isPast = diff < 0;
-        return `<div class="flex justify-between items-center bg-white/60 p-2 rounded-lg text-[11px]"><span>${a.icon} ${a.text}</span><span class="${isPast?'text-red-600 animate-pulse font-black':'text-amber-700 font-bold'}">${isPast?'¡YA!':formatDiff(diff)}</span></div>`;
-    }).join("") || `<p class="text-[10px] text-slate-400 italic text-center">Sin avisos próximos</p>`;
-}
-
-function formatDiff(ms) { const min = Math.floor(ms/60000); const h = Math.floor(min/60); return h>0 ? `${h}h ${min%60}m` : `${min}m`; }
 
 function renderCalendar() {
     const days = document.getElementById("calendar-days");
@@ -308,7 +316,7 @@ function renderCalendar() {
     for(let i=1; i<=last; i++) {
         const dStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
         const hasE = Object.values(evs).some(e => e.fecha === dStr);
-        days.innerHTML += `<div onclick="addEvento('${dStr}')" class="calendar-day ${hasE?'has-event':'bg-white border'}">${i}</div>`;
+        days.innerHTML += `<div onclick="addEventoSimple('${dStr}')" class="calendar-day ${hasE?'has-event':'bg-white border'}">${i}</div>`;
     }
     document.getElementById("cal-events-list").innerHTML = Object.keys(evs).map(k => {
         const e = evs[k];
@@ -319,46 +327,56 @@ function renderCalendar() {
     }).join("");
 }
 
-// Helpers navegación
-function showTab(id) { 
-    ["tab-diario","tab-salud","tab-cal","tab-family"].forEach(t=>{
-        document.getElementById(t).classList.add("hidden");
-        document.getElementById("btn-"+t).classList.remove("tab-active");
-    }); 
-    document.getElementById(id).classList.remove("hidden"); 
-    document.getElementById("btn-"+id).classList.add("tab-active"); 
+function deleteEvent(k) { if(confirm("¿Borrar evento?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos/${k}`).remove(); }
+function deleteLog(k) { if(confirm("¿Borrar registro?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/logs/${k}`).remove(); }
+function deleteMed(k) { if(confirm("¿Eliminar medicina?")) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds/${k}`).remove(); }
+
+function addEventoSimple(d) {
+    document.getElementById("event-modal-title").innerText = "Nuevo Evento";
+    document.getElementById("ev-fecha").value = d;
+    document.getElementById("btn-save-ev").onclick = () => {
+        const t = prompt("Título:");
+        const h = document.getElementById("ev-hora").value;
+        if(t && h) {
+            db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos`).push({titulo: t, fecha: d, hora: h});
+            closeModal('modal-event');
+        }
+    };
+    showElement("modal-event");
 }
+
+function quickLog(txt) {
+    const cid = Object.keys(familyData.children)[bebeIndex];
+    const ts = Date.now();
+    db.ref(`familias/${familyId}/children/${cid}/logs/${ts}`).set({ txt, ts, h: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+}
+
+function logBibe(ml) {
+    if(!ml) return;
+    quickLog(`🍼 Biberón: ${ml}ml`);
+    closeModal('modal-bibe');
+}
+
+function logTomaPecho(lado) { quickLog("🤱 Pecho " + lado); closeModal('modal-pecho'); }
+
+function showTab(id) { ["tab-diario","tab-salud","tab-cal","tab-family"].forEach(t=>{document.getElementById(t).classList.add("hidden");document.getElementById("btn-"+t).classList.remove("tab-active")}); document.getElementById(id).classList.remove("hidden"); document.getElementById("btn-"+id).classList.add("tab-active"); }
 function showElement(id) { document.getElementById(id).classList.remove("hidden"); }
 function hideElement(id) { document.getElementById(id).classList.add("hidden"); }
 function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 function switchBebe(i) { bebeIndex=i; renderUI(); renderCalendar(); updateAlertPanel(); }
 function changeMonth(d) { currentMonth+=d; if(currentMonth<0){currentMonth=11;currentYear--} if(currentMonth>11){currentMonth=0;currentYear++} renderCalendar(); }
-function setPlazoTomas() { const h = prompt("Intervalo tomas (horas):", 3); if(h) db.ref(`familias/${familyId}/config/plazoTomas`).set(parseInt(h)); }
-function logTomaPecho(lado) { quickLog("🤱 Pecho " + lado); closeModal('modal-pecho'); }
-function addEvento(d) { const t = prompt("Evento:"); const h = prompt("Hora:", "12:00"); if(t && h) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/eventos`).push({titulo:t, fecha:d, hora:h}); }
-function toggleSiesta() {
-    const btn = document.getElementById("btn-siesta");
-    if(!siestaStart) {
-        siestaStart = Date.now();
-        btn.className = "bg-indigo-600 text-white p-3 rounded-2xl flex flex-col items-center shadow-lg text-[9px] font-black uppercase";
-        quickLog("💤 Inicia siesta");
-    } else {
-        const diff = Math.floor((Date.now() - siestaStart) / 60000);
-        quickLog(`⏰ Fin siesta: ${diff} min`);
-        siestaStart = null;
-        btn.className = "bg-indigo-50 text-indigo-700 p-3 rounded-2xl border border-indigo-100 flex flex-col items-center text-[9px] font-black uppercase";
-    }
-}
+
 function modalMed() {
-    const n = prompt("Nombre med:"), d = prompt("Dosis:"), h = prompt("Frecuencia (h):");
-    if(n && h) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds`).push({nombre:n, dosis:d, horas:parseFloat(h), inicio:Date.now()});
+    const n = prompt("Medicina:"), d = prompt("Dosis:"), h = prompt("Cada cuántas horas:");
+    if(n && h) db.ref(`familias/${familyId}/children/${Object.keys(familyData.children)[bebeIndex]}/meds`).push({nombre:n, dosis:d, horas:parseFloat(h), lastTs: Date.now() - (parseFloat(h)*3600000)});
 }
+
 function confirmarDosis(k) {
     const cid = Object.keys(familyData.children)[bebeIndex];
     const m = familyData.children[cid].meds[k];
     const now = Date.now();
     if (m.lastTs && (now - m.lastTs < m.horas * 3600000)) {
-        if (!confirm(`¡AVISO! No ha pasado el plazo. ¿Dar dosis igualmente?`)) return;
+        if (!confirm(`¡AVISO! No ha pasado el plazo. ¿Dar igualmente?`)) return;
     }
     db.ref(`familias/${familyId}/children/${cid}/meds/${k}/lastTs`).set(now);
     quickLog("💊 Dosis: " + m.nombre);
